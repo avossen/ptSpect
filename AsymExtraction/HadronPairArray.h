@@ -61,7 +61,7 @@ struct HadronPairArray:public ReaderBase
 
 
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
-  HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.1),zUpperCut(1.4), secondZCut(0.25)
+  HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.1),zUpperCut(1.4), secondZCut(0.1)
   {
     //no chain implies standalone. Cannot branch on the same field twice, this would override
     //    cout <<" do we have a chain? " << chain<<endl;
