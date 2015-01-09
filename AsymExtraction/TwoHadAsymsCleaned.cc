@@ -248,6 +248,7 @@ int main(int argc, char** argv)
   plotter.doPlots();
   plotterWoA.doPlots();
 
+  plotter.savePlot(binType_z_z,pairChargeInt,plotType_2D);
   plotter.savePlot(binType_labTheta_z,pairChargeInt,plotType_2D);
   plotter.savePlot(binType_ThrustLabTheta_z,pairChargeInt,plotType_2D);
   cout <<"now woa..." <<endl;
