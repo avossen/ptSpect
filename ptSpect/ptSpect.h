@@ -121,7 +121,16 @@ static int getBin(vector<float>& b1, float value)
   Ptype cPiZero;
   Ptype cKPlus;
   Ptype cKNeg;
-
+ protected: 
+    vector<Particle*> chargedPiCandidates;
+    vector<Particle*> chargedKCandidates;
+    vector<Particle*> pi0Candidates;
+    vector<Particle*> KsCandidates;
+    vector<Particle*> leptonCandidates;
+    vector<Particle*> otherChargedTracks;
+    vector<Particle*> D0Candidates;
+    vector<Particle*> chargedDCandidates;
+    vector<Particle*> DStarCandidates;
 private:
   //compute distance between decay vertices of quark and antiquark
   float getDecayDist();

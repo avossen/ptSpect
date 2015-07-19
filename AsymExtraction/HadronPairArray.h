@@ -95,15 +95,17 @@ struct HadronPairArray:public ReaderBase
 	branchPointers.push_back(hadDiffTheta);
 	branchPointers.push_back(hadDiffPhi);
 
-
-	branchPointersI.push_back(chargeType2);
-	branchPointersI.push_back(particleType2);
-
 	branchPointersI.push_back(chargeType1);
 	branchPointersI.push_back(particleType1);
 
+
 	branchPointersI.push_back(chargeType2);
 	branchPointersI.push_back(particleType2);
+
+
+
+	branchPointersI.push_back(chargeType);
+	branchPointersI.push_back(particleType);
 
 	if(mMCFlag!=mcFlagNone)
 	  {
@@ -191,7 +193,10 @@ struct HadronPairArray:public ReaderBase
 
 	//	if(asymFlag)
 		  //		  cut[i]=1;
-
+	if(particleType1[i]!=0 || particleType2[i]!=0)
+	  {
+	    cut[i]=1;
+	  }
 
 	if(z2[i]<secondZCut)
 	  cut[i]=1;

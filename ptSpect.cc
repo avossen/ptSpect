@@ -768,6 +768,65 @@ namespace Belle {
       }
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();
+
+    //////--->inserted pi0
+
+    Mdst_pi0_Manager &pi0_mgr=Mdst_pi0_Manager::get_manager();
+    for(std::vector<Mdst_pi0>::const_iterator i =pi0_mgr.begin();i!=pi0_mgr.end();i++)
+      {
+	const Mdst_pi0& pi0=*i;
+	int id =(int)pi0.get_ID();
+
+	double px=pi0.px();
+	double py=pi0.py();
+	double pz=pi0.pz();
+
+	Mdst_ecl_aux &aux1 =eclaux_mgr(Panther_ID(pi0.gamma(0).ecl().get_ID()));
+	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
+	double e9oe25_1 =aux1.e9oe25();
+	Mdst_ecl_aux &aux2 =eclaux_mgr(Panther_ID(pi0.gamma(1).ecl().get_ID()));
+	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
+	double e9oe25_2 =aux2.e9oe25();
+	double mass=pi0.mass(); //mass before fitting ???
+	if(mass>0.15 || mass<0.12)
+	  continue;
+	float pLab=sqrt(px*px+py*py+pz*pz);
+	//      cout <<"pi0mass: "<< mass <<endl;≈
+
+	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
+	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
+
+	if(g1Energy < 0.05 || g2Energy < 0.05)
+	  continue;
+	Particle* p=new Particle(pi0);
+	double confLevel;
+
+	HepPoint3D pi0DecPoint;
+	HepSymMatrix pi0ErrMatrix;
+
+	setGammaError(p->child(0),IpProfile::position(), IpProfile::position_err_b_life_smeared());
+	setGammaError(p->child(1),IpProfile::position(), IpProfile::position_err_b_life_smeared());
+
+	if(!doKmFit(*p,  confLevel,0,m_pi0))
+	  {
+	    continue;
+	  }
+
+	p->userInfo(*(new ParticleInfoMass()));
+	ParticleInfoMass& pinf=dynamic_cast<ParticleInfoMass&>(p->userInfo());
+	pinf.gammaE1=g1Energy;
+	pinf.gammaE2=g2Energy;
+	pinf.e9oe25_1=e9oe25_1;
+	pinf.e9oe25_2=e9oe25_2;
+	pi0Candidates.push_back(p);
+
+      }
+
+
+    /////---->done
+
+
+
     int gammaCount=0;
     for(std::vector<Mdst_gamma>::const_iterator i =gamma_mgr.begin();i!=gamma_mgr.end();i++)
       {
@@ -845,6 +904,115 @@ namespace Belle {
 	  Hep3Vector& vec=allParticlesBoosted[i];
 	  //	  cout <<"------> in CM frame Px, Py, Pz, E: " << vec.x()<<" "<< vec.y() <<" " << vec.z() <<" " << allPB_E[i]<< " mass_hyp: " << allPB_particleClass[i] <<endl;
 	}
+
+      ////-----> look for Ds
+
+
+
+    //------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------
+    ///got all candidates, now reconstruct Ds...
+    //------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------
+    reconstructD0();
+    vector<Particle*> tempParticles;
+    for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
+      {
+	double confLevel;
+	//		cout <<"mass before d0 mit: "<< (*itD)->p().mag()<<endl;
+	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+	  {
+	    delete *itD;
+	  }
+	else
+	  {
+	    tempParticles.push_back(*itD);
+	    //	    cout <<"mass  d0 mit: "<< (*itD)->p().mag()<<endl;
+	  }
+
+      }
+    D0Candidates.clear();
+    
+    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
+      {
+	D0Candidates.push_back(*itD);
+      }
+    tempParticles.clear();
+
+    reconstructChargedD();
+    for(vector<Particle*>::iterator itD=chargedDCandidates.begin();itD!=chargedDCandidates.end();itD++)
+      {
+	double confLevel;
+	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+	  {
+	    //	    cout <<" no good charged D " <<endl;
+	    delete *itD;
+	  }
+	else
+	  {
+	    //	    cout <<" good charged D " << endl;
+	    tempParticles.push_back(*itD);
+	  }
+      }
+    chargedDCandidates.clear();
+
+    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
+      {
+	chargedDCandidates.push_back(*itD);
+      }
+    tempParticles.clear();
+
+    reconstructDStar();
+    for(vector<Particle*>::iterator itD=DStarCandidates.begin();itD!=DStarCandidates.end();itD++)
+      {
+	double confLevel;
+	//	cout <<" d star before: "<<	(*itD)->p().mag() <<endl;
+	//in principle mass-vertex constrained fit here (not just mass...)
+	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+	  {
+	    //	    cout <<" no good dstar .. " <<endl;
+	    delete *itD;
+	  }
+	else
+	  {
+	    //	      cout <<"found good dstar .." <<endl;
+	    tempParticles.push_back(*itD);
+	    //	cout <<" d star after: "<<	(*itD)->p().mag() <<endl;
+	  }
+
+      }
+
+    DStarCandidates.clear();
+    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
+      {
+	DStarCandidates.push_back(*itD);
+      }
+    tempParticles.clear();
+
+
+
+
+
+
+
+
+
+
+
+      /////----> end look for Ds
+
+
+
+
+
+
+
+
+
+
 
     Thrust t=thrustall(allParticlesBoosted.begin(),allParticlesBoosted.end(),retSelf);
     Thrust labThrust=thrustall(allParticlesNonBoosted.begin(),allParticlesNonBoosted.end(),retSelf);
@@ -1376,6 +1544,70 @@ namespace Belle {
     v_gammaE.clear();
     v_asyms.clear();
     //      allParticlesBoosted.clear();
+
+
+    for(int i=0;i<D0Candidates.size();i++){
+      delete D0Candidates[i];
+    }
+    D0Candidates.clear();
+
+    //    cout <<" done D0"<<D0Candidates.size()<<endl;
+
+    //    cout <<"  DStar size " <<DStarCandidates.size()<< endl;
+    for(int i=0;i<DStarCandidates.size();i++){
+      delete DStarCandidates[i];
+    }
+    DStarCandidates.clear();
+    //    cout <<" done DStar " <<DStarCandidates.size()<< endl;
+
+    //    cout <<" charged D "<<chargedKCandidates.size()<<endl;
+    for(int i=0;i<chargedDCandidates.size();i++){
+
+      delete chargedDCandidates[i];
+    }
+    chargedDCandidates.clear();
+    //    cout <<" done charged D "<<chargedDCandidates.size()<<endl;
+    //    cout <<" charged K "<<chargedKCandidates.size()<<endl;
+    for(int i=0;i<chargedKCandidates.size();i++){
+      delete chargedKCandidates[i];
+    }
+    chargedKCandidates.clear();
+    //    cout <<" done charged K"<< chargedKCandidates.size()<<endl;
+
+
+    //    cout <<"pi0s: "<< pi0Candidates.size()<<endl;
+    for(int i=0;i<pi0Candidates.size();i++){
+      delete pi0Candidates[i];
+    }
+    pi0Candidates.clear();
+    //    cout <<" done pi0"<<endl;
+
+    for(int i=0;i<leptonCandidates.size();i++){
+      delete leptonCandidates[i];
+    }
+    leptonCandidates.clear();
+    //    cout <<" done leptons"<<endl;
+
+    //    cout <<"Ks candidates: " << KsCandidates.size()<<endl;
+    for(int i=0;i<KsCandidates.size();i++){
+      delete KsCandidates[i];
+    }
+    KsCandidates.clear();
+
+
+    //    cout <<" done Ks"<<endl;
+    for(int i=0;i<chargedPiCandidates.size();i++){
+      delete chargedPiCandidates[i];
+    }
+    chargedPiCandidates.clear();
+    //    cout <<" done charged Pi"<<endl;
+    for(int i=0;i<otherChargedTracks.size();i++){
+      delete otherChargedTracks[i];
+    }
+    otherChargedTracks.clear();
+    //    cout <<" charged tracks"<<endl;
+
+
 
     //      cout <<"cleaning up.."<<endl;
     for(vector<HadronPair*>::iterator it=v_hadronPairs.begin();it!=v_hadronPairs.end();it++)
