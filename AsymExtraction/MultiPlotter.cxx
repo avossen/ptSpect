@@ -61,30 +61,31 @@ void MultiPlotter::loadBinnings()
 
 
 
-  binningZ.push_back(0.2);
+  /////  binningZ.push_back(0.2);
   binningZ.push_back(0.3);
-  binningZ.push_back(0.4);
-  binningZ.push_back(0.5);
-  binningZ.push_back(0.7);
+  ////  binningZ.push_back(0.4);
+  ////  binningZ.push_back(0.5);
+  ////  binningZ.push_back(0.7);
+  binningZ.push_back(0.6); //// 
   binningZ.push_back(1.5);
 
   binningKt.push_back(0.1);
   binningKt.push_back(0.15);
   binningKt.push_back(0.2);
-  binningKt.push_back(0.25);
+   binningKt.push_back(0.25);
   binningKt.push_back(0.3);
-  binningKt.push_back(0.35);
+    binningKt.push_back(0.35);
   binningKt.push_back(0.4);
-  binningKt.push_back(0.45);
+    binningKt.push_back(0.45);
   binningKt.push_back(0.5);
-  binningKt.push_back(0.55);
+    binningKt.push_back(0.55);
   binningKt.push_back(0.6);
-  binningKt.push_back(0.65);
+    binningKt.push_back(0.65);
   binningKt.push_back(0.7);
-  binningKt.push_back(0.75);
+    binningKt.push_back(0.75);
   binningKt.push_back(0.8);
-  binningKt.push_back(1.0);
-  binningKt.push_back(1.5);
+    binningKt.push_back(1.0);
+    binningKt.push_back(1.5);
   binningKt.push_back(2.0);
 
   binningKt.push_back(10000);
@@ -92,12 +93,12 @@ void MultiPlotter::loadBinnings()
   //    binningLabTheta.push_back(0.9);
   //  binningLabTheta.push_back(1.1);
 
-  //  binningLabTheta.push_back(0.5);
-  //  binningLabTheta.push_back(0.9);
-  //  binningLabTheta.push_back(1.4);
-  //  binningLabTheta.push_back(1.8);
+  ////  binningLabTheta.push_back(0.5);
+  ////  binningLabTheta.push_back(0.9);
+  ////  binningLabTheta.push_back(1.4);
+  ////  binningLabTheta.push_back(1.8);
   
-  //  binningLabTheta.push_back(2.5);
+  ////  binningLabTheta.push_back(2.5);
   binningLabTheta.push_back(8.0);
 
   binningThrustLabTheta.push_back(0.5);
@@ -133,12 +134,21 @@ void MultiPlotter::loadBinnings()
 };
 
 
+
+
+
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
 
-void MultiPlotter::savePlot(int binningType,int chargeType, plotType mPlotType)
+void MultiPlotter::savePlots( plotType mPlotType)
 {
 
   PlotResults* m_plotResults=plotResults;
+  PlotResults* loc_plotResults=0;
+
+  rFile.cd();
+  TTree *tree = new TTree("PlotTree","PlotTree");
+  tree->Branch("PlotBranch","PlotResults",&loc_plotResults,32000,99);
+
 
   int numKinBin1=0;
   int numKinBin2=0;
@@ -148,70 +158,77 @@ void MultiPlotter::savePlot(int binningType,int chargeType, plotType mPlotType)
   float mY[50];
   float mXErr[50];
   float mYErr[50];
-
-
-  string binName=getBinName(binningType,chargeType,-1,-1);
-  sprintf(buffer,"%s",binName.c_str());
-  cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
-  for(int i=0;i<maxKinMap[binningType].first;i++)
+  for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
     {
-      for(int j=0;j<maxKinMap[binningType].second;j++)
+      for(int chargeType=0;chargeType<1;chargeType++)
 	{
-	  double normFactor=1.0;
-	  double maxVal=-1.0;
-	  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+
+	  string binName=getBinName(binningType,chargeType,-1,-1);
+	  sprintf(buffer,"%s",binName.c_str());
+	  cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
+	  for(int i=0;i<maxKinMap[binningType].first;i++)
 	    {
-	      int resIdx=getResIdx(binningType,chargeType,i,j);
-	      if(maxVal< m_plotResults[resIdx].kTValues[iKtBin])
-		maxVal=m_plotResults[resIdx].kTValues[iKtBin];
-	    }
-	  normFactor=1.0/maxVal;
+	      for(int j=0;j<maxKinMap[binningType].second;j++)
+		{
+		  cout <<" bin: " << i << ", " << j << endl;
+		  double normFactor=1.0;
+		  double maxVal=-1.0;
+		  int resIdx=getResIdx(binningType,chargeType,i,j);
+		  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+		    {
+		      if(maxVal< m_plotResults[resIdx].kTValues[iKtBin])
+			maxVal=m_plotResults[resIdx].kTValues[iKtBin];
+
+		    }
+		  loc_plotResults=&m_plotResults[resIdx];
+		  tree->Fill();
+		  normFactor=1.0/maxVal;
 	  
 
-	  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
-	    {
+		  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+		    {
+		      float binWidthFactor=1.0;
+		      if(0==iKtBin)
+			{
+			  binWidthFactor=binningKt[0];
+			}
+		      else
+			{
+			  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
+			}
+		      //for the last bin, it doesn't make sense to divide by 1000 or so...
+		      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+		      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
+		      int resIdx=getResIdx(binningType,chargeType,i,j);
+		      //	      cout <<"looking at index:" << resIdx<<endl;
+		      mX[iKtBin]=m_plotResults[resIdx].kTMeans[iKtBin];
+		      //	      cout <<"mX["<<iKtBin <<"] " << mX[iKtBin]<<endl;
+		      if((iKtBin>0)&& mX[iKtBin]<=mX[iKtBin-1]) 
+			{
+			  cout <<"MultiPlotter::saveGraph, wanting to set X["<<iKtBin<<"] to: " << mX[iKtBin] <<" but the one before is: " << mX[iKtBin-1] <<endl;
+			  mX[iKtBin]=mX[iKtBin-1]+0.1;
+			}
+		      //	  cout <<"setting x: " << mX[iKtBin] <<endl;
+		      mXErr[iKtBin]=0.0;
+		      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
+		      mYErr[iKtBin]=sqrt(m_plotResults[resIdx].kTValues[iKtBin])*normFactor/binWidthFactor;
+		      //	      cout <<"mY["<<iKtBin <<"] " << mY[iKtBin]<<endl;
+		      //	      cout <<"mYErr["<<iKtBin <<"] " << mYErr[iKtBin]<<endl;
+		      //	  cout <<"y: " << mY[iKtBin] << ", " << mYErr[iKtBin] <<endl;
+		    }
+		  rFile.cd();
+		  TGraphErrors graph(numKtBins,mX,mY,mXErr,mYErr);
+		  sprintf(buffer1,"%s_ptSpect_%s_bin%d_%d",nameAddition.c_str(),buffer,i,j);
+		  graph.SetName(buffer1);
+		  graph.SetTitle(buffer1);
+		  graph.GetYaxis()->SetTitle("normalized counts [arb. units]");
+		  graph.GetXaxis()->SetTitle("kT [GeV]");
+		  cout <<"saved as " << buffer1 <<endl;
+		  graph.Write();
 
-	      float binWidthFactor=1.0;
-	      if(0==iKtBin)
-		{
-		  binWidthFactor=binningKt[0];
 		}
-	      else
-		{
-		  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
-		}
-	      //for the last bin, it doesn't make sense to divide by 1000 or so...
-	      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
-		binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
-	      int resIdx=getResIdx(binningType,chargeType,i,j);
-	      cout <<"looking at index:" << resIdx<<endl;
-	      mX[iKtBin]=m_plotResults[resIdx].kTMeans[iKtBin];
-	      cout <<"mX["<<iKtBin <<"] " << mX[iKtBin]<<endl;
-	      if((iKtBin>0)&& mX[iKtBin]<=mX[iKtBin-1])
-		{
-		  cout <<"MultiPlotter::saveGraph, wanting to set X["<<iKtBin<<"] to: " << mX[iKtBin] <<" but the one before is: " << mX[iKtBin-1] <<endl;
-		  mX[iKtBin]=mX[iKtBin-1]+0.1;
-		}
-	      //	  cout <<"setting x: " << mX[iKtBin] <<endl;
-	      mXErr[iKtBin]=0.0;
-	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
-	      mYErr[iKtBin]=sqrt(m_plotResults[resIdx].kTValues[iKtBin])*normFactor/binWidthFactor;
-	      cout <<"mY["<<iKtBin <<"] " << mY[iKtBin]<<endl;
-	      cout <<"mYErr["<<iKtBin <<"] " << mYErr[iKtBin]<<endl;
-	      //	  cout <<"y: " << mY[iKtBin] << ", " << mYErr[iKtBin] <<endl;
 	    }
-	  rFile.cd();
-	  TGraphErrors graph(numKtBins,mX,mY,mXErr,mYErr);
-	  sprintf(buffer1,"%s_ptSpect_%s_bin%d_%d",nameAddition.c_str(),buffer,i,j);
-	  graph.SetName(buffer1);
-	  graph.SetTitle(buffer1);
-	  graph.GetYaxis()->SetTitle("normalized counts [arb. units]");
-	  graph.GetXaxis()->SetTitle("kT [GeV]");
-	  cout <<"saved as " << buffer1 <<endl;
-	  graph.Write();
-
 	}
-
       //make sure this is saved...
     }
   rFile.Write();
@@ -229,8 +246,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
   normalizeAngle(cmsThrustTheta);
 
   //  cout <<"multiplicity: " << multiplicity <<" mult bin: " <<multBin <<endl;
-  thrustLabThetaBin=getBin(binningLabTheta,thrustLabTheta);
-
+  thrustLabThetaBin=getBin(binningThrustLabTheta,thrustLabTheta);
+  ///  cout <<"thrustLabTheta: "<< thrustLabTheta <<endl;
+  //  cout <<"thrustLabtheta bin: " << thrustLabThetaBin <<endl;
   cmsThrustThetaBin=getBin(binningCmsThrustTheta,cmsThrustTheta);
   //  cout <<"got cmsThrust theta: " << cmsThrustTheta <<" bin: " << cmsThrustThetaBin <<" phi: " << cmsThrustPhi <<" bin: " << cmsThrustPhiBin<<endl;
 
@@ -271,6 +289,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       //      cout <<"kt: " << kT <<" bin: "<< kTBin<<endl;
 
       zbin1=getBin(binningZ,hp->z1[i]);
+      //      cout <<"zbin1: "<< zbin1 <<endl;
       zbin2=getBin(binningZ,hp->z2[i]);
 
       labThetaBin1=getBin(binningLabTheta,hp->labTheta1[i]);
@@ -291,17 +310,21 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	      //	      if(bt==binType_ThrustThetaPhi || bt==binType_ThrustPhiTheta)
 	      //		continue;
 	      //	      cout<<" hadOpen 1: " << hadronOpen1<<" and 2: " << hadronOpen2
-	      	      cout <<"bt: " << bt << " chargeBin: " << chargeBin << "firstBin: " << firstBin <<" second " << secondBin <<endl;
-		      cout <<"thrust: "<< this->thrust <<endl;
+	      //	      	      cout <<"bt: " << bt << " chargeBin: " << chargeBin << "firstBin: " << firstBin <<" second " << secondBin <<endl;
+	      //		      cout <<"thrust: "<< this->thrust <<endl;
 	      //	      cout <<"thrust theta: " <<this->cmsThrustTheta <<" thrust phi: "<< this->cmsThrustPhi<<endl;
-	      cout <<" z: " << this->z1 <<" z2: " << this->z2 << endl;
+	      //	      cout <<" z: " << this->z1 <<" z2: " << this->z2 << endl;
 	      continue;
 	    }
 
 	  double weight=1.0;
 	  chargeBin=0;
 
-	  //	  cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
+	  if(bt==binType_ThrustLabTheta_z)
+	    {
+	      //	      cout <<"filling thrusttheta bin: "<< firstBin << " zb in : "<< secondBin <<endl;
+	    }
+	  //	  Cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
 	  counts[bt][chargeBin][firstBin][secondBin][kTBin]+=weight;
 	  meanValues_kin1[bt][chargeBin][firstBin][secondBin]+=(weight*firstKin);
 	  meanValues_kin2[bt][chargeBin][firstBin][secondBin]+=(weight*secondKin);

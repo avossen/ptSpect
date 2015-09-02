@@ -23,6 +23,13 @@ class MEvent:public ReaderBase
   int runNr;
   int evtNr;
   int d0Tag;
+  int D_Decay;
+  int DStarDecay;
+  int DStarTag;
+
+
+
+
   int dStarTag;
   float isrPhotonEnergy;
 
@@ -38,13 +45,14 @@ class MEvent:public ReaderBase
 
   const float thrustThetaCMSMaxProj;
   const bool d0Cut, dStarCut;
+  const bool d0CutV2, dStarCutV2;
   const float isrCut;
 
   //hard cuts 1.2-1.6
   //1 - 2.14 is 0.7-1.76 in cms
   //acos(0.5e) is 1.05 rad --> in lab 0.73 -.1.7
   //no cuts.. since e.g. cuts on thrust theta together with hadron theta binning biases kT...
-  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(3.9), maxMissingEnergy(4.0), minThrust(0.5),d0Cut(true),dStarCut(true),isrCut(0)
+  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(1.33), upperThrustThetaCutCMS(1.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(0)
   {
     myChain=chain;
     if(chain)
@@ -68,6 +76,8 @@ class MEvent:public ReaderBase
 	    branchPointers.push_back(&isrPhotonEnergy);
 	    branchPointersI.push_back(&d0Tag);
 	    branchPointersI.push_back(&dStarTag);
+	    branchPointersI.push_back(&D_Decay);
+	    branchPointersI.push_back(&DStarDecay);
 	  }
 	//the field thrustTheta_mc exists but encodes only the difference, so that leads to all cuts to fail
 	//    branchNames.push_back("thrustTheta"+addendum);
@@ -100,7 +110,8 @@ class MEvent:public ReaderBase
 	    branchNames.push_back("ISRPhotonEnergy");
 	    branchNamesI.push_back("D0Tag");
 	    branchNamesI.push_back("DStarTag");
-
+	    branchNamesI.push_back("D_Decay");
+	    branchNamesI.push_back("DStar_Decay");
 	  }
 
 	doAllBranching();
@@ -116,10 +127,17 @@ class MEvent:public ReaderBase
       {
 	if(isrCut && (isrPhotonEnergy> isrCut))
 	   cutEvent=true;
-	if(d0Cut && (1==d0Tag ))
+	if(d0Cut && (0==d0Tag ))
 	  cutEvent=true;
-	if(dStarCut && (1==dStarTag))
+	if(dStarCut && (0==dStarTag))
 	  cutEvent=true;
+	if(d0CutV2 && (D_Decay<0))
+	  cutEvent=true;
+	if(dStarCutV2 && (DStarDecay<0))
+	  cutEvent=true;
+
+
+
 
     if(E_miss<-1)
       cutEvent=true;

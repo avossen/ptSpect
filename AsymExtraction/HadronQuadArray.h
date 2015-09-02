@@ -2,7 +2,7 @@
 #define HADRON_QUAD_ARRAY_H
 
 #include "ReaderBase.h"
-#include "HadronPairArrays.h"
+#include "HadronPairArray.h"
 #include "TMath.h"
 
 

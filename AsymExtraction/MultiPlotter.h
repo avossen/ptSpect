@@ -29,10 +29,18 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       loadBinnings();
       numKtBins=binningKt.size();
       maxKinBins=binningZ.size();
+      	  cout <<"loading " << binningZ.size() <<" z bins " << endl;
       if(binningKt.size()>binningZ.size())
-	maxKinBins=numKtBins;
+	{
+
+	  maxKinBins=numKtBins;
+	}
       if(binningLabTheta.size()>maxKinBins)
-	maxKinBins=binningLabTheta.size();
+	{
+
+	  maxKinBins=binningLabTheta.size();
+	}
+      cout << " loading " <<binningLabTheta.size() << " labT bin " << endl;
       if(binningThrustLabTheta.size()>maxKinBins)
 	maxKinBins=binningLabTheta.size();
       if(binningQt.size()>maxKinBins)
@@ -77,7 +85,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void addHadPairArray(HadronPairArray* hq, MEvent& event);
     void setBinningMap();
     void doPlots();
-    void savePlot(int binningType,int chargeType, plotType);
+    void savePlots(plotType);
 
     void setName(string s);
     string getName();

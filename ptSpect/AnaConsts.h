@@ -58,6 +58,9 @@ namespace cuts
 namespace kinematics
 {
 
+  extern int DDecay;
+  extern int DStarDecay;
+
   extern int D0Tag;
   extern int DStarTag;
   //not ideal way to tag the fast pion

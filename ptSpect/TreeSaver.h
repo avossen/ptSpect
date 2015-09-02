@@ -392,6 +392,8 @@ public:
       dataI.push_back(kinematics::jetNumParts2);
       dataI.push_back(kinematics::D0Tag);
       dataI.push_back(kinematics::DStarTag);
+      dataI.push_back(kinematics::DDecay);
+      dataI.push_back(kinematics::DStarDecay);
 
     };
 

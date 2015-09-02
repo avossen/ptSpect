@@ -8,7 +8,7 @@
 #include "TObject.h"
 using namespace std;
 
-
+const int maxKtBins=30;
 //#include "TNamed.h"
 
 //structure to save results of fits...
@@ -18,8 +18,8 @@ class PlotResults   : public TObject
   float meanKinBin1;
   float meanKinBin2;
 
-  float kTValues[30];
-  float kTMeans[30];
+  float kTValues[maxKtBins];
+  float kTMeans[maxKtBins];
 
   int numKtValues;
 
@@ -62,8 +62,47 @@ inline void PlotResults::doPrint(bool print)
 inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 {
 
-  return *this;
 
+
+      int intRhsCount=0;
+      int intCount=0;
+      for(int i=0;i<maxKtBins;i++)
+	{
+
+	  intRhsCount+=rhs.kTValues[i];
+	  intCount+=kTValues[i];
+	  
+
+	  if(kTValues[i]==0)
+	    kTMeans[i]=rhs.kTMeans[i];
+	  if(kTValues[i]!=0 && rhs.kTValues[i]!=0)
+	    {
+	      kTMeans[i]=1.0/(kTValues[i]+rhs.kTValues[i])*(kTMeans[i]*kTValues[i] + rhs.kTMeans[i]*rhs.kTValues[i]);
+	    }
+	  kTValues[i]+=rhs.kTValues[i];
+	}
+      
+      if(intCount==0)
+	{
+	  meanKinBin1=rhs.meanKinBin1;
+	  meanKinBin2=rhs.meanKinBin2;
+	}
+      if(intCount!=0 && intRhsCount!=0)
+	{
+	  meanKinBin1=1.0/(intCount+intRhsCount)*(meanKinBin1*intCount+rhs.meanKinBin1*intRhsCount);
+	  meanKinBin2=1.0/(intCount+intRhsCount)*(meanKinBin2*intCount+rhs.meanKinBin2*intRhsCount);
+	}
+  isUds=rhs.isUds;
+  isCharm=rhs.isCharm;
+  isMC=rhs.isMC;
+  calcType=rhs.calcType;
+  binningType=rhs.binningType;
+  chargeBin=rhs.chargeBin;
+  firstKinBin=rhs.firstKinBin;
+  secondKinBin=rhs.secondKinBin;
+  resultIndex=rhs.resultIndex;
+  return *this;
+      
 }
 
 

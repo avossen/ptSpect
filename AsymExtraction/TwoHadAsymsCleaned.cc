@@ -162,8 +162,8 @@ int main(int argc, char** argv)
   else 
     ss<<"_data_";
 
-  MultiPlotter plotter(const_cast<char*>("multFitOut"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
-  MultiPlotter plotterWoA(const_cast<char*>("multFitOutWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+  MultiPlotter plotter(const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+  MultiPlotter plotterWoA(const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter fitPi0SigMinusMix(const_cast<char*>("fitPi0SigMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
   //  MultiPlotter fitPi0BgMinusMix(const_cast<char*>("fitPi0BgMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
 
@@ -248,12 +248,10 @@ int main(int argc, char** argv)
   plotter.doPlots();
   plotterWoA.doPlots();
 
-  plotter.savePlot(binType_z_z,pairChargeInt,plotType_2D);
-  plotter.savePlot(binType_labTheta_z,pairChargeInt,plotType_2D);
-  plotter.savePlot(binType_ThrustLabTheta_z,pairChargeInt,plotType_2D);
+  plotter.savePlots(plotType_2D);
   cout <<"now woa..." <<endl;
-  plotterWoA.savePlot(binType_labTheta_z,pairChargeInt,plotType_2D);
-  plotterWoA.savePlot(binType_ThrustLabTheta_z,pairChargeInt,plotType_2D);
+  plotterWoA.savePlots(plotType_2D);
+
   //  plotterWoA.savePlot(0,0,);
 
   vector<MultiPlotter*> myPlotterArray;

@@ -31,7 +31,7 @@ namespace Belle {
 #endif
 class HadronPair;
 class HadronQuadruple;
-
+  typedef std::vector<Gen_hepevt*> genhep_vec;
 // Module class
 class ptSpect : public Module 
 {
@@ -44,7 +44,9 @@ public:
 
   // initialize
   void init ( int * );
+  void printD();
   int goodHadronB() const;
+  genhep_vec *getDaughters(const Gen_hepevt &mother);
   // begin_run function
   void begin_run ( BelleEvent*, int* );
   void findDStar(vector<Hep3Vector>& allPB, vector<int>& allPB_Class, vector<int>& allPB_Charge);
@@ -53,7 +55,7 @@ public:
   void saveTree();
   void setParticleProperties();
   bool findJetMatch(Hep3Vector& vec, vector<PseudoJet>* const1, vector<PseudoJet>* const2);
-
+  bool recursivePrint(const Gen_hepevt gen_it, string s);
   void findHadronPairs();
 
   void cleanUp();
@@ -131,6 +133,13 @@ static int getBin(vector<float>& b1, float value)
     vector<Particle*> D0Candidates;
     vector<Particle*> chargedDCandidates;
     vector<Particle*> DStarCandidates;
+
+    void reconstructD0();
+    void reconstructChargedD();
+    void reconstructDStar();
+    unsigned doKmFit(Particle &p, double& conflevel, int debug, double mass=0);
+    unsigned doKmVtxFit(Particle &p, double& conflevel, int debug);
+    unsigned doKmVtxFit2(Particle &p, double& conflevel, int debug, double mass=0);
 private:
   //compute distance between decay vertices of quark and antiquark
   float getDecayDist();

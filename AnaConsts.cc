@@ -102,6 +102,8 @@ namespace cuts
 namespace kinematics
 {
 
+  int DDecay;
+  int DStarDecay;
   int D0Tag;
   int DStarTag;
   float fastPionZ;

@@ -1,3 +1,4 @@
+const bool PRINT=false;
 #include <iomanip>
 #include "ptSpect/mc.h"  //one central place to put the define mc
 #include "event/BelleEvent.h"
@@ -44,6 +45,14 @@ using namespace std;
 
 #include MDST_H
 #include EVTCLS_H
+#define PY_ELECTRON 11
+#define PY_MU 13
+#define PY_PI 211
+#define PY_K 321
+#define PY_Pi0 111
+#define PY_KS0 310
+#define PY_B0 511
+#define PY_B 521
 
 //#define SAVE_HISTOS
 #define XCHECK
@@ -371,6 +380,8 @@ namespace Belle {
     pTreeSaver->addFieldI("D0Tag");
     pTreeSaver->addFieldI("DStarTag");
 
+    pTreeSaver->addFieldI("D_Decay");
+    pTreeSaver->addFieldI("DStar_Decay");
 
 
     //doesn't work anymore with arrays...
@@ -384,6 +395,9 @@ namespace Belle {
   // event function
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
+
+    const double m_pi0=0.1349766;
+
     vector<float> v_drH1;
     vector<float> v_drH2;
     if(!validRun)
@@ -691,6 +705,8 @@ namespace Belle {
 	    //	  (*pXCheck)<<boostedVec.vect().x() << " " <<boostedVec.vect().y() << " " << boostedVec.vect().z() << " " << m_mass <<" charged " <<endl;
 	  }
 	visEnergy+=boostedVec.e();
+
+	//this is now done by the new and better functions...
 	findDStar(allParticlesBoosted, allPB_particleClass, allPB_particleCharge);
 
 	if(isLepton)
@@ -765,6 +781,27 @@ namespace Belle {
 	//only hadrons, even if unidentified trust that leptons can be separated
 	if(!isLepton)
 	  v_allParticles.push_back(p);
+
+	if(isLepton){
+
+	}
+	else{
+	  if(fabs(p->pType().lund())==PY_PI)
+	    {
+	      chargedPiCandidates.push_back(p);
+	    }
+	  if(fabs(p->pType().lund())==PY_K)
+	    {
+	      chargedKCandidates.push_back(p);
+	    }
+	  //probably not a good event...
+	  if(!isPionKaon)
+	    {
+	      otherChargedTracks.push_back(p);
+	    }
+
+	}
+
       }
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();
@@ -908,6 +945,33 @@ namespace Belle {
 
       ////-----> look for Ds
 
+    //find possible Ks..
+    Mdst_vee2_Manager &vee2_m=Mdst_vee2_Manager::get_manager();
+    for(vector<Mdst_vee2>::iterator vee_it=vee2_m.begin();vee_it!=vee2_m.end();vee_it++)
+      {
+	//not a K short...
+	if(vee_it->kind()!=1)
+	  continue;
+
+	/// also quality checks?
+
+
+	//second parameter keeps relation
+	Particle* p=new Particle(*vee_it,true);
+	FindKs findks;
+
+	findks.candidates(*vee_it,IpProfile::position());
+	if(findks.goodKs())
+	  {
+	    KsCandidates.push_back(p);
+	  }
+	else
+	  {
+	    delete p;
+	  }
+
+      }
+
 
 
     //------------------------------------------------------------------------------------
@@ -993,20 +1057,25 @@ namespace Belle {
       }
     tempParticles.clear();
 
-
-
-
-
-
-
-
-
-
-
       /////----> end look for Ds
 
-
-
+//    if(D0Candidates.size()>0|| chargedDCandidates.size()>0 )
+//      {
+//		kinematics::D0Tag=1;
+//      }
+//    else
+//      {
+//	kinematics::D0Tag=0;
+//      }
+//    if(DStarCandidates.size()>0)
+//      {
+//	kinematics::DStarTag=1;
+//      }
+//    else
+//      {
+//	kinematics::DStarTag=0;
+//      }
+//
 
 
 
@@ -1569,9 +1638,8 @@ namespace Belle {
     chargedDCandidates.clear();
     //    cout <<" done charged D "<<chargedDCandidates.size()<<endl;
     //    cout <<" charged K "<<chargedKCandidates.size()<<endl;
-    for(int i=0;i<chargedKCandidates.size();i++){
-      delete chargedKCandidates[i];
-    }
+
+    //don't delete, since they are already deleted as part of v_allParticles
     chargedKCandidates.clear();
     //    cout <<" done charged K"<< chargedKCandidates.size()<<endl;
 
@@ -1583,11 +1651,6 @@ namespace Belle {
     pi0Candidates.clear();
     //    cout <<" done pi0"<<endl;
 
-    for(int i=0;i<leptonCandidates.size();i++){
-      delete leptonCandidates[i];
-    }
-    leptonCandidates.clear();
-    //    cout <<" done leptons"<<endl;
 
     //    cout <<"Ks candidates: " << KsCandidates.size()<<endl;
     for(int i=0;i<KsCandidates.size();i++){
@@ -1597,17 +1660,9 @@ namespace Belle {
 
 
     //    cout <<" done Ks"<<endl;
-    for(int i=0;i<chargedPiCandidates.size();i++){
-      delete chargedPiCandidates[i];
-    }
+    //don't delete, since they are already deleted as part of 'all particles'
     chargedPiCandidates.clear();
     //    cout <<" done charged Pi"<<endl;
-    for(int i=0;i<otherChargedTracks.size();i++){
-      delete otherChargedTracks[i];
-    }
-    otherChargedTracks.clear();
-    //    cout <<" charged tracks"<<endl;
-
 
 
     //      cout <<"cleaning up.."<<endl;
@@ -1732,6 +1787,8 @@ namespace Belle {
 
     kinematics::D0Tag=0;
     kinematics::DStarTag=0;
+    kinematics::DDecay=-1;
+    kinematics::DStarDecay=-1;
 
     if(allPB.size()!=allPB_Class.size() || allPB_Class.size()!=allPB_Charge.size())
       {
@@ -1764,6 +1821,8 @@ namespace Belle {
 		    if(fabs(d0candidateMass-D0mass)<0.1)
 		      {
 			kinematics::D0Tag=1;
+			kinematics::DDecay=1;
+
 			Hep3Vector d0candidateMom=(allPB[i]+allPB[j]);
 			float d0candidateE=EP1+EK;
 
@@ -1806,6 +1865,755 @@ namespace Belle {
 
   }
 
+
+
+  //reconstruct D0 from pion, kaon, ks..
+  void ptSpect::reconstructD0()
+  {
+    double m_D0=1.86484;
+    double m_d0mass_max=m_D0+0.015;
+    double m_d0mass_min=m_D0-0.015;
+
+
+    //the mass range for which we do a mass/vertex constrained fit
+    double m_d0mass_maxLoose=m_D0+3*0.015;
+    double m_d0mass_minLoose=m_D0-3*0.015;
+
+
+
+    //nominal mass: 1.86484, use +- 0.015, except for K-pi+pi0 (0.025)
+    //D-->Kpi
+    for(vector<Particle*>::iterator itP=chargedPiCandidates.begin();itP!=chargedPiCandidates.end();itP++)
+      {
+	for(vector<Particle*>::iterator itK=chargedKCandidates.begin();itK!=chargedKCandidates.end();itK++)
+	  {
+	    Particle& pion= *(*itP);
+	    Particle& kaon= *(*itK);
+	    if(kaon.charge()+pion.charge()!=0) continue;
+	    HepLorentzVector p_d0=pion.p()+kaon.p();
+	    double m=p_d0.mag();
+
+
+
+
+	    Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
+	    //	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+
+
+	    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+
+	    d0->relation().append(kaon);
+	    d0->relation().append(pion);
+	    if(m_mc)
+	      {
+		const Gen_hepevt &h_kaon=kaon.genHepevt();
+		const Gen_hepevt &h_pion=pion.genHepevt();
+		if(h_kaon && h_pion && h_kaon.mother() && h_pion.mother() && h_kaon.mother().get_ID()==h_pion.mother().get_ID()){
+		  d0->relation().genHepevt(h_kaon.mother());
+		}
+	      } 
+	    D0Candidates.push_back(d0);
+	    kinematics::DDecay=1;
+
+	  }
+      }
+
+    ////--->D to K-pi+pi0
+    //uses different mass cut:
+    m_d0mass_max=m_D0+0.025;
+    m_d0mass_min=m_D0-0.025;
+    for(vector<Particle*>::iterator itP=chargedPiCandidates.begin();itP!=chargedPiCandidates.end();itP++)
+      {
+	for(vector<Particle*>::iterator itK=chargedKCandidates.begin();itK!=chargedKCandidates.end();itK++)
+	  {
+	    for(vector<Particle*>::iterator itPi0=pi0Candidates.begin();itPi0!=pi0Candidates.end();itPi0++)
+	      {
+		Particle& pi0=*(*itPi0);
+		Particle& pion= *(*itP);
+		Particle& kaon= *(*itK);
+		if(kaon.charge()+pion.charge()!=0) continue;
+		HepLorentzVector p_d0=pion.p()+kaon.p()+pi0.p();
+		double m=p_d0.mag();
+
+
+
+		//	    cout <<"2 filling with " << m <<endl;
+
+
+		if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+		Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
+		d0->relation().append(kaon);
+		d0->relation().append(pion);
+		d0->relation().append(pi0);
+		if(m_mc)
+		  {
+		    const Gen_hepevt &h_kaon=kaon.genHepevt();
+		    const Gen_hepevt &h_pion=pion.genHepevt();
+		    const Gen_hepevt &h_pi0=pi0.genHepevt();
+		    if(h_pi0&&h_kaon && h_pion && h_kaon.mother() && h_pion.mother() && h_kaon.mother().get_ID()==h_pion.mother().get_ID() && h_pi0.mother() && h_pi0.mother()==h_kaon.mother()){
+		      d0->relation().genHepevt(h_kaon.mother());
+		    }
+		  }
+		D0Candidates.push_back(d0);
+		kinematics::DDecay=2;
+	      }
+	  }
+      }
+    //and set the mass cuts back..
+    m_d0mass_max=m_D0+0.015;
+    m_d0mass_min=m_D0-0.015;
+    ///D->K-pi+pi+pi-
+    for(vector<Particle*>::iterator itP1=chargedPiCandidates.begin();itP1!=chargedPiCandidates.end();itP1++)
+      {
+	for(vector<Particle*>::iterator itP2=(itP1+1);itP2!=chargedPiCandidates.end();itP2++)  
+	  {
+	    for(vector<Particle*>::iterator itP3=(itP2+1);itP3!=chargedPiCandidates.end();itP3++)  
+	      {
+		for(vector<Particle*>::iterator itK=chargedKCandidates.begin();itK!=chargedKCandidates.end();itK++)
+		  {
+		    Particle& pion1= *(*itP1);
+		    Particle& pion2= *(*itP2);
+		    Particle& pion3= *(*itP3);
+		    Particle& kaon= *(*itK);
+		    if(kaon.charge()+pion1.charge()+pion2.charge()+pion3.charge()!=0) continue;
+		    HepLorentzVector p_d0=kaon.p()+pion1.p()+pion2.p()+pion3.p();
+		    double m=p_d0.mag();
+
+		    //	    cout <<"3 filling with " << m <<endl;
+
+
+		    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+		    Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
+		    d0->relation().append(kaon);
+		    d0->relation().append(pion1);
+		    d0->relation().append(pion2);
+		    d0->relation().append(pion3);
+		    if(m_mc)
+		      {
+			const Gen_hepevt &h_kaon=kaon.genHepevt();
+			const Gen_hepevt &h_pion1=pion1.genHepevt();
+			const Gen_hepevt &h_pion2=pion2.genHepevt();
+			const Gen_hepevt &h_pion3=pion3.genHepevt();
+		    
+			if(h_kaon && h_pion1 && h_pion2&&h_pion3){
+			  if(h_kaon.mother() && h_pion1.mother() &&h_pion2.mother() && h_pion3.mother()){
+			    if( h_kaon.mother().get_ID()==h_pion1.mother().get_ID() && h_pion1.mother()==h_pion2.mother() && h_pion2.mother()==h_pion2.mother()){
+			      d0->relation().genHepevt(h_kaon.mother());
+			    }
+			  }
+			}
+		      }
+		    D0Candidates.push_back(d0);
+	    kinematics::DDecay=3;
+		  }
+	      }
+	  }
+      }
+ 
+    ////D-->Ks pi+pi-
+    for(vector<Particle*>::iterator itP1=chargedPiCandidates.begin();itP1!=chargedPiCandidates.end();itP1++)
+      {
+	for(vector<Particle*>::iterator itP2=itP1+1;itP2!=chargedPiCandidates.end();itP2++)
+	  {
+	    for(vector<Particle*>::iterator itKs=KsCandidates.begin();itKs!=KsCandidates.end();itKs++)
+	      {
+		Particle& pion1=*(*itP1);
+		Particle& pion2= *(*itP2);
+		Particle& Ks= *(*itKs);
+		if(pion1.charge()+pion2.charge()!=0) continue;
+		HepLorentzVector p_d0=pion1.p()+pion2.p()+Ks.p();
+		double m=p_d0.mag();
+
+		//	    cout <<"4 filling with " << m <<endl;
+
+
+		if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+		//		Particle* d0 =new Particle(p_d0,Ptype(k/.charge()<0 ? "D0" : "D0B"));
+		Particle* d0 =new Particle(p_d0,Ptype("D0"));
+		d0->relation().append(pion1);
+		d0->relation().append(pion2);
+		d0->relation().append(Ks);
+		if(m_mc)
+		  {
+		    const Gen_hepevt &h_pion1=pion1.genHepevt();
+		    const Gen_hepevt &h_pion2=pion2.genHepevt();
+		    const Gen_hepevt &h_Ks=Ks.genHepevt();
+		    if(h_pion1&&h_pion2 && h_Ks&& h_pion1.mother() && h_pion2.mother() && h_Ks.mother() && h_pion1.mother().get_ID()==h_pion2.mother().get_ID() && h_pion1.mother()==h_Ks.mother()){
+		      d0->relation().genHepevt(h_pion1.mother());
+		    }
+		printD();
+		  }
+		D0Candidates.push_back(d0);
+		kinematics::DDecay=4;
+
+
+	      }
+	  }
+      }
+
+    ////D-->K+K-
+    for(vector<Particle*>::iterator itK1=chargedKCandidates.begin();itK1!=chargedKCandidates.end();itK1++)
+      {
+	for(vector<Particle*>::iterator itK2=itK1+1;itK2!=chargedKCandidates.end();itK2++)
+	  {
+	    Particle& kaon1= *(*itK1);
+	    Particle& kaon2= *(*itK2);
+	    if(kaon1.charge()+kaon2.charge()!=0) continue;
+	    HepLorentzVector p_d0=kaon1.p()+kaon2.p();
+	    double m=p_d0.mag();
+
+
+	    //	    cout <<"found k/k combination, filling with m: "<< m <<endl;
+	    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+	    Particle* d0 =new Particle(p_d0,Ptype("D0"));
+	    d0->relation().append(kaon1);
+	    d0->relation().append(kaon2);
+	    if(m_mc)
+	      {
+		const Gen_hepevt &h_kaon1=kaon1.genHepevt();
+		const Gen_hepevt &h_kaon2=kaon2.genHepevt();
+		if(h_kaon1 && h_kaon2 && h_kaon1.mother() && h_kaon2.mother() && h_kaon1.mother().get_ID()==h_kaon2.mother().get_ID()){
+		  d0->relation().genHepevt(h_kaon1.mother());
+		}
+	      } 
+	    D0Candidates.push_back(d0);
+	    kinematics::DDecay=5;
+	  }
+      }
+
+    //D-->Kspi0
+    for(vector<Particle*>::iterator itPi0=pi0Candidates.begin();itPi0!=pi0Candidates.end();itPi0++)
+      {
+	for(vector<Particle*>::iterator itKs=KsCandidates.begin();itKs!=KsCandidates.end();itKs++)
+	  {
+	    Particle& pi0= *(*itPi0);
+	    Particle& Ks= *(*itKs);
+	    HepLorentzVector p_d0=pi0.p()+Ks.p();
+	    double m=p_d0.mag();
+
+
+
+	    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+	    Particle* d0 =new Particle(p_d0,Ptype( "D0"));
+	    d0->relation().append(pi0);
+	    d0->relation().append(Ks);
+	    if(m_mc)
+	      {
+		printD();
+		const Gen_hepevt &h_pi0=pi0.genHepevt();
+		const Gen_hepevt &h_Ks=Ks.genHepevt();
+		if(h_pi0 && h_Ks && h_pi0.mother() && h_Ks.mother() && h_pi0.mother().get_ID()==h_Ks.mother().get_ID()){
+		  d0->relation().genHepevt(h_pi0.mother());
+		}
+	      } 
+	    D0Candidates.push_back(d0);
+	    kinematics::DDecay=6;
+	  }
+      }
+  }
+
+  void ptSpect::reconstructChargedD()
+  {
+    double m_DPlus=1.86962;
+    double m_dPlusmass_max=m_DPlus+0.015;
+    double m_dPlusmass_min=m_DPlus-0.015;
+    ////D-->KsPi
+    for(vector<Particle*>::iterator itKs=KsCandidates.begin();itKs!=KsCandidates.end();itKs++)
+      {
+	for(vector<Particle*>::iterator itP=chargedPiCandidates.begin();itP!=chargedPiCandidates.end();itP++)
+	  {
+	    Particle& Ks= *(*itKs);
+	    Particle& pion= *(*itP);
+	    HepLorentzVector p_dPlus=Ks.p()+pion.p();
+	    double m=p_dPlus.mag();
+
+	    if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
+	    Particle* dPlus =new Particle(p_dPlus,Ptype(pion.charge() > 0 ? "D+" : "D-"));
+	    dPlus->relation().append(Ks);
+	    dPlus->relation().append(pion);
+	    if(m_mc)
+	      {
+		printD();
+		const Gen_hepevt &h_Ks=Ks.genHepevt();
+		const Gen_hepevt &h_pion=pion.genHepevt();
+		if(h_Ks && h_pion && h_Ks.mother() && h_pion.mother() && h_Ks.mother().get_ID()==h_pion.mother().get_ID()){
+		  dPlus->relation().genHepevt(h_Ks.mother());
+		}
+	      } 
+	    chargedDCandidates.push_back(dPlus);
+	    kinematics::DDecay=7;
+	  }
+      }
+    
+
+    ///D->Kspi+pi+pi-
+    for(vector<Particle*>::iterator itP1=chargedPiCandidates.begin();itP1!=chargedPiCandidates.end();itP1++)
+      {
+	for(vector<Particle*>::iterator itP2=(itP1+1);itP2!=chargedPiCandidates.end();itP2++)  
+	  {
+	    for(vector<Particle*>::iterator itP3=(itP2+1);itP3!=chargedPiCandidates.end();itP3++)  
+	      {
+		for(vector<Particle*>::iterator itKs=KsCandidates.begin();itKs!=KsCandidates.end();itKs++)
+		  {
+		    Particle& pion1= *(*itP1);
+		    Particle& pion2= *(*itP2);
+		    Particle& pion3= *(*itP3);
+		    Particle& Ks= *(*itKs);
+		    double charge =pion1.charge()+pion2.charge()+pion3.charge();
+		    if(fabs(pion1.charge()+pion2.charge()+pion3.charge())>1) continue;
+		    HepLorentzVector p_dPlus=Ks.p()+pion1.p()+pion2.p()+pion3.p();
+		    double m=p_dPlus.mag();
+
+
+		    if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
+		    Particle* dPlus =new Particle(p_dPlus,Ptype(charge >0 ? "D+" : "D-"));
+		    dPlus->relation().append(Ks);
+		    dPlus->relation().append(pion1);
+		    dPlus->relation().append(pion2);
+		    dPlus->relation().append(pion3);
+		    if(m_mc)
+		      {
+			printD();
+			const Gen_hepevt &h_Ks=Ks.genHepevt();
+			const Gen_hepevt &h_pion1=pion1.genHepevt();
+			const Gen_hepevt &h_pion2=pion2.genHepevt();
+			const Gen_hepevt &h_pion3=pion3.genHepevt();
+		    
+			if(h_Ks && h_pion1 && h_pion2&&h_pion3){
+			  if(h_Ks.mother() && h_pion1.mother() &&h_pion2.mother() && h_pion3.mother()){
+			    if( h_Ks.mother().get_ID()==h_pion1.mother().get_ID() && h_pion1.mother()==h_pion2.mother() && h_pion2.mother()==h_pion2.mother()){
+			      dPlus->relation().genHepevt(h_pion1.mother());
+			    }
+			  }
+			}
+		      }
+		    chargedDCandidates.push_back(dPlus);
+		    kinematics::DDecay=8;
+		  }
+	      }
+	  }
+      }
+
+
+    //D-->K-P+P+
+    for(vector<Particle*>::iterator itP1=chargedPiCandidates.begin();itP1!=chargedPiCandidates.end();itP1++)
+      {
+	for(vector<Particle*>::iterator itP2=itP1+1;itP2!=chargedPiCandidates.end();itP2++)
+	  {
+	    for(vector<Particle*>::iterator itK=chargedKCandidates.begin();itK!=chargedKCandidates.end();itK++)
+	      {
+		Particle& pion1=*(*itP1);
+		Particle& pion2= *(*itP2);
+		Particle& kaon= *(*itK);
+		
+		if(pion1.charge()!=pion2.charge()) continue;
+		if(kaon.charge()==pion1.charge()) continue;
+		double charge = pion1.charge()+pion2.charge()+kaon.charge();
+		HepLorentzVector p_dPlus=pion1.p()+pion2.p()+kaon.p();
+		double m=p_dPlus.mag();
+
+
+		if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
+		//		Particle* d0 =new Particle(p_d0,Ptype(k/.charge()<0 ? "D0" : "D0B"));
+		Particle* dPlus =new Particle(p_dPlus,Ptype(charge > 0 ? "D+": "D-"));
+		dPlus->relation().append(pion1);
+		dPlus->relation().append(pion2);
+		dPlus->relation().append(kaon);
+		if(m_mc)
+		  {
+		    const Gen_hepevt &h_pion1=pion1.genHepevt();
+		    const Gen_hepevt &h_pion2=pion2.genHepevt();
+		    const Gen_hepevt &h_kaon=kaon.genHepevt();
+		    if(h_pion1&&h_pion2 && h_kaon&& h_pion1.mother() && h_pion2.mother() && h_kaon.mother() && h_pion1.mother().get_ID()==h_pion2.mother().get_ID() && h_pion1.mother()==h_kaon.mother()){
+		      dPlus->relation().genHepevt(h_pion1.mother());
+		    }
+		  }
+		chargedDCandidates.push_back(dPlus);
+		kinematics::DDecay=9;
+	      }
+	  }
+      }
+
+    //D-->K+K-pi+
+    for(vector<Particle*>::iterator itK1=chargedKCandidates.begin();itK1!=chargedKCandidates.end();itK1++)
+      {
+	for(vector<Particle*>::iterator itK2=itK1+1;itK2!=chargedKCandidates.end();itK2++)
+	  {
+	    for(vector<Particle*>::iterator itP=chargedPiCandidates.begin();itP!=chargedPiCandidates.end();itP++)
+	      {
+		Particle& kaon1=*(*itK1);
+		Particle& kaon2= *(*itK2);
+		Particle& pion= *(*itP);
+		
+		if(kaon1.charge()==kaon2.charge()) continue;
+		double charge = kaon1.charge()+kaon2.charge()+pion.charge();
+		HepLorentzVector p_dPlus=kaon1.p()+kaon2.p()+pion.p();
+		double m=p_dPlus.mag();
+
+
+
+		if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
+		//		Particle* d0 =new Particle(p_d0,Ptype(k/.charge()<0 ? "D0" : "D0B"));
+		Particle* dPlus =new Particle(p_dPlus,Ptype(charge > 0 ? "D+": "D-"));
+		dPlus->relation().append(kaon1);
+		dPlus->relation().append(kaon2);
+		dPlus->relation().append(pion);
+		if(m_mc)
+		  {
+		    const Gen_hepevt &h_kaon1=kaon1.genHepevt();
+		    const Gen_hepevt &h_kaon2=kaon2.genHepevt();
+		    const Gen_hepevt &h_pion=pion.genHepevt();
+		    if(h_kaon1&&h_kaon2 && h_pion&& h_kaon1.mother() && h_kaon2.mother() && h_pion.mother() && h_kaon1.mother().get_ID()==h_kaon2.mother().get_ID() && h_kaon1.mother()==h_pion.mother()){
+		      dPlus->relation().genHepevt(h_kaon1.mother());
+		    }
+		  }
+		chargedDCandidates.push_back(dPlus);
+	    kinematics::DDecay=10;
+	      }
+	  }
+      }
+
+
+
+  }
+
+  void ptSpect::reconstructDStar()
+  {
+    double m_DStarPlus=2.01027;
+    double m_DStar0=2.00697;
+    double m_D0=1.86484;
+    double m_DPlus=1.86962;
+
+    double m_dStarPlusmass_max=m_DStarPlus+0.015;
+    double m_dStarPlusmass_min=m_DStarPlus-0.015;
+
+    double m_dStar0mass_max=m_DStar0+0.015;
+    double m_dStar0mass_min=m_DStar0-0.015;
+
+    double max_massDifference=0.003;
+
+    //    cout <<" combining " << chargedDCandidates.size() <<" charged Ds with " << pi0Candidates.size() <<" pi0s"<<endl;
+    for(vector<Particle*>::iterator itD=chargedDCandidates.begin();itD!=chargedDCandidates.end();itD++)
+      {
+	//	break;
+	for(vector<Particle*>::iterator itPi0=pi0Candidates.begin();itPi0!=pi0Candidates.end();itPi0++)
+	  {
+	    Particle& D= *(*itD);
+	    Particle& pi0= *(*itPi0);
+
+	    bool doubleUse=false;
+	    //make sure that pi0 is not child of D
+	    for(int i =0;i<D.nChildren();i++)
+	      {
+		if(D.child(i).relation().isIdenticalWith(pi0.relation()))
+		  {
+		    //		    cout <<"found double use 1 .." <<endl;
+		    doubleUse=true;
+		    break;
+		  }
+	      }
+	    if(doubleUse)
+	      continue;
+
+
+	    HepLorentzVector p_dStar=D.p()+pi0.p();
+	    double m=p_dStar.mag();
+
+
+
+	    if(m>m_dStarPlusmass_max || m < m_dStarPlusmass_min ||isnan(m)) continue;
+	    //	    cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_DPlus) <<" vs : " << (m-D.p().mag());
+	    //	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_DPlus)) <<endl;
+
+	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_DPlus)) > max_massDifference) continue;
+	    //	    cout <<"done " <<endl;
+	    Particle* dStar =new Particle(p_dStar,Ptype(D.charge()>0 ? "D*+" : "D*-"));
+	    dStar->relation().append(D);
+	    dStar->relation().append(pi0);
+	    if(m_mc)
+	      {
+		const Gen_hepevt &h_D=D.genHepevt();
+		const Gen_hepevt &h_pi0=pi0.genHepevt();
+		if(h_D && h_pi0 && h_D.mother() && h_pi0.mother() && h_D.mother().get_ID()==h_pi0.mother().get_ID()){
+		  dStar->relation().genHepevt(h_D.mother());
+		}
+	      } 
+	    DStarCandidates.push_back(dStar);
+	    kinematics::DStarDecay=1;
+	  }
+      }
+
+
+    //    cout <<" combining " << D0Candidates.size() <<"  D0s with " << chargedPiCandidates.size() <<" charged "<<endl;
+    for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
+      {
+	for(vector<Particle*>::iterator itP=chargedPiCandidates.begin();itP!=chargedPiCandidates.end();itP++)
+	  {
+	    Particle& D= *(*itD);
+	    Particle& pion= *(*itP);
+
+	    bool doubleUse=false;
+	    //make sure that pion is not child of D
+	    for(int i =0;i<D.nChildren();i++)
+	      {
+		if(D.child(i).relation().isIdenticalWith(pion.relation()))
+		  {
+		    //		    cout <<"found double use 2 .." <<endl;
+		    doubleUse=true;
+		    break;
+		  }
+	      }
+	    if(doubleUse)
+	      continue;
+
+
+	    HepLorentzVector p_dStar=D.p()+pion.p();
+	    double m=p_dStar.mag();
+
+
+
+	    if(m>m_dStarPlusmass_max || m < m_dStarPlusmass_min ||isnan(m)) continue;
+	    //	    cout <<"m -D: "<< m-D.p().mag() <<endl;
+	    //	    cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
+	    //	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
+	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) > max_massDifference) continue;
+	    //	    cout <<"done" <<endl;
+	    Particle* dStar =new Particle(p_dStar,Ptype(pion.charge()>0 ? "D*+" : "D*-"));
+	    dStar->relation().append(D);
+	    dStar->relation().append(pion);
+	    if(m_mc)
+	      {
+		const Gen_hepevt &h_D=D.genHepevt();
+		const Gen_hepevt &h_pion=pion.genHepevt();
+		if(h_D && h_pion && h_D.mother() && h_pion.mother() && h_D.mother().get_ID()==h_pion.mother().get_ID()){
+		  dStar->relation().genHepevt(h_D.mother());
+		}
+	      } 
+	    DStarCandidates.push_back(dStar);
+	    kinematics::DStarDecay=2;
+	  }
+      }
+
+    ///D*0 from D0pi0
+    for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
+      {
+	//	break;
+	for(vector<Particle*>::iterator itPi0=pi0Candidates.begin();itPi0!=pi0Candidates.end();itPi0++)
+	  {
+	    Particle& D= *(*itD);
+	    Particle& pi0= *(*itPi0);
+
+	    bool doubleUse=false;
+	    //make sure that pi0 is not child of D
+	    for(int i =0;i<D.nChildren();i++)
+	      {
+		if(D.child(i).relation().isIdenticalWith(pi0.relation()))
+		  {
+		    //		    cout <<"found double use 3 .." <<endl;
+		    doubleUse=true;
+		    break;
+		  }
+	      }
+	    if(doubleUse)
+	      continue;
+
+
+	    HepLorentzVector p_dStar=D.p()+pi0.p();
+	    double m=p_dStar.mag();
+
+
+	    if(m>m_dStar0mass_max || m < m_dStar0mass_min ||isnan(m)) continue;
+	    //	    cout <<"looking at dstar, mass diff: " <<(m_DStar0-m_D0) <<" vs : " << (m-D.p().mag());
+	    //	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStar0-m_D0)) <<endl;
+	    if(fabs(m-D.p().mag()-(m_DStar0-m_D0)) > max_massDifference) continue;
+	    //	    cout <<" done " <<endl;
+	    Particle* dStar =new Particle(p_dStar,Ptype("D*0"));
+	    dStar->relation().append(D);
+	    dStar->relation().append(pi0);
+	    if(m_mc)
+	      {
+		const Gen_hepevt &h_D=D.genHepevt();
+		const Gen_hepevt &h_pi0=pi0.genHepevt();
+		if(h_D && h_pi0 && h_D.mother() && h_pi0.mother() && h_D.mother().get_ID()==h_pi0.mother().get_ID()){
+		  dStar->relation().genHepevt(h_D.mother());
+		}
+	      } 
+	    DStarCandidates.push_back(dStar);
+	    kinematics::DStarDecay=3;
+	  }
+      }
+
+
+
+
+
+  }
+
+
+  //this seems to have some impact...
+  unsigned ptSpect::doKmFit(Particle &p, double& confLevel, int debug, double mass)
+  {
+    //    return true;
+    kmassfitter km;
+    if(mass!=0)
+      {
+	//	cout <<" using mass; "<< mass <<endl;
+	km.invariantMass(mass);
+      }
+    //    km.invariantMass(mass==0 ? p.pType().mass(): mass);
+    else
+      km.invariantMass(mass==0 ? p.pType().mass(): mass);
+    for(unsigned j=0;j<p.relation().nChildren();j++)
+      {
+	Particle child=p.relation().child(j);
+	km.addTrack(child.momentum().p(),child.momentum().x(),child.momentum().dpx(),child.pType().charge(),child.pType().mass());
+      }
+    km.notDecayPoint();
+    unsigned err = km.fit();
+    if(err){
+      //           cout <<"Err in kmassvertexfitter: "<< err <<endl;
+      return 0;
+    }
+    //    else{cout <<"fit was ok.." <<endl;}
+    confLevel=km.cl();
+    return makeMother(km,p);
+  }
+
+  //dmitries code..
+  unsigned ptSpect::doKmVtxFit2(Particle &p, double& confLevel, int debug, double mass)
+  {
+
+    kmassvertexfitter kmvfitter;
+    kmvfitter.invariantMass(mass==0 ? p.pType().mass() : mass);
+    for(unsigned i=0; i<p.nChildren(); ++i)
+      addTrack2fit(kmvfitter, p.child(i));
+
+    if(p.nChildren()>2)
+      {
+	
+      }
+    //this is in the example, but probably old interface?
+    //    kmvfitter.vertex(IpProfile::position());
+    //    kmvfitter.errVertex(IpProfile::position_err());
+    kmvfitter.initialVertex(IpProfile::position());
+    //no error
+    if(!kmvfitter.fit()) {
+      makeMother(kmvfitter, p);
+      p.momentum().vertex(kmvfitter.vertex(),kmvfitter.errVertex());
+      confLevel=kmvfitter.cl();
+      return true;
+    }
+    return false;
+  }
+  //this seems to have some impact...
+  unsigned ptSpect::doKmVtxFit(Particle &p, double& confLevel, int debug)
+  {
+    //first get vertex:
+    kvertexfitter vtxFit;
+    vtxFit.initialVertex(p.x());
+    for(unsigned j=0;j<p.relation().nChildren();j++)
+      {
+	//	Particle child=p.relation().child(j);
+	//	vtxFit.addTrackToFit(child.momentum().p(),child.momentum().x(),child.momentum().dpx(),child.pType().charge(),child.pType().mass());
+      }
+
+    //    return true;
+    kmassvertexfitter km;
+    km.initialVertex(p.x());
+    km.invariantMass(p.pType().mass());
+    for(unsigned j=0;j<p.relation().nChildren();j++)
+      {
+	Particle child=p.relation().child(j);
+	km.addTrack(child.momentum().p(),child.momentum().x(),child.momentum().dpx(),child.pType().charge(),child.pType().mass());
+      }
+    //    km.notDecayPoint();
+    unsigned err = km.fit();
+    if(err){
+      //           cout <<"Err in kmassvertexfitter: "<< err <<endl;
+      return 0;
+    }
+    //    else{cout <<"fit was ok.." <<endl;}
+    confLevel=km.cl();
+    return makeMother(km,p);
+  }
+
+
+  genhep_vec* ptSpect::getDaughters(const Gen_hepevt &mother)
+  {
+    /* get a vector with all daughters as Gen_hepevt* */
+
+    Gen_hepevt_Manager& gen_hepevt_mgr = Gen_hepevt_Manager::get_manager();
+
+    int n_children = mother.daLast() - mother.daFirst() + 1;
+
+    genhep_vec *children = new genhep_vec();
+
+    for(int i=0; i<n_children; i++) {
+
+      Panther_ID ID0(mother.daFirst()+i);
+      if(ID0==0)
+	{
+	  if(PRINT)
+	    cout <<"wrong!!!" <<endl;
+	  break;
+	}
+      Gen_hepevt& temp = gen_hepevt_mgr(ID0);
+
+      if (temp) 
+	{
+	  children->push_back(&temp);
+	}
+    }
+
+    return children;
+  }
+
+
+  bool ptSpect::recursivePrint(const Gen_hepevt gen_it, string s)
+  {
+    genhep_vec* daughters=getDaughters(gen_it);
+    int lund=fabs(gen_it.idhep());
+
+    if(lund==911|| lund>9000000)
+      return false;
+    Particle p(gen_it);
+    if(lund== 100423 || lund ==100421 ||lund==100411 || lund==100413 )
+      cout <<s << lund << endl;
+    else
+      cout <<s<<p.pType().name() <<" (" << p.pType().lund()<<"), "<<" |p|: " <<p.p().rho()<< " ("<<p.p().px()<<", " << p.p().py()<< ", " << p.p().pz() <<", "<< p.p().t()<<")" <<endl;
+    if(daughters->size()<=0)
+      {
+	//	cout <<"has " << p.nChildren()<<" children " <<endl;
+	return true;
+      }
+    //don't print eventual decay products of kaons etc...
+    if(lund==211 || lund==321 || lund==13 || lund==111)
+      return true;
+    
+    for(genhep_vec::iterator it=daughters->begin();it!=daughters->end();it++)
+      {
+	recursivePrint(**it,s+("-->"));
+      }
+    //    cout <<s<<endl;
+  }
+
+
+
+
+  void ptSpect::printD()
+  {
+
+    Gen_hepevt_Manager& gen_hep_Mgr=Gen_hepevt_Manager::get_manager();
+
+    for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
+      {
+	if(fabs(gen_it->idhep())==411 || fabs(gen_it->idhep())==421)
+	  {
+	    recursivePrint(*gen_it,"");
+	  }
+
+      }
+  }
 
 
 #if defined(BELLE_NAMESPACE)
