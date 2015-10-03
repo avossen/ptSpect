@@ -152,8 +152,8 @@ int main(int argc, char** argv)
 	    continue;
 
 
-	  //	  if(plotResults->isCharm)
-	  //	    continue;
+	    	  if(!plotResults->isCharm)
+	    	    continue;
 	  //	  cout <<"result index: "<< plotResults->resultIndex <<endl;
 	  cout <<"looking at binning type : "<< plotResults->binningType <<endl;
 	  if(binType_labTheta_z == plotResults->binningType)

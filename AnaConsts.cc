@@ -104,6 +104,10 @@ namespace kinematics
 
   int DDecay;
   int DStarDecay;
+
+  int DDecayMC;
+  int DStarDecayMC;
+
   int D0Tag;
   int DStarTag;
   float fastPionZ;

@@ -55,7 +55,7 @@ using namespace std;
 #define PY_B 521
 
 //#define SAVE_HISTOS
-#define XCHECK
+//#define XCHECK
 
 
 #define D0Mass 1.865
@@ -367,6 +367,8 @@ namespace Belle {
     pTreeSaver->addFieldF("thetaEThrust_mc");
     pTreeSaver->addFieldF("ISRPhotonEnergy");
     pTreeSaver->addFieldI("numQuarks");
+    pTreeSaver->addFieldI("D_Decay_mc");
+    pTreeSaver->addFieldI("DStar_Decay_mc");
 
 
     //the fields for the mc w/o acceptance
@@ -654,8 +656,8 @@ namespace Belle {
 	else
 	  iChTrkNeg++;
 	//	cout <<"compare " << (*chr_it).p(0) << ", " << (*chr_it).p(1) <<", " << (*chr_it).p(2) <<endl;
-	//	cout <<" to: "<< refitPx << " " << refitPy <<" " << refitPz <<endl;
-	//	Hep3Vector h3Vect((*chr_it).p(0),(*chr_it).p(1),(*chr_it).p(2));
+	//		cout <<" to: "<< refitPx << " " << refitPy <<" " << refitPz <<endl;
+	//		Hep3Vector h3Vect((*chr_it).p(0),(*chr_it).p(1),(*chr_it).p(2));
 	Hep3Vector h3Vect(refitPx,refitPy,refitPz);
 	////
 
@@ -833,8 +835,9 @@ namespace Belle {
 
 	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
 	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
-
-	if(g1Energy < 0.05 || g2Energy < 0.05)
+	///let's have 100 MeV here...
+	//	if(g1Energy < 0.05 || g2Energy < 0.05)
+	if(g1Energy < 0.1 || g2Energy < 0.1)
 	  continue;
 	Particle* p=new Particle(pi0);
 	double confLevel;
@@ -954,8 +957,6 @@ namespace Belle {
 	  continue;
 
 	/// also quality checks?
-
-
 	//second parameter keeps relation
 	Particle* p=new Particle(*vee_it,true);
 	FindKs findks;
@@ -982,12 +983,21 @@ namespace Belle {
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
+    if(m_mc)
+      {
+	recD0MC();
+	recDStarMC();
+      }
+
+
+
     reconstructD0();
     vector<Particle*> tempParticles;
     for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
       {
 	double confLevel;
 	//		cout <<"mass before d0 mit: "<< (*itD)->p().mag()<<endl;
+	///	if(false)
 	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 	  {
 	    delete *itD;
@@ -995,7 +1005,7 @@ namespace Belle {
 	else
 	  {
 	    tempParticles.push_back(*itD);
-	    //	    cout <<"mass  d0 mit: "<< (*itD)->p().mag()<<endl;
+	    //	    	    cout <<"mass  d0 mit: "<< (*itD)->p().mag()<<endl;
 	  }
 
       }
@@ -1011,7 +1021,8 @@ namespace Belle {
     for(vector<Particle*>::iterator itD=chargedDCandidates.begin();itD!=chargedDCandidates.end();itD++)
       {
 	double confLevel;
-	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+	//	if(false)
+       	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 	  {
 	    //	    cout <<" no good charged D " <<endl;
 	    delete *itD;
@@ -1893,9 +1904,6 @@ namespace Belle {
 	    HepLorentzVector p_d0=pion.p()+kaon.p();
 	    double m=p_d0.mag();
 
-
-
-
 	    Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
 	    //	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 
@@ -2004,7 +2012,7 @@ namespace Belle {
 			}
 		      }
 		    D0Candidates.push_back(d0);
-	    kinematics::DDecay=3;
+		    kinematics::DDecay=3;
 		  }
 	      }
 	  }
@@ -2041,7 +2049,7 @@ namespace Belle {
 		    if(h_pion1&&h_pion2 && h_Ks&& h_pion1.mother() && h_pion2.mother() && h_Ks.mother() && h_pion1.mother().get_ID()==h_pion2.mother().get_ID() && h_pion1.mother()==h_Ks.mother()){
 		      d0->relation().genHepevt(h_pion1.mother());
 		    }
-		printD();
+		    //		printD();
 		  }
 		D0Candidates.push_back(d0);
 		kinematics::DDecay=4;
@@ -2099,7 +2107,7 @@ namespace Belle {
 	    d0->relation().append(Ks);
 	    if(m_mc)
 	      {
-		printD();
+		//		printD();
 		const Gen_hepevt &h_pi0=pi0.genHepevt();
 		const Gen_hepevt &h_Ks=Ks.genHepevt();
 		if(h_pi0 && h_Ks && h_pi0.mother() && h_Ks.mother() && h_pi0.mother().get_ID()==h_Ks.mother().get_ID()){
@@ -2133,7 +2141,7 @@ namespace Belle {
 	    dPlus->relation().append(pion);
 	    if(m_mc)
 	      {
-		printD();
+		//		printD();
 		const Gen_hepevt &h_Ks=Ks.genHepevt();
 		const Gen_hepevt &h_pion=pion.genHepevt();
 		if(h_Ks && h_pion && h_Ks.mother() && h_pion.mother() && h_Ks.mother().get_ID()==h_pion.mother().get_ID()){
@@ -2173,7 +2181,7 @@ namespace Belle {
 		    dPlus->relation().append(pion3);
 		    if(m_mc)
 		      {
-			printD();
+			//			printD();
 			const Gen_hepevt &h_Ks=Ks.genHepevt();
 			const Gen_hepevt &h_pion1=pion1.genHepevt();
 			const Gen_hepevt &h_pion2=pion2.genHepevt();
@@ -2284,11 +2292,13 @@ namespace Belle {
     double m_D0=1.86484;
     double m_DPlus=1.86962;
 
-    double m_dStarPlusmass_max=m_DStarPlus+0.015;
-    double m_dStarPlusmass_min=m_DStarPlus-0.015;
 
-    double m_dStar0mass_max=m_DStar0+0.015;
-    double m_dStar0mass_min=m_DStar0-0.015;
+    //Dmitry does not have max and min on DStar, just the difference (probably due to the uncertainty on the DStar)
+    double m_dStarPlusmass_max=m_DStarPlus+10.015;
+    double m_dStarPlusmass_min=m_DStarPlus-10.015;
+
+    double m_dStar0mass_max=m_DStar0+10.015;
+    double m_dStar0mass_min=m_DStar0-10.015;
 
     double max_massDifference=0.003;
 
@@ -2349,10 +2359,14 @@ namespace Belle {
       {
 	for(vector<Particle*>::iterator itP=chargedPiCandidates.begin();itP!=chargedPiCandidates.end();itP++)
 	  {
+	    /////	    cout <<"looking at D0 - pi combination- "<<kinematics::evtNr <<endl;
 	    Particle& D= *(*itD);
 	    Particle& pion= *(*itP);
 
-	    bool doubleUse=false;
+	    ////	    cout <<"D: "<< D.p().px()<<" y: "<< D.p().py() << " z: "<< D.p().pz()<<endl;
+	    /////	    cout <<"pion: "<< pion.p().px()<<" y: "<< pion.p().py() << " z: "<< pion.p().pz()<<endl;
+
+   bool doubleUse=false;
 	    //make sure that pion is not child of D
 	    for(int i =0;i<D.nChildren();i++)
 	      {
@@ -2366,18 +2380,23 @@ namespace Belle {
 	    if(doubleUse)
 	      continue;
 
-
+	    //	    cout <<"no double use" <<endl;
 	    HepLorentzVector p_dStar=D.p()+pion.p();
 	    double m=p_dStar.mag();
 
 
-
+	    ///	    cout <<"dstar cand mass: "<< m <<endl;
 	    if(m>m_dStarPlusmass_max || m < m_dStarPlusmass_min ||isnan(m)) continue;
-	    //	    cout <<"m -D: "<< m-D.p().mag() <<endl;
-	    //	    cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
-	    //	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
+	    ///	    cout <<"m -D: "<< m-D.p().mag() <<endl;
+	    ///	    cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
+	    ///	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
+	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <0.1)
+	      {
+		///		cout <<"printing D.."<<endl;
+		///		printD(true);
+	      }
 	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) > max_massDifference) continue;
-	    //	    cout <<"done" <<endl;
+	    ///	    cout <<"done" <<endl;
 	    Particle* dStar =new Particle(p_dStar,Ptype(pion.charge()>0 ? "D*+" : "D*-"));
 	    dStar->relation().append(D);
 	    dStar->relation().append(pion);
@@ -2390,6 +2409,7 @@ namespace Belle {
 		}
 	      } 
 	    DStarCandidates.push_back(dStar);
+
 	    kinematics::DStarDecay=2;
 	  }
       }
@@ -2584,6 +2604,7 @@ namespace Belle {
     if(daughters->size()<=0)
       {
 	//	cout <<"has " << p.nChildren()<<" children " <<endl;
+	delete daughters;
 	return true;
       }
     //don't print eventual decay products of kaons etc...
@@ -2594,25 +2615,122 @@ namespace Belle {
       {
 	recursivePrint(**it,s+("-->"));
       }
+    delete daughters;
     //    cout <<s<<endl;
   }
 
 
 
 
-  void ptSpect::printD()
+  void ptSpect::printD(bool star)
   {
 
+    Gen_hepevt_Manager& gen_hep_Mgr=Gen_hepevt_Manager::get_manager();
+    int neutralD=411;
+    int charged=421;
+	if(star)
+	  {
+	    neutralD=413;
+	    charged=423;
+	  }
+    for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
+      {
+
+	    if(fabs(gen_it->idhep())==neutralD || fabs(gen_it->idhep())==charged)
+	      {
+		recursivePrint(*gen_it,"");
+	      }
+      }
+  }
+
+
+  bool ptSpect::recD0MC()
+  {
+
+
+    return true;
+  }
+  bool ptSpect::recDStarMC()
+  {
+    kinematics::DStarDecayMC=-1;
+    kinematics::DDecayMC=-1;
     Gen_hepevt_Manager& gen_hep_Mgr=Gen_hepevt_Manager::get_manager();
 
     for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
       {
-	if(fabs(gen_it->idhep())==411 || fabs(gen_it->idhep())==421)
+	if(fabs(gen_it->idhep())==413 || fabs(gen_it->idhep())==423)
 	  {
-	    recursivePrint(*gen_it,"");
+	    int numK=0;
+	    int numPi=0;
+	    int numDaughters=0;
+	    int numGDaughters=0;
+
+	        genhep_vec* daughters=getDaughters(*gen_it);
+		numDaughters=daughters->size();
+		if(numDaughters<=0)
+		  {
+		    delete daughters;
+		    return false;
+		  }
+
+		for(genhep_vec::iterator it=daughters->begin();it!=daughters->end();it++)
+		  {		    
+		    if(fabs((*it)->idhep())==211)
+		      {
+			numPi++;
+		      }
+		    if(fabs((*it)->idhep())==321)
+		      {
+			numK++;
+		      }
+		    if((fabs((*it)->idhep())==411) || (fabs((*it)->idhep())==421))
+		      {
+			genhep_vec* grandDaughters=getDaughters(**it);
+			numGDaughters=grandDaughters->size();
+			for(genhep_vec::iterator it2=grandDaughters->begin();it2!=grandDaughters->end();it2++)
+			  {
+			    if(fabs((*it2)->idhep())==211)
+			      {
+				numPi++;
+			      }
+			    if(fabs((*it2)->idhep())==321)
+			      {
+				numK++;
+			      }
+			  }
+			delete grandDaughters;
+		       
+		      }
+
+		  }
+		//delete daughters of D*
+		delete daughters;	
+		//don't print eventual decay products of kaons etc...
+		
+		if(numK==1 && numPi==2 && numDaughters==2 && numGDaughters==2)
+		  {
+		    //ddecay ==1 is pi/k ,dstardecay 2 is D0/pi
+		    //		    recursivePrint(*gen_it,"");
+		    kinematics::DDecayMC=1;
+		    kinematics::DStarDecayMC=2;
+		    //		    cout <<"found d in mc "<< kinematics::evtNr<<endl;
+		    //		    printD(true);
+		    return true;
+		  }
+		else
+		  {
+		    //start new
+		    numDaughters=0;
+		    numGDaughters=0;
+		    numK=0;
+		    numPi=0;
+		  }
+
 	  }
 
       }
+
+    return false;
   }
 
 

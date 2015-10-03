@@ -133,10 +133,21 @@ int main(int argc, char** argv)
     dataMCFlag=mcFlagMC;
 
 
+  cout <<"dataMCFlag: "<< dataMCFlag <<endl;
+  if(dataMCFlag==mcFlagMC)
+    cout <<"mc Flag!! " <<endl;
   HadronPairArray hadPair(chAll,dataMCFlag);
+  //  HadronPairArray hadPairMC(chAll,mcFlagMC);
 
   cout <<"done with had pairs....." <<endl;
-  MEvent myEvent(chAll,dataMCFlag);
+  kMCFlags mEventDataMCFlag=dataMCFlag;
+  if(isMC==mcAsData)
+    {
+    mEventDataMCFlag=mcAsData;
+    }
+  cout <<"mevent mc flag: " <<mEventDataMCFlag << " data flag: "<< dataMCFlag <<endl;
+  MEvent myEvent(chAll,mEventDataMCFlag);
+  //  MEvent myEventMC(chAll,mcFlagMC);
   cout <<" 1 " << endl;
   HadronPairArray hadPairWoA(chWoA,mcFlagWoA);
   cout <<" 2 " << endl;
@@ -163,11 +174,13 @@ int main(int argc, char** argv)
     ss<<"_data_";
 
   MultiPlotter plotter(const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+  //  MultiPlotter plotterMC(const_cast<char*>("NormalMC"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   MultiPlotter plotterWoA(const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter fitPi0SigMinusMix(const_cast<char*>("fitPi0SigMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
   //  MultiPlotter fitPi0BgMinusMix(const_cast<char*>("fitPi0BgMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
 
   plotter.setName("Normal");
+  //  plotterMC.setName("NormalMC");
   plotterWoA.setName("NormalWoA");
 
   for(long i=0;i<nevents;i++)
@@ -180,7 +193,6 @@ int main(int argc, char** argv)
 	cout <<"processing event nr " << i << " of " << nevents << "(" << 100*i/(float)nevents<< "% )"<<endl;
       chAll->GetEntry(i);
       myEvent.afterFill();
-
       if(myEvent.cutEvent)
 	{
 	  continue;

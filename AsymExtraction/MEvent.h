@@ -25,11 +25,10 @@ class MEvent:public ReaderBase
   int d0Tag;
   int D_Decay;
   int DStarDecay;
+  //only for mcAsData
+  int D_Decay_mc;
+  int DStarDecay_mc;
   int DStarTag;
-
-
-
-
   int dStarTag;
   float isrPhotonEnergy;
 
@@ -46,23 +45,22 @@ class MEvent:public ReaderBase
   const float thrustThetaCMSMaxProj;
   const bool d0Cut, dStarCut;
   const bool d0CutV2, dStarCutV2;
+  const bool DCutMC, DStarCutMC;
   const float isrCut;
 
   //hard cuts 1.2-1.6
   //1 - 2.14 is 0.7-1.76 in cms
   //acos(0.5e) is 1.05 rad --> in lab 0.73 -.1.7
   //no cuts.. since e.g. cuts on thrust theta together with hadron theta binning biases kT...
-  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(1.33), upperThrustThetaCutCMS(1.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(0)
+  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(0),DCutMC(false),DStarCutMC(true)
   {
     myChain=chain;
     if(chain)
       {
 	branchPointers.push_back(&thrustThetaCMS);
-
 	branchPointers.push_back(&Thrust);
 	if(mMCFlag!=mcFlagWoA)
 	  {
-
 	    branchPointers.push_back(&E_miss);
 	    branchPointers.push_back(&thrustPhiCMS);
 	  }
@@ -78,6 +76,12 @@ class MEvent:public ReaderBase
 	    branchPointersI.push_back(&dStarTag);
 	    branchPointersI.push_back(&D_Decay);
 	    branchPointersI.push_back(&DStarDecay);
+	    if(mMCFlag==mcAsData)
+	      {
+		branchPointersI.push_back(&D_Decay_mc);
+		branchPointersI.push_back(&DStarDecay_mc);
+	      }
+
 	  }
 	//the field thrustTheta_mc exists but encodes only the difference, so that leads to all cuts to fail
 	//    branchNames.push_back("thrustTheta"+addendum);
@@ -110,8 +114,14 @@ class MEvent:public ReaderBase
 	    branchNames.push_back("ISRPhotonEnergy");
 	    branchNamesI.push_back("D0Tag");
 	    branchNamesI.push_back("DStarTag");
-	    branchNamesI.push_back("D_Decay");
-	    branchNamesI.push_back("DStar_Decay");
+	    branchNamesI.push_back("D_Decay"+addendum);
+	    branchNamesI.push_back("DStar_Decay"+addendum);
+	    //only makes sense for mcAsData. If it is just mc, the addendum will be _mc anyways
+	    if(mMCFlag==mcAsData)
+	      {
+		branchNamesI.push_back("D_Decay_mc");
+		branchNamesI.push_back("DStar_Decay_mc");
+	      }
 	  }
 
 	doAllBranching();
@@ -135,7 +145,13 @@ class MEvent:public ReaderBase
 	  cutEvent=true;
 	if(dStarCutV2 && (DStarDecay<0))
 	  cutEvent=true;
+	if(DStarCutMC && (D_Decay_mc<0 && DStarDecay_mc<0))
+	  cutEvent=true;
 
+
+	///check what the reconstruction does
+	if(DStarDecay !=2 && D_Decay!=1)
+	  cutEvent=true;
 
 
 
@@ -158,7 +174,6 @@ class MEvent:public ReaderBase
 
     if(fabs(cos(thrustThetaCMS))>thrustThetaCMSMaxProj)
       cutEvent=true;
-
 
     transProj=sin(thetaEThrust)*sin(thetaEThrust)/(1+cos(thetaEThrust)*cos(thetaEThrust));
     longProj=sqrt(1-transProj*transProj);

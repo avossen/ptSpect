@@ -44,7 +44,9 @@ public:
 
   // initialize
   void init ( int * );
-  void printD();
+  void printD(bool star=false);
+  bool recDStarMC();
+  bool recD0MC();
   int goodHadronB() const;
   genhep_vec *getDaughters(const Gen_hepevt &mother);
   // begin_run function

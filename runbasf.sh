@@ -36,13 +36,13 @@ histogram define ${HBKFILE}
 #process_event /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r001746-b20090127_0910.mdst
 #process_event /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r001722-b20090127_0910.mdst
 
-#rocess_event  /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/charm/2011 evtgen-charm-00-all-e000055r001742-b20090127_0910.mdst 1000
+process_event  /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/charm/2011 evtgen-charm-00-all-e000055r001742-b20090127_0910.mdst 1000
 
 process_event  /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/charm/evtgen-charm-00-all-e000055r001746-b20090127_0910.mdst 1000
 
 process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP43/on_resonance/charm/evtgen-charm-00-all-e000043r000004-b20090127_0910.mdst 0
 
-process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r001635-b20090127_0910.mdst 0
+#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r001635-b20090127_0910.mdst 0
 
 #process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r001635-b20090127_0910.mdst 0
 #process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000801-b20090127_0910.mdst 0

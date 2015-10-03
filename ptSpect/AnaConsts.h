@@ -60,6 +60,8 @@ namespace kinematics
 
   extern int DDecay;
   extern int DStarDecay;
+  extern int DDecayMC;
+  extern int DStarDecayMC;
 
   extern int D0Tag;
   extern int DStarTag;

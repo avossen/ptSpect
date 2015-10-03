@@ -63,8 +63,8 @@ void MultiPlotter::loadBinnings()
 
   /////  binningZ.push_back(0.2);
   binningZ.push_back(0.3);
-  ////  binningZ.push_back(0.4);
-  ////  binningZ.push_back(0.5);
+  binningZ.push_back(0.4);
+  binningZ.push_back(0.5);
   ////  binningZ.push_back(0.7);
   binningZ.push_back(0.6); //// 
   binningZ.push_back(1.5);
@@ -84,7 +84,9 @@ void MultiPlotter::loadBinnings()
   binningKt.push_back(0.7);
     binningKt.push_back(0.75);
   binningKt.push_back(0.8);
+  binningKt.push_back(0.9);
     binningKt.push_back(1.0);
+    binningKt.push_back(1.25);
     binningKt.push_back(1.5);
   binningKt.push_back(2.0);
 
@@ -170,19 +172,37 @@ void MultiPlotter::savePlots( plotType mPlotType)
 	    {
 	      for(int j=0;j<maxKinMap[binningType].second;j++)
 		{
-		  cout <<" bin: " << i << ", " << j << endl;
+		  //		  cout <<" bin: " << i << ", " << j << endl;
+
+		  
 		  double normFactor=1.0;
 		  double maxVal=-1.0;
+		  double maxValNorm=-1.0;
 		  int resIdx=getResIdx(binningType,chargeType,i,j);
 		  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
 		    {
-		      if(maxVal< m_plotResults[resIdx].kTValues[iKtBin])
-			maxVal=m_plotResults[resIdx].kTValues[iKtBin];
+		      float binWidthFactor=1.0;
+		      if(0==iKtBin)
+			{
+			  binWidthFactor=binningKt[0];
+			}
+		      else
+			{
+			  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
+			}
+		      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+		      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
+		      //normalize so that the final points have the same maximum
+		      if(maxValNorm< m_plotResults[resIdx].kTValues[iKtBin]/binWidthFactor)
+			{
+			  maxVal=m_plotResults[resIdx].kTValues[iKtBin];
+			  maxValNorm=m_plotResults[resIdx].kTValues[iKtBin]/binWidthFactor;
+			}
 
 		    }
 		  loc_plotResults=&m_plotResults[resIdx];
 		  tree->Fill();
-		  normFactor=1.0/maxVal;
+		  normFactor=1.0/maxValNorm;
 	  
 
 		  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)

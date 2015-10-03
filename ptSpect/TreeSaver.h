@@ -383,6 +383,8 @@ public:
       dataF.push_back(gi.thetaEThrust);
       dataF.push_back(gi.isrPhotonEnergy);
       dataI.push_back(gi.numQuarks);
+      dataI.push_back(kinematics::DDecayMC);
+      dataI.push_back(kinematics::DStarDecayMC);
       //      cout <<"isr photon energy: " << gi.isrPhotonEnergy <<endl;
 
 #endif
@@ -393,6 +395,8 @@ public:
       dataI.push_back(kinematics::D0Tag);
       dataI.push_back(kinematics::DStarTag);
       dataI.push_back(kinematics::DDecay);
+      if(kinematics::DStarDecay==2)
+	cout <<"tree saver saw dStar decay!!" <<endl<<endl;
       dataI.push_back(kinematics::DStarDecay);
 
     };
