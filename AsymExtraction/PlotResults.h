@@ -38,7 +38,7 @@ class PlotResults   : public TObject
   int binningType, chargeBin, firstKinBin, secondKinBin;
   int resultIndex;
   //needed to create vtable needed for base class...
-  PlotResults(): mPrint(false), numKtValues(0)
+  PlotResults(): numKtValues(0), mPrint(false)
     {};
   virtual ~PlotResults(){};
 
@@ -64,13 +64,13 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 
 
 
-      int intRhsCount=0;
-      int intCount=0;
+      double intRhsCount=0;
+      double intCount=0;
       for(int i=0;i<maxKtBins;i++)
 	{
 
 	  intRhsCount+=rhs.kTValues[i];
-	  intCount+=kTValues[i];
+	  intCount+= kTValues[i];
 	  
 
 	  if(kTValues[i]==0)

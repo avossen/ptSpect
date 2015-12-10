@@ -28,31 +28,33 @@ class MEvent:public ReaderBase
   //only for mcAsData
   int D_Decay_mc;
   int DStarDecay_mc;
-  int DStarTag;
+  //  int DStarTag;
   int dStarTag;
   float isrPhotonEnergy;
 
   bool cutEvent;
 
 
-  const float minThrust;
-  const float maxMissingEnergy;
+
+
   const float lowerThrustThetaCut;
   const float upperThrustThetaCut;
+  const float thrustThetaCMSMaxProj;
   const float lowerThrustThetaCutCMS;
   const float upperThrustThetaCutCMS;
+  const float maxMissingEnergy;
+  const float minThrust;
 
-  const float thrustThetaCMSMaxProj;
-  const bool d0Cut, dStarCut;
-  const bool d0CutV2, dStarCutV2;
-  const bool DCutMC, DStarCutMC;
+  const bool d0Cut, d0CutV2, dStarCut,dStarCutV2;
   const float isrCut;
+  const bool DCutMC, DStarCutMC;
+
 
   //hard cuts 1.2-1.6
   //1 - 2.14 is 0.7-1.76 in cms
   //acos(0.5e) is 1.05 rad --> in lab 0.73 -.1.7
   //no cuts.. since e.g. cuts on thrust theta together with hadron theta binning biases kT...
-  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(0),DCutMC(false),DStarCutMC(true)
+  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(true),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(false),DCutMC(false),DStarCutMC(false)
   {
     myChain=chain;
     if(chain)
@@ -137,21 +139,24 @@ class MEvent:public ReaderBase
       {
 	if(isrCut && (isrPhotonEnergy> isrCut))
 	   cutEvent=true;
-	if(d0Cut && (0==d0Tag ))
+	if(d0Cut && (0==d0Tag))
 	  cutEvent=true;
 	if(dStarCut && (0==dStarTag))
 	  cutEvent=true;
-	if(d0CutV2 && (D_Decay<0))
+       if(d0CutV2 && (D_Decay<0))
+	 {
+	   //  cout <<" cut event " << endl;
 	  cutEvent=true;
+	 }
+       //       if(!cutEvent)
+       //              cout <<" didn't cut event" << endl;
 	if(dStarCutV2 && (DStarDecay<0))
 	  cutEvent=true;
 	if(DStarCutMC && (D_Decay_mc<0 && DStarDecay_mc<0))
 	  cutEvent=true;
-
-
 	///check what the reconstruction does
-	if(DStarDecay !=2 && D_Decay!=1)
-	  cutEvent=true;
+	//	if(DStarDecay !=2 && D_Decay!=1)
+	//	  cutEvent=true;
 
 
 
@@ -177,6 +182,26 @@ class MEvent:public ReaderBase
 
     transProj=sin(thetaEThrust)*sin(thetaEThrust)/(1+cos(thetaEThrust)*cos(thetaEThrust));
     longProj=sqrt(1-transProj*transProj);
+
+    if(cutEvent)
+      {
+	//      cout <<"docut Event"<<endl;
+      }
+    else
+      {
+//	cout <<endl <<"nocut, dstartag: "<< endl;
+//	if(d0Tag)
+//	  cout <<"D0Tag " <<endl;
+//	if(dStarTag)
+//	  cout <<"DStarTag" <<endl;
+//	if(D_Decay>0)
+//	  cout <<"DV2Tag" <<endl;
+//	if(DStarDecay > 0)
+//	  cout <<"DStarV2Tag" <<endl;
+//	//
+	//      cout <<"donotcut Event " <<endl;
+      }
+
   }
 }; 
 

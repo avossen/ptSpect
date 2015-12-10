@@ -163,7 +163,7 @@ void loadBinning(vector<float>* binningM, vector<float>* binningZ, vector<float>
 void cpyVect(vector<float>& v1, vector<float>& v2)
 {
 
-  for(int i=0;i<v2.size();i++)
+  for(unsigned int i=0;i<v2.size();i++)
     {
       v1.push_back(v2[i]);
     }
@@ -293,9 +293,9 @@ void saveKinPars(TH1D***** kinSpectraH, vector<float>* binningM )
 		{
 		  for(int iPa2=PiPi;iPa2<=iPa1;iPa2++)
 		    {
-		      for(int iM=0;iM<binningM[iPa1].size();iM++)
+		      for(unsigned int iM=0;iM<binningM[iPa1].size();iM++)
 			{
-			  for(int iM2=0;iM2<binningM[iPa1].size();iM2++)
+			  for(unsigned int iM2=0;iM2<binningM[iPa1].size();iM2++)
 			    {
 			      indFile <<ind(iCh1,iCh2,NumCharge)<< " " <<  ind(iPa1,iPa2,NumParticle)<< " " <<iM <<" " << iM2 <<" "<<kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName()<<endl;
 			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Write();
@@ -361,10 +361,10 @@ void saveKinPars(TH2D***** kinSpectraH, vector<float>* binningM)
 		      kinematics::particleType2=iPa2;
 		      TCanvas c("mCanvas","mCanvas");
 		      c.Divide(binningM[iPa1].size(),binningM[iPa2].size());
-		      for(int iM=0;iM<binningM[iPa1].size();iM++)
+		      for(unsigned int iM=0;iM<binningM[iPa1].size();iM++)
 			{
 			  kinematics::mBin1=iM;
-			  for(int iM2=0;iM2<binningM[iPa1].size();iM2++)
+			  for(unsigned int iM2=0;iM2<binningM[iPa1].size();iM2++)
 			    {
 			      c.cd(iM*binningM[iPa1].size()+iM2+1);
 			      kinematics::mBin2=iM2;
@@ -626,15 +626,15 @@ string iToStrPart(int i)
 
 int getHBin(float val, int numBin, float maxVal)
 {
-  int ret=(double)numBin*val/maxVal+1;
-  return ret;
+  double ret=(double)numBin*val/maxVal+1;
+  return (int)ret;
 }
 
 int getBin(vector<float>& b1, float value)
 {
   int coo1=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value<=b1[i])
 	{
@@ -654,7 +654,7 @@ template<class T> void incBorders(vector<float>& b1, float value1, float value2,
 {
   int coo1=-1;
   int coo2=-1;
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -662,7 +662,7 @@ template<class T> void incBorders(vector<float>& b1, float value1, float value2,
 	  break;
 	}
     }
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value2<=b1[i])
 	{
@@ -685,7 +685,7 @@ template<class T> void incBorders(vector<float>& b1, vector<float>& b2, float va
 {
   int coo1=-1;
   int coo2=-1;
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -693,7 +693,7 @@ template<class T> void incBorders(vector<float>& b1, vector<float>& b2, float va
 	  break;
 	}
     }
-  for(int i=0;i<b2.size();i++)
+  for(unsigned int i=0;i<b2.size();i++)
     {
       if(value2<=b2[i])
 	{
@@ -715,7 +715,7 @@ void incBorders(vector<float>& b1, float value1, float value2, float** counts, f
 {
   int coo1=-1;
   int coo2=-1;
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -723,7 +723,7 @@ void incBorders(vector<float>& b1, float value1, float value2, float** counts, f
 	  break;
 	}
     }
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value2<=b1[i])
 	{
@@ -744,7 +744,7 @@ void incBorders(vector<float>& b1, vector<float>& b2, float value1, float value2
 {
   int coo1=-1;
   int coo2=-1;
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -752,7 +752,7 @@ void incBorders(vector<float>& b1, vector<float>& b2, float value1, float value2
 	  break;
 	}
     }
-  for(int i=0;i<b2.size();i++)
+  for(unsigned int i=0;i<b2.size();i++)
     {
       if(value2<=b2[i])
 	{
@@ -776,7 +776,7 @@ void fillBorders(vector<float>& b1, vector<float>& b2,float value1, float value2
   int coo1=-1;
   //  int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -804,7 +804,7 @@ void fillBorders(vector<float>& b1, vector<float>& b2,float value1, float value2
   int coo1=-1;
   //  int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -834,7 +834,7 @@ void fillBorders(vector<float>& b1,   float value1, float value2,  float value3,
  int coo1=-1;
   int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -842,7 +842,7 @@ void fillBorders(vector<float>& b1,   float value1, float value2,  float value3,
 	  break;
 	}
     }
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value2<=b1[i])
 	{
@@ -870,7 +870,7 @@ void fillBorders(vector<float>& b1, vector<float>& b2,  float value1, float valu
   int coo1=-1;
   int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -878,7 +878,7 @@ void fillBorders(vector<float>& b1, vector<float>& b2,  float value1, float valu
 	  break;
 	}
     }
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value2<=b1[i])
 	{
@@ -907,7 +907,7 @@ void fillBordersMix(vector<float>& b1, vector<float>& b2,vector<float>& b3,  flo
   int coo1=-1;
   int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -915,7 +915,7 @@ void fillBordersMix(vector<float>& b1, vector<float>& b2,vector<float>& b3,  flo
 	  break;
 	}
     }
-  for(int i=0;i<b2.size();i++)
+  for(unsigned int i=0;i<b2.size();i++)
     {
       if(value2<=b2[i])
 	{
@@ -944,7 +944,7 @@ void fillBorders(vector<float>& b1, float value1, int* counts)
      //    cout <<"in fillBorders2" <<endl;
      //     cout <<"value: " << value1 <<endl;
      int coo1=-1;
-     for(int i=0;i<b1.size();i++)
+     for(unsigned int i=0;i<b1.size();i++)
        {
 	 //	 cout <<"border: " << b1[i] <<endl;
 	 if(value1<=b1[i])
@@ -969,7 +969,7 @@ void fillBorders(vector<float>& b1, vector<float>& b2,  float value1, float valu
   int coo1=-1;
   int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -977,7 +977,7 @@ void fillBorders(vector<float>& b1, vector<float>& b2,  float value1, float valu
 	  break;
 	}
     }
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value2<=b1[i])
 	{
@@ -1003,7 +1003,7 @@ void fillBorders(vector<float>& b1, float value1, float* counts,float inc)
      //    cout <<"in fillBorders2" <<endl;
      //     cout <<"value: " << value1 <<endl;
      int coo1=-1;
-     for(int i=0;i<b1.size();i++)
+     for(unsigned int i=0;i<b1.size();i++)
        {
 	 //	 cout <<"border: " << b1[i] <<endl;
 	 if(value1<=b1[i])
@@ -1028,7 +1028,7 @@ void fillBordersMix(vector<float>& b1, vector<float>& b2,vector<float>& b3,  flo
   int coo1=-1;
   int coo2=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -1036,7 +1036,7 @@ void fillBordersMix(vector<float>& b1, vector<float>& b2,vector<float>& b3,  flo
 	  break;
 	}
     }
-  for(int i=0;i<b2.size();i++)
+  for(unsigned int i=0;i<b2.size();i++)
     {
       if(value2<=b2[i])
 	{
@@ -1069,7 +1069,7 @@ void fillBorders4(vector<float>& b1, vector<float>& b2, vector<float>& b3,float 
   int coo3=-1;
   int coo4=-1;
 
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value1<=b1[i])
 	{
@@ -1077,7 +1077,7 @@ void fillBorders4(vector<float>& b1, vector<float>& b2, vector<float>& b3,float 
 	  break;
 	}
     }
-  for(int i=0;i<b1.size();i++)
+  for(unsigned int i=0;i<b1.size();i++)
     {
       if(value2<=b1[i])
 	{
@@ -1085,7 +1085,7 @@ void fillBorders4(vector<float>& b1, vector<float>& b2, vector<float>& b3,float 
 	  break;
 	}
     }
-  for(int i=0;i<b2.size();i++)
+  for(unsigned int i=0;i<b2.size();i++)
     {
       if(value3<=b2[i])
 	{
@@ -1093,7 +1093,7 @@ void fillBorders4(vector<float>& b1, vector<float>& b2, vector<float>& b3,float 
 	  break;
 	}
     }
-  for(int i=0;i<b2.size();i++)
+  for(unsigned int i=0;i<b2.size();i++)
     {
       if(value4<=b2[i])
 	{
@@ -1147,7 +1147,7 @@ vector<pair<float, float> >* fitTheSingle(int** counts, vector<float>& binningAn
   float* mYErr=new float[binningAng.size()];
   int numAngBins=binningAng.size();
   float binOf=(binningAng[1]-binningAng[0])/2;
-  for(int i=0;i<binningAng.size();i++)
+  for(unsigned int i=0;i<binningAng.size();i++)
     {
       mX[i]=binningAng[i]-binOf;  //subtract half of binWidth
       mXErr[i]=0;
@@ -1218,7 +1218,7 @@ vector<pair<float, float> >* fitTheSingle(float** counts, vector<float>& binning
   float* mYErr=new float[binningAng.size()];
   int numAngBins=binningAng.size();
   float binOf=(binningAng[1]-binningAng[0])/2;
-  for(int i=0;i<binningAng.size();i++)
+  for(unsigned int i=0;i<binningAng.size();i++)
     {
       mX[i]=binningAng[i]-binOf;  //subtract half of binWidth
       mXErr[i]=0;
@@ -1291,7 +1291,7 @@ vector<pair<float, float> >* fitTheSh__(int*** counts, vector<float>& binningAng
      float* mYErr=new float[binningAng.size()];
      int numAngBins=binningAng.size();
      float binOf=(binningAng[1]-binningAng[0])/2;
-     for(int i=0;i<binningAng.size();i++)
+     for(unsigned int i=0;i<binningAng.size();i++)
        {
 	 mX[i]=binningAng[i]-binOf;  //subtract half of binWidth
 	 mXErr[i]=0;
@@ -1366,7 +1366,7 @@ vector<pair<float, float> >* fitTheSh__(float*** counts, vector<float>& binningA
      float* mYErr=new float[binningAng.size()];
      int numAngBins=binningAng.size();
      float binOf=(binningAng[1]-binningAng[0])/2;
-     for(int i=0;i<binningAng.size();i++)
+     for(unsigned int i=0;i<binningAng.size();i++)
        {
 	 mX[i]=binningAng[i]-binOf;  //subtract half of binWidth
 	 mXErr[i]=0;
@@ -1813,14 +1813,14 @@ void setPadAxi(TVirtualPad *c_1, Int_t divi)
 
 void saveAs(char* fileName,vector<TH1D*>& histos)
 {
-  int dim=sqrt((float)histos.size());
+  unsigned int dim=static_cast<unsigned int>(sqrt((float)histos.size()));
   if(dim*dim < histos.size())
     dim++;
   TCanvas pC("c1","c1",10,20,200,500);
   pC.Divide(dim,dim);
 
 
-  for(int i=0;i<dim*dim;i++)
+  for(unsigned int i=0;i<dim*dim;i++)
     {
       TVirtualPad* tvp=pC.cd(i+1);
       setPadAxi(tvp,dim);
@@ -1870,8 +1870,8 @@ void saveAs(char* fileExt, vector<TGraphErrors*>& mGraphs, vector<string>& graph
   int asymCounter=0;
   TCanvas* pC=0;
   int cnvsNr=0;
-  int __numKinBins=vecKinBins[cnvsNr];
-  int cnvsDim=sqrt(__numKinBins);
+  unsigned int __numKinBins=vecKinBins[cnvsNr];
+  unsigned int cnvsDim=static_cast<unsigned int>(sqrt(__numKinBins));
   if(cnvsDim*cnvsDim < __numKinBins)
     cnvsDim++;
   //  const int cnvsDim=3;
@@ -1976,8 +1976,8 @@ void saveAs(char* fileExt, vector<TGraph*>& mGraphs, vector<string>& graphTitles
   int cnvsNr=0;
   int asymCounter=0;
   //  const int cnvsDim=3;
-  int __numKinBins=vecKinBins[cnvsNr];
-  int cnvsDim=sqrt(__numKinBins);
+  unsigned int __numKinBins=vecKinBins[cnvsNr];
+  unsigned int cnvsDim=static_cast<unsigned int>(sqrt(__numKinBins));
   if(cnvsDim*cnvsDim < __numKinBins)
     cnvsDim++;
   string filenameStart="";

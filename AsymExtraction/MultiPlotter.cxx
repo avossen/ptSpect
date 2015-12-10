@@ -18,7 +18,7 @@ void MultiPlotter::doPlots()
 		{
 		  double locCount=0;
 		  int resIdx=getResIdx(bt,chargeBin,firstBin,secondBin);
-		  for(int ktBin=0;ktBin<numKtBins;ktBin++)
+		  for(unsigned int ktBin=0;ktBin<numKtBins;ktBin++)
 		    {
 		      locCount+=counts[bt][chargeBin][firstBin][secondBin][ktBin];
 		      plotResults[resIdx].kTValues[ktBin]=counts[bt][chargeBin][firstBin][secondBin][ktBin];
@@ -152,8 +152,8 @@ void MultiPlotter::savePlots( plotType mPlotType)
   tree->Branch("PlotBranch","PlotResults",&loc_plotResults,32000,99);
 
 
-  int numKinBin1=0;
-  int numKinBin2=0;
+  //  int numKinBin1=0;
+  //  int numKinBin2=0;
   char buffer[200];
   char buffer1[200];
   float mX[50];
@@ -179,7 +179,7 @@ void MultiPlotter::savePlots( plotType mPlotType)
 		  double maxVal=-1.0;
 		  double maxValNorm=-1.0;
 		  int resIdx=getResIdx(binningType,chargeType,i,j);
-		  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+		  for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
 		    {
 		      float binWidthFactor=1.0;
 		      if(0==iKtBin)
@@ -205,7 +205,7 @@ void MultiPlotter::savePlots( plotType mPlotType)
 		  normFactor=1.0/maxValNorm;
 	  
 
-		  for(int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+		  for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
 		    {
 		      float binWidthFactor=1.0;
 		      if(0==iKtBin)
@@ -284,13 +284,13 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  //	  cout <<"hadron pair survived " <<endl;
 	}
 
-      int chargeBin1=hp->chargeType1[i];
-      int chargeBin2=hp->chargeType2[i];
+      //      int chargeBin1=hp->chargeType1[i];
+      //      int chargeBin2=hp->chargeType2[i];
       int chargeBin=hp->chargeType[i];
 
-      int particleBin1=hp->particleType1[i];
-      int particleBin2=hp->particleType2[i];
-      int particleBin=hp->particleType[i];
+      //      int particleBin1=hp->particleType1[i];
+      //      int particleBin2=hp->particleType2[i];
+      //      int particleBin=hp->particleType[i];
 
       //don'te care for now...
 
@@ -375,8 +375,6 @@ void MultiPlotter::setBinningMap()
 	  meanMap.push_back(pair<float*, float*>(&(this->z1),&(this->z2)));
 	  maxKinMap.push_back(pair<int,int>(binningZ.size(),binningZ.size()));
 	  break;
-
-
 	case binType_zOnly:
 	  binningMap.push_back(pair<int*, int* > (  &(this->zeroBin), &(this->zbin1)));
 	  meanMap.push_back(pair<float*, float*>(&(this->z1),&(this->z1) ));

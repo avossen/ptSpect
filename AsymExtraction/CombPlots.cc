@@ -13,13 +13,27 @@
 //#define MAX_EVENTS 100
 
 
+
+
 using namespace std;
 
 int main(int argc, char** argv)
 {
+
+
+  vector<string> flavor;
+
+  flavor.push_back("_uds");
+  flavor.push_back("_charm");
+  flavor.push_back("_all");
+
   set<int> zOnlyResIdx;
   set<int> badOnRes;
+
   set<int> badCont;
+
+
+
 //   badOnRes.insert(49);
 //  badOnRes.insert(35);
 //
@@ -43,23 +57,39 @@ int main(int argc, char** argv)
 //    badCont.insert(35);
 //    badCont.insert(47);
 //    badCont.insert(43);
-   badCont.insert(71);
-
-
-
+//   badCont.insert(71);
 
 //    badOnRes.insert(71);
 //    badOnRes.insert(55);
 
+
+
+  map<int,int> expCounts;
+
+
   //
-    //        int minExp=32;
-	  int minExp=0;
+  int minExp=12;
+  //int minExp2=0;
+  //  int maxExp=2;
+  //  int maxExp2=200;
+
+
+
+    int maxExp=35;
+    int minExp2=55;
+    int maxExp2=69;
+  // int minExp=0;
 
   char* rootPath=argv[1];
+  char dataMcNameAdd[100];
+  sprintf(dataMcNameAdd,"");
+  if(argc>2)
+    sprintf(dataMcNameAdd,"%s",argv[2]);
+
   srand(time(NULL));
   cout <<"Root path is: " << rootPath <<endl;
   string sRootPath(rootPath);
-  int expNumber=-1;
+  //  int expNumber=-1;
 
   enum flavor{flavUds,flavCharm,flavAll,flavEnd};
   enum onOffRes{res_on,res_off,resEnd};
@@ -72,7 +102,7 @@ int main(int argc, char** argv)
   //  vector< pair<string,TChain*> > vFitterNames;
   vector<string> vPlotterNames;
   vPlotterNames.push_back("Normal");
-  vPlotterNames.push_back("NormalWoA");
+  //  vPlotterNames.push_back("NormalWoA");
 
 
 
@@ -80,8 +110,17 @@ int main(int argc, char** argv)
   TChain* chAll=0;
   int counter=-1;
 
-  float a[3];
-  float ea[3];
+  //  float a[3];
+  //  float ea[3];
+
+
+   for(vector<string>::iterator itFlav=flavor.begin();itFlav!=flavor.end();itFlav++)
+    {
+
+
+
+
+
 
   for(vector<string>::iterator it=vPlotterNames.begin();it!=vPlotterNames.end();it++)
     {
@@ -91,8 +130,11 @@ int main(int argc, char** argv)
             cout <<"adding : "<< (string(rootPath)+"/"+(*it)+"_*.root").c_str() <<endl;
       Int_t nevents=chAll->GetEntries();
       cout <<"Plotter Name: " << *it<<endl;
-      MultiPlotter* pPlotter=new MultiPlotter(it->c_str(),string(""),0,false,false,false,false);
-      pPlotter->setName(*it);
+      string fullName=(*it)+string(dataMcNameAdd)+(*itFlav);
+      MultiPlotter* pPlotter=new MultiPlotter(fullName.c_str(),string(""),0,false,false,false,false);
+
+      cout <<" setting plotter name to:" << fullName <<endl;
+      pPlotter->setName(fullName);
       vPlotters.push_back(pPlotter);
       //has to be 0!!
       PlotResults* plotResults=0;
@@ -108,6 +150,9 @@ int main(int argc, char** argv)
 		      int resIdx=pPlotter->getResIdx(binningType,chargeBin,firstBin,secondBin);
 		      if(binningType==binType_zOnly && chargeBin==pairChargeInt)
 			{
+
+
+
 			  //			  cout <<"resIdx is " << resIdx<<" firstBin: "<<firstBin<<" second: "<< secondBin<<endl;
 			  zOnlyResIdx.insert(resIdx);
 			}
@@ -126,12 +171,12 @@ int main(int argc, char** argv)
       float** mYErr=allocateArray<float>(3,200);
       float** sumWeights=allocateArray<float>(3,200);
 
-      float** mXOnRes=allocateArray<float>(3,200);
-      float** mYOnRes=allocateArray<float>(3,200);
+      //      float** mXOnRes=allocateArray<float>(3,200);
+      //      float** mYOnRes=allocateArray<float>(3,200);
 
-      float** mXErrOnRes=allocateArray<float>(3,200);
-      float** mYErrOnRes=allocateArray<float>(3,200);
-      float** sumWeightsOnRes=allocateArray<float>(3,200);
+      //      float** mXErrOnRes=allocateArray<float>(3,200);
+      //      float** mYErrOnRes=allocateArray<float>(3,200);
+      //      float** sumWeightsOnRes=allocateArray<float>(3,200);
       for(int i=0;i<200;i++)
 	{
 	  for(int j=0;j<3;j++)
@@ -145,17 +190,54 @@ int main(int argc, char** argv)
 
       for(long i=0;i<nevents;i++)
 	{
-	  float locW[3]={0.0,0.0,0.0};
+	  //	  float locW[3]={0.0,0.0,0.0};
 	  chAll->GetEntry(i);
 
-	  if(plotResults->exp<=minExp ||(plotResults->on_res && (badOnRes.find(plotResults->exp)!=badOnRes.end())) ||(!plotResults->on_res && (badCont.find(plotResults->exp)!=badCont.end())))
+	  if(plotResults->exp<minExp ||(plotResults->on_res && (badOnRes.find(plotResults->exp)!=badOnRes.end())) ||(!plotResults->on_res && (badCont.find(plotResults->exp)!=badCont.end())))
+	    continue;
+	  if(plotResults->exp>maxExp && plotResults->exp < minExp2)
+	    continue;
+	  if(plotResults->exp>maxExp2)
 	    continue;
 
+	  //entry doesn't exist yet
+	  if(expCounts.find(plotResults->exp)==expCounts.end())
+	    {
+	      expCounts[plotResults->exp]=0;
+	    }
 
-	    	  if(!plotResults->isCharm)
-	    	    continue;
+
+
+
+	  //for now only continuum:
+	  cout <<"onres? "<< endl;
+	  if(plotResults->on_res)
+	    {
+	      cout <<" result is on resonance " <<endl;
+	    continue;
+	    }
+	  if((*itFlav)==string("_charm"))
+	    {
+	      if(!plotResults->isCharm)
+		continue;
+	    }
+	  if((*itFlav)==string("_uds"))
+	    {
+	      if(plotResults->isCharm)
+		continue;
+	    }
+
 	  //	  cout <<"result index: "<< plotResults->resultIndex <<endl;
-	  cout <<"looking at binning type : "<< plotResults->binningType <<endl;
+	  cout << " looking at exp: "<< plotResults->exp <<" itFlav: " << *itFlav <<" isCharm?  " << plotResults->isCharm<<endl;
+
+	  if(binType_zOnly == plotResults->binningType && (*itFlav)==string("_all"))
+	    {
+	      for(int k=0;k<30;k++)
+		{
+		  expCounts[plotResults->exp]+=(int)plotResults->kTValues[k];
+		}
+
+	    }
 	  if(binType_labTheta_z == plotResults->binningType)
 	    {
 	      cout <<"kt bins before : ";
@@ -213,7 +295,7 @@ int main(int argc, char** argv)
       //only want to plot for the real results
       if((*it)==string("NormalAccWeighted"))
 	{
-	  	  cout<<"saving results vs exp" <<endl;
+	  cout<<"saving results vs exp" <<endl;
 	  TFile tmpFile("resVsExpAccWeighted.root","recreate");
 	  TGraphErrors tgA1(counter[0],mX[0],mY[0],mXErr[0],mYErr[0]);
 	  TH1D thA1("hIff","hIff",100,-10,10);
@@ -273,6 +355,12 @@ int main(int argc, char** argv)
 	  tmpFile.Close();
 	  //	  cout <<"done " <<endl;
 	}
+
+      for(map<int,int>::iterator itEx=expCounts.begin();itEx!=expCounts.end();itEx++)
+	{
+	  cout <<"exp " << itEx->first <<" : " << itEx->second <<endl;
+	}
+
             //only want to plot for the real results
       if((*it)==string("Normal"))
 	{
@@ -286,6 +374,6 @@ int main(int argc, char** argv)
 
       delete chAll;
     }
-
+    }
   
 };

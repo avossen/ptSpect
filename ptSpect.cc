@@ -57,7 +57,6 @@ using namespace std;
 //#define SAVE_HISTOS
 //#define XCHECK
 
-
 #define D0Mass 1.865
 #define D0Width 0.6
 #define D0Lower  D0Mass-D0Width
@@ -2409,7 +2408,7 @@ namespace Belle {
 		}
 	      } 
 	    DStarCandidates.push_back(dStar);
-
+	    cout <<"found dstardecay =2 " <<endl;
 	    kinematics::DStarDecay=2;
 	  }
       }
@@ -2502,7 +2501,6 @@ namespace Belle {
   //dmitries code..
   unsigned ptSpect::doKmVtxFit2(Particle &p, double& confLevel, int debug, double mass)
   {
-
     kmassvertexfitter kmvfitter;
     kmvfitter.invariantMass(mass==0 ? p.pType().mass() : mass);
     for(unsigned i=0; i<p.nChildren(); ++i)

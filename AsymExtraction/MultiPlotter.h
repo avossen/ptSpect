@@ -55,14 +55,14 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       plotResults=new PlotResults[numKinematicBinning*NumCharges*maxKinBins*maxKinBins];
       plotResVect.push_back(plotResults);
 
-      for(int i=0;i<numKinematicBinning*NumCharges*maxKinBins*maxKinBins;i++)
+      for(unsigned int i=0;i<numKinematicBinning*NumCharges*maxKinBins*maxKinBins;i++)
 	{
 	  for(vector<PlotResults*>::iterator it=plotResVect.begin();it!=plotResVect.end();it++)
 	    {
 	      (*it)[i].meanKinBin1=0.0;
 	      (*it)[i].meanKinBin2=0.0;
 	      (*it)[i].numKtValues=numKtBins;
-	      for(int j=0;j<numKtBins;j++)
+	      for(unsigned int j=0;j<numKtBins;j++)
 		{
 		  (*it)[i].kTValues[j]=0.0;
 		  (*it)[i].kTMeans[j]=0.0;

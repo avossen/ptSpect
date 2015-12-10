@@ -79,7 +79,7 @@ int main(int argc, char** argv)
   TH1D z2(buffer,buffer,500,0,1);
 
   //for the data..
-  int numPos=folderName.find("ex");
+  size_t numPos=folderName.find("ex");
   int expNumber=-1;
   if(numPos!=string::npos)
     {
