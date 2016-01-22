@@ -102,9 +102,7 @@ int main(int argc, char** argv)
   //  vector< pair<string,TChain*> > vFitterNames;
   vector<string> vPlotterNames;
   vPlotterNames.push_back("Normal");
-  //  vPlotterNames.push_back("NormalWoA");
-
-
+  vPlotterNames.push_back("NormalWoA");
 
   vector<MultiPlotter*> vPlotters;
   TChain* chAll=0;
@@ -116,11 +114,6 @@ int main(int argc, char** argv)
 
    for(vector<string>::iterator itFlav=flavor.begin();itFlav!=flavor.end();itFlav++)
     {
-
-
-
-
-
 
   for(vector<string>::iterator it=vPlotterNames.begin();it!=vPlotterNames.end();it++)
     {
@@ -214,7 +207,7 @@ int main(int argc, char** argv)
 	  if(plotResults->on_res)
 	    {
 	      cout <<" result is on resonance " <<endl;
-	    continue;
+	      continue;
 	    }
 	  if((*itFlav)==string("_charm"))
 	    {

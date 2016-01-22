@@ -131,7 +131,6 @@ static int getBin(vector<float>& b1, float value)
     vector<Particle*> pi0Candidates;
     vector<Particle*> KsCandidates;
     vector<Particle*> leptonCandidates;
-    vector<Particle*> otherChargedTracks;
     vector<Particle*> D0Candidates;
     vector<Particle*> chargedDCandidates;
     vector<Particle*> DStarCandidates;
@@ -153,6 +152,9 @@ private:
   TH1D* histoD0Spect;
   TH1D* histoDStar;
   TH1D* histoPiSlowMom;
+
+  TH1D* histoRecDStarSpectToDPi;
+  TH1D* histoRecDStarSpectToD0Pi;
 
 
   float getTheta(Particle* p1,Particle* p2)

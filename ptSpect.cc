@@ -109,7 +109,7 @@ namespace Belle {
   {
     strcpy(rFileName,"notInitialized.root");
     test=0;
-    for(int i=0;i<4;i++)
+        for(int i=0;i<4;i++)
       {
 	//	zVals[i]=0;
       }
@@ -117,6 +117,8 @@ namespace Belle {
     histoD0Spect=new TH1D("d0spect","d0spect",1000,0,3.0);
     histoDStar=new TH1D("dStarspect","dStarspect",300,1.8,5.0);
     histoPiSlowMom=new TH1D("piSlow","piSlow",100,0,3.0);
+    histoRecDStarSpectToD0Pi=new TH1D("RecdStarSpectD0Pi","RecdStarSpectToD0Pi",300,1.8,2.2);
+
 
   }  
   ofstream* pXCheck;
@@ -488,6 +490,7 @@ namespace Belle {
 	double m_qt=0;
 	double m_z=0;
 	strcpy(ptypName,"unknown");
+	lundPC=-1;
 	double charge=(*chr_it).charge();
 
 	//      HepLorentzVector hepvec;
@@ -656,11 +659,13 @@ namespace Belle {
 	  iChTrkNeg++;
 	//	cout <<"compare " << (*chr_it).p(0) << ", " << (*chr_it).p(1) <<", " << (*chr_it).p(2) <<endl;
 	//		cout <<" to: "<< refitPx << " " << refitPy <<" " << refitPz <<endl;
+	
 	//		Hep3Vector h3Vect((*chr_it).p(0),(*chr_it).p(1),(*chr_it).p(2));
-	Hep3Vector h3Vect(refitPx,refitPy,refitPz);
+		Hep3Vector h3Vect(refitPx,refitPy,refitPz);
 	////
 
 	double E=sqrt(m_mass*m_mass+h3Vect.mag2());
+	HepLorentzVector nonBoostedVec(h3Vect,E);
 	HepLorentzVector boostedVec(h3Vect,E);
 	boostedVec.boost(kinematics::CMBoost);
 
@@ -710,6 +715,29 @@ namespace Belle {
 	//this is now done by the new and better functions...
 	findDStar(allParticlesBoosted, allPB_particleClass, allPB_particleCharge);
 
+	Particle* pNonBoosted;
+	if(isLepton){
+
+	}
+	else{
+	  if(fabs(lundPC)==211 || fabs(lundPC)==321)
+	    {
+	      pNonBoosted=new Particle(*chr_it,string(ptypName));
+	      if(fabs(pNonBoosted->pType().lund())==PY_PI)
+		{
+		  chargedPiCandidates.push_back(pNonBoosted);
+		}
+	      if(fabs(pNonBoosted->pType().lund())==PY_K)
+		{
+		  chargedKCandidates.push_back(pNonBoosted);
+		}
+	      pNonBoosted->momentum().momentum(nonBoostedVec);
+	    }
+
+
+	}
+
+
 	if(isLepton)
 	  {
 	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
@@ -756,13 +784,7 @@ namespace Belle {
 	    // cout << "cos theta: " << cos(h3Vect.theta()) <<"charge: " << charge <<endl;
 	  }
 
-
-
-
 	Particle* p=new Particle(*chr_it,string(ptypName));
-
-
-
 
 	//has to be in parantheses
 	p->userInfo(*(new ParticleInfo()));
@@ -778,30 +800,11 @@ namespace Belle {
 	Ptype& m_pt=p->pType();
 	//is it ok, to leave the default error matrix?
 	p->momentum().momentum(boostedVec);
+
 	//	cout <<"add to all particles for comp " <<endl;
 	//only hadrons, even if unidentified trust that leptons can be separated
 	if(!isLepton)
 	  v_allParticles.push_back(p);
-
-	if(isLepton){
-
-	}
-	else{
-	  if(fabs(p->pType().lund())==PY_PI)
-	    {
-	      chargedPiCandidates.push_back(p);
-	    }
-	  if(fabs(p->pType().lund())==PY_K)
-	    {
-	      chargedKCandidates.push_back(p);
-	    }
-	  //probably not a good event...
-	  if(!isPionKaon)
-	    {
-	      otherChargedTracks.push_back(p);
-	    }
-
-	}
 
       }
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
@@ -835,10 +838,12 @@ namespace Belle {
 	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
 	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
 	///let's have 100 MeV here...
-	//	if(g1Energy < 0.05 || g2Energy < 0.05)
-	if(g1Energy < 0.1 || g2Energy < 0.1)
+		if(g1Energy < 0.05 || g2Energy < 0.05)
+	//	if(g1Energy < 0.1 || g2Energy < 0.1)
 	  continue;
+
 	Particle* p=new Particle(pi0);
+
 	double confLevel;
 
 	HepPoint3D pi0DecPoint;
@@ -991,6 +996,8 @@ namespace Belle {
 
 
     reconstructD0();
+    //    if(chargedDCandidates.size()>0 || D0Candidates.size()>0)
+    //      cout <<"we have "  << D0Candidates.size() <<" D0s before fit" <<endl;
     vector<Particle*> tempParticles;
     for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
       {
@@ -999,14 +1006,16 @@ namespace Belle {
 	///	if(false)
 	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 	  {
+	    //	    	    cout <<"removing D0 due to bad fit " << endl;
 	    delete *itD;
-	  }
+		  }
 	else
 	  {
+	    //	    cout <<"D0 fit is good " << endl;
 	    tempParticles.push_back(*itD);
 	    //	    	    cout <<"mass  d0 mit: "<< (*itD)->p().mag()<<endl;
 	  }
-
+	
       }
     D0Candidates.clear();
     
@@ -1017,17 +1026,22 @@ namespace Belle {
     tempParticles.clear();
 
     reconstructChargedD();
+    //    if(chargedDCandidates.size()>0)
+      //    cout <<"we have " << chargedDCandidates.size() <<" before fit " <<endl;
     for(vector<Particle*>::iterator itD=chargedDCandidates.begin();itD!=chargedDCandidates.end();itD++)
       {
 	double confLevel;
 	//	if(false)
-       	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+    	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 	  {
-	    //	    cout <<" no good charged D " <<endl;
+	    //	    printD();
+	    //	    	    cout <<" no good charged D " <<endl;
+	    //	    cout <<"removing charged D due to bad fit " << endl;
 	    delete *itD;
 	  }
 	else
 	  {
+	    //    cout <<"good fit for charged D " << endl;
 	    //	    cout <<" good charged D " << endl;
 	    tempParticles.push_back(*itD);
 	  }
@@ -1039,7 +1053,8 @@ namespace Belle {
 	chargedDCandidates.push_back(*itD);
       }
     tempParticles.clear();
-
+    //    if(chargedDCandidates.size()>0 || D0Candidates.size()>0)
+    //      cout <<"we have " << chargedDCandidates.size() <<" charged and " << D0Candidates.size() <<" D0s after fit" <<endl;
     reconstructDStar();
     for(vector<Particle*>::iterator itD=DStarCandidates.begin();itD!=DStarCandidates.end();itD++)
       {
@@ -1048,12 +1063,15 @@ namespace Belle {
 	//in principle mass-vertex constrained fit here (not just mass...)
 	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 	  {
-	    //	    cout <<" no good dstar .. " <<endl;
+	    //	    	    cout <<" no good dstar .. " <<endl;
 	    delete *itD;
 	  }
 	else
 	  {
-	    //	      cout <<"found good dstar .." <<endl;
+	    //	          if(kinematics::DStarDecay==2){
+		    //		    cout <<"found good dstar in correct decay " <<endl;
+	    //		  }
+	    //	    	      cout <<"found good dstar .." <<endl;
 	    tempParticles.push_back(*itD);
 	    //	cout <<" d star after: "<<	(*itD)->p().mag() <<endl;
 	  }
@@ -1289,7 +1307,9 @@ namespace Belle {
 	m_histos.hEFlowFromThrust->Fill(ltheta,m_z);
       }
     if(evtNr==DEBUG_EVENT)
+      {
       cout <<"evt good" <<endl;
+      }
     //  cout <<"thrust cms: " << kinematics::thrustDirCM.theta() <<endl;
 
     //  cout <<"thrust theta, phi: " << kinematics::thrustDirCM.theta() <<" / " << kinematics::thrustDirCM.phi()<<endl;
@@ -1308,13 +1328,14 @@ namespace Belle {
 #ifdef SAVE_HISTOS
     saveHistos(allParticlesBoosted, allParticlesNonBoosted);
     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-      cout <<"about to histos" <<endl;
+      {
+	cout <<"about to histos" <<endl;}
 
-    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-      cout <<"done saving histos" <<endl;
+    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2){
+      cout <<"done saving histos" <<endl;}
 #endif
-    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-      cout <<"before save tree" <<endl;
+    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2){
+      cout <<"before save tree" <<endl;}
     //  cout <<"vor tree" <<endl;
 
 
@@ -1344,13 +1365,13 @@ namespace Belle {
 
     saveTree();
 
-    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-      cout <<"dones saving tree" <<endl;
+    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2){
+      cout <<"dones saving tree" <<endl;}
 
     cleanUp();
     //      cout <<"aft cleaning"<<endl;
-    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-      cout <<"cleaning"<<endl;
+    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2){
+      cout <<"cleaning"<<endl;}
    
   }
 
@@ -1671,7 +1692,7 @@ namespace Belle {
 
     //    cout <<" done Ks"<<endl;
     //don't delete, since they are already deleted as part of 'all particles'
-    chargedPiCandidates.clear();
+    //    chargedPiCandidates.clear();
     //    cout <<" done charged Pi"<<endl;
 
 
@@ -1686,6 +1707,19 @@ namespace Belle {
     v_hadronPairs.clear();
     v_firstHemi.clear();
     v_secondHemi.clear();
+
+    for(int i=0;i<chargedPiCandidates.size();i++)
+      {
+	delete chargedPiCandidates[i];
+      }
+    chargedPiCandidates.clear();
+
+    for(int i=0;i<chargedKCandidates.size();i++)
+      {
+	delete chargedKCandidates[i];
+      }
+    chargedKCandidates.clear();
+
 
 
     for(int i=0;i<v_allParticles.size();i++)
@@ -1707,6 +1741,7 @@ namespace Belle {
     histoD0Spect->Write();
     histoDStar->Write();
     histoPiSlowMom->Write();
+    histoRecDStarSpectToD0Pi->Write();
 
     thetaPhiLab->Write();
     thetaPhiCMS->Write();
@@ -1903,7 +1938,9 @@ namespace Belle {
 	    HepLorentzVector p_d0=pion.p()+kaon.p();
 	    double m=p_d0.mag();
 
+
 	    Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
+
 	    //	if(!doKmVtxFit2(*(*itD),  confLevel,0))
 
 
@@ -1941,14 +1978,11 @@ namespace Belle {
 		if(kaon.charge()+pion.charge()!=0) continue;
 		HepLorentzVector p_d0=pion.p()+kaon.p()+pi0.p();
 		double m=p_d0.mag();
-
-
-
 		//	    cout <<"2 filling with " << m <<endl;
-
-
 		if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+
 		Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
+
 		d0->relation().append(kaon);
 		d0->relation().append(pion);
 		d0->relation().append(pi0);
@@ -1990,7 +2024,9 @@ namespace Belle {
 
 
 		    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+
 		    Particle* d0 =new Particle(p_d0,Ptype(kaon.charge()<0 ? "D0" : "D0B"));
+
 		    d0->relation().append(kaon);
 		    d0->relation().append(pion1);
 		    d0->relation().append(pion2);
@@ -2036,7 +2072,9 @@ namespace Belle {
 
 		if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
 		//		Particle* d0 =new Particle(p_d0,Ptype(k/.charge()<0 ? "D0" : "D0B"));
+
 		Particle* d0 =new Particle(p_d0,Ptype("D0"));
+
 		d0->relation().append(pion1);
 		d0->relation().append(pion2);
 		d0->relation().append(Ks);
@@ -2072,7 +2110,9 @@ namespace Belle {
 
 	    //	    cout <<"found k/k combination, filling with m: "<< m <<endl;
 	    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+
 	    Particle* d0 =new Particle(p_d0,Ptype("D0"));
+
 	    d0->relation().append(kaon1);
 	    d0->relation().append(kaon2);
 	    if(m_mc)
@@ -2101,7 +2141,9 @@ namespace Belle {
 
 
 	    if(m>m_d0mass_max || m < m_d0mass_min ||isnan(m)) continue;
+
 	    Particle* d0 =new Particle(p_d0,Ptype( "D0"));
+
 	    d0->relation().append(pi0);
 	    d0->relation().append(Ks);
 	    if(m_mc)
@@ -2135,7 +2177,9 @@ namespace Belle {
 	    double m=p_dPlus.mag();
 
 	    if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
+
 	    Particle* dPlus =new Particle(p_dPlus,Ptype(pion.charge() > 0 ? "D+" : "D-"));
+
 	    dPlus->relation().append(Ks);
 	    dPlus->relation().append(pion);
 	    if(m_mc)
@@ -2173,7 +2217,9 @@ namespace Belle {
 
 
 		    if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
+
 		    Particle* dPlus =new Particle(p_dPlus,Ptype(charge >0 ? "D+" : "D-"));
+
 		    dPlus->relation().append(Ks);
 		    dPlus->relation().append(pion1);
 		    dPlus->relation().append(pion2);
@@ -2222,7 +2268,9 @@ namespace Belle {
 
 		if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
 		//		Particle* d0 =new Particle(p_d0,Ptype(k/.charge()<0 ? "D0" : "D0B"));
+
 		Particle* dPlus =new Particle(p_dPlus,Ptype(charge > 0 ? "D+": "D-"));
+
 		dPlus->relation().append(pion1);
 		dPlus->relation().append(pion2);
 		dPlus->relation().append(kaon);
@@ -2261,7 +2309,9 @@ namespace Belle {
 
 		if(m>m_dPlusmass_max || m < m_dPlusmass_min ||isnan(m)) continue;
 		//		Particle* d0 =new Particle(p_d0,Ptype(k/.charge()<0 ? "D0" : "D0B"));
+
 		Particle* dPlus =new Particle(p_dPlus,Ptype(charge > 0 ? "D+": "D-"));
+
 		dPlus->relation().append(kaon1);
 		dPlus->relation().append(kaon2);
 		dPlus->relation().append(pion);
@@ -2328,15 +2378,15 @@ namespace Belle {
 	    HepLorentzVector p_dStar=D.p()+pi0.p();
 	    double m=p_dStar.mag();
 
-
-
 	    if(m>m_dStarPlusmass_max || m < m_dStarPlusmass_min ||isnan(m)) continue;
 	    //	    cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_DPlus) <<" vs : " << (m-D.p().mag());
 	    //	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_DPlus)) <<endl;
 
 	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_DPlus)) > max_massDifference) continue;
 	    //	    cout <<"done " <<endl;
+
 	    Particle* dStar =new Particle(p_dStar,Ptype(D.charge()>0 ? "D*+" : "D*-"));
+
 	    dStar->relation().append(D);
 	    dStar->relation().append(pi0);
 	    if(m_mc)
@@ -2382,21 +2432,38 @@ namespace Belle {
 	    //	    cout <<"no double use" <<endl;
 	    HepLorentzVector p_dStar=D.p()+pion.p();
 	    double m=p_dStar.mag();
-
+	    histoRecDStarSpectToD0Pi->Fill(m);
 
 	    ///	    cout <<"dstar cand mass: "<< m <<endl;
 	    if(m>m_dStarPlusmass_max || m < m_dStarPlusmass_min ||isnan(m)) continue;
-	    ///	    cout <<"m -D: "<< m-D.p().mag() <<endl;
-	    ///	    cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
-	    ///	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
+//	   	    cout <<"m -D: "<< m-D.p().mag() <<endl;
+//	       cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
+//	        cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
+//		cout <<"individual: m: "<< m <<" D mass: "<< D.p().mag() <<endl;
+
+//	    cout<<"rec D: "<<D.pType().name() <<" (" << D.pType().lund()<<"), "<<" |p|: " <<D.p().rho()<< " ("<<D.p().px()<<", " << D.p().py()<< ", " << D.p().pz() <<", "<< D.p().t()<<")" <<endl;
+
+	    //	    for(int i =0;i<D.nChildren();i++)
+	      {
+		//		cout<<"rec D: "<<D.child(i).pType().name() <<" (" << D.child(i).pType().lund()<<"), "<<" |p|: " <<D.child(i).p().rho()<< " ("<<D.child(i).p().px()<<", " << D.child(i).p().py()<< ", " << D.child(i).p().pz() <<", "<< D.child(i).p().t()<<")" <<endl;
+	      }
+
+	    //	    cout <<"rec pion: "<<pion.pType().name() <<" (" << pion.pType().lund()<<"), "<<" |p|: " <<pion.p().rho()<< " ("<<pion.p().px()<<", " << pion.p().py()<< ", " << pion.p().pz() <<", "<< pion.p().t()<<")" <<endl;
+      //	    cout <<"momentum of reconstructed D: "<< D.p().px() <<", " << D.p().py()<<", " << D.p().pz()<<endl;
+      //	    cout <<"momentum of reconstructed pion: "<< pion.p().px() <<", " << pion.p().py()<<", " << pion.p().pz()<<endl;
+	    //	    HepLorentzVector p_dStar=D.p()+pi0.p();
+
 	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <0.1)
 	      {
-		///		cout <<"printing D.."<<endl;
-		///		printD(true);
+		//			cout <<"printing D.."<<endl;
+		//				printD(true);
 	      }
+	    //	    cout <<"checking for mass difference: "<< fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
 	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) > max_massDifference) continue;
 	    ///	    cout <<"done" <<endl;
+
 	    Particle* dStar =new Particle(p_dStar,Ptype(pion.charge()>0 ? "D*+" : "D*-"));
+
 	    dStar->relation().append(D);
 	    dStar->relation().append(pion);
 	    if(m_mc)
@@ -2408,7 +2475,8 @@ namespace Belle {
 		}
 	      } 
 	    DStarCandidates.push_back(dStar);
-	    cout <<"found dstardecay =2 " <<endl;
+
+
 	    kinematics::DStarDecay=2;
 	  }
       }
@@ -2446,7 +2514,9 @@ namespace Belle {
 	    //	    cout <<" gives: " << fabs(m-D.p().mag()-(m_DStar0-m_D0)) <<endl;
 	    if(fabs(m-D.p().mag()-(m_DStar0-m_D0)) > max_massDifference) continue;
 	    //	    cout <<" done " <<endl;
+
 	    Particle* dStar =new Particle(p_dStar,Ptype("D*0"));
+
 	    dStar->relation().append(D);
 	    dStar->relation().append(pi0);
 	    if(m_mc)
@@ -2514,13 +2584,13 @@ namespace Belle {
     //    kmvfitter.vertex(IpProfile::position());
     //    kmvfitter.errVertex(IpProfile::position_err());
     kmvfitter.initialVertex(IpProfile::position());
-    //no error
-    if(!kmvfitter.fit()) {
+    //no error  
+  if(!kmvfitter.fit()) {
       makeMother(kmvfitter, p);
       p.momentum().vertex(kmvfitter.vertex(),kmvfitter.errVertex());
       confLevel=kmvfitter.cl();
       return true;
-    }
+  }
     return false;
   }
   //this seems to have some impact...
@@ -2626,18 +2696,18 @@ namespace Belle {
     Gen_hepevt_Manager& gen_hep_Mgr=Gen_hepevt_Manager::get_manager();
     int neutralD=411;
     int charged=421;
-	if(star)
-	  {
-	    neutralD=413;
-	    charged=423;
-	  }
+    if(star)
+      {
+	neutralD=413;
+	charged=423;
+      }
     for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
       {
 
-	    if(fabs(gen_it->idhep())==neutralD || fabs(gen_it->idhep())==charged)
-	      {
-		recursivePrint(*gen_it,"");
-	      }
+	if(fabs(gen_it->idhep())==neutralD || fabs(gen_it->idhep())==charged)
+	  {
+	    recursivePrint(*gen_it,"");
+	  }
       }
   }
 

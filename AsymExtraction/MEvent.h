@@ -54,7 +54,7 @@ class MEvent:public ReaderBase
   //1 - 2.14 is 0.7-1.76 in cms
   //acos(0.5e) is 1.05 rad --> in lab 0.73 -.1.7
   //no cuts.. since e.g. cuts on thrust theta together with hadron theta binning biases kT...
-  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(true),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(false),DCutMC(false),DStarCutMC(false)
+  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(false),DCutMC(false),DStarCutMC(false)
   {
     myChain=chain;
     if(chain)
@@ -137,7 +137,7 @@ class MEvent:public ReaderBase
     //institute a cut against too much reconstructed energy...
     if(mMCFlag!=mcFlagWoA)
       {
-	if(isrCut && (isrPhotonEnergy> isrCut))
+	if(isrCut && (isrPhotonEnergy > isrCut))
 	   cutEvent=true;
 	if(d0Cut && (0==d0Tag))
 	  cutEvent=true;

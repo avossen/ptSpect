@@ -395,8 +395,8 @@ public:
       dataI.push_back(kinematics::D0Tag);
       dataI.push_back(kinematics::DStarTag);
       dataI.push_back(kinematics::DDecay);
-      if(kinematics::DStarDecay==2)
-	cout <<"tree saver saw dStar decay!!" <<endl<<endl;
+      //           if(kinematics::DStarDecay==2){
+	     //      cout <<"tree saver saw dStar decay!!" <<endl<<endl;}
       dataI.push_back(kinematics::DStarDecay);
 
     };
