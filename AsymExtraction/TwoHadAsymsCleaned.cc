@@ -137,13 +137,18 @@ int main(int argc, char** argv)
   if(dataMCFlag==mcFlagMC)
     cout <<"mc Flag!! " <<endl;
   HadronPairArray hadPair(chAll,dataMCFlag);
-  //  HadronPairArray hadPairMC(chAll,mcFlagMC);
+
+  kMCFlags hadMCFlag=dataMCFlag;
+  if(isMC==mcAsData)
+    hadMCFlag=mcFlagMC;
+
+  HadronPairArray hadPairMC(chAll,hadMCFlag);
 
   cout <<"done with had pairs....." <<endl;
   kMCFlags mEventDataMCFlag=dataMCFlag;
   if(isMC==mcAsData)
     {
-    mEventDataMCFlag=mcAsData;
+      mEventDataMCFlag=mcAsData;
     }
   cout <<"mevent mc flag: " <<mEventDataMCFlag << " data flag: "<< dataMCFlag <<endl;
   MEvent myEvent(chAll,mEventDataMCFlag);
@@ -173,6 +178,8 @@ int main(int argc, char** argv)
   else 
     ss<<"_data_";
 
+
+  MultiPlotter smearingPlotter(const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
   MultiPlotter plotter(const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter plotterMC(const_cast<char*>("NormalMC"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   MultiPlotter plotterWoA(const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
@@ -200,7 +207,8 @@ int main(int argc, char** argv)
 
       //      cout <<"normal quad after fill" <<endl;
       hadPair.afterFill();
-
+      hadPairMC.afterFill();
+ 
       for(int i=0;i<hadPair.numPairs;i++)
 	{
 	  z1.Fill(hadPair.z1[i]);
@@ -208,10 +216,10 @@ int main(int argc, char** argv)
 	}
 
       plotter.addHadPairArray(&hadPair, myEvent);
-
+      smearingPlotter.addSmearingEntry(&hadPair,&hadPairMC);
     }
 
-
+  smearingPlotter.saveSmearingMatrix();
   if(chWoA)
     {
       Int_t neventsWoA=chWoA->GetEntries();

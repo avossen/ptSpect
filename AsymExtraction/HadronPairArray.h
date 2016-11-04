@@ -39,6 +39,8 @@ struct HadronPairArray:public ReaderBase
   float thrustProj1[Max_ArrSize];
   float thrustProj2[Max_ArrSize];
 
+  TH2D* kinematicSmearingMatrix;
+
 
   float kT[Max_ArrSize];
 
@@ -172,6 +174,9 @@ struct HadronPairArray:public ReaderBase
 	  }
 	doAllBranching();
       }
+
+    // kinematicSmearingMatrix=new TH2D("kinematicSmearingMatrix","kinematicSmearingMatrix",);
+
   }
 
   void afterFill()

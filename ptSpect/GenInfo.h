@@ -53,6 +53,7 @@ namespace Belle {
 
   class GenInfo
   {
+
   public:
     GenInfo():cPiPlus("PI+"), cPiNeg("PI-"),cPiZero("PI0"),cKPlus("K+"),cKNeg("K-"), cElectron("e-"), cPositron("e+"), cMuPlus("MU+"), cMuNeg("MU-")
       {
@@ -63,6 +64,21 @@ namespace Belle {
 	mGZBins.push_back(0.75);
 	mGZBins.push_back(1.1);
       }
+      int getIdxFromGeantId(int geantId)
+      {
+	if(fabs(geantId)==lc_pPlus)
+	  {
+	    return 0;
+	  }
+	if(fabs(geantId)==lc_kPlus)
+	  {
+	    return 1;
+	  }
+	return 3;
+      }
+  
+
+
       int getBin(vector<float>& b1, float value)
       {
 	int coo1=-1;
@@ -460,7 +476,7 @@ namespace Belle {
 	  ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(np->userInfo());
 	  float m_z=2*boostedVec.t()/kinematics::Q;
 	  pinf.motherGenId=motherGenId;
-	  pinf.z=m_z;
+	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
 	  //theta should be the one in the lab system as before...
 	  pinf.labTheta=labTheta;
 	  pinf.labPhi=labPhi;
@@ -492,7 +508,7 @@ namespace Belle {
 	  pinf.phi=phi;
 	  //	  pinf.theta=theta;
 	  //roughly cuts as for the analys, for wulfrim
-	  if(pinf.z > 0.1)
+	  if(pinf.z[0] > 0.1)
 	    {
 	      if(!(cos(cmTheta)<cuts::minCosTheta||cos(cmTheta)>cuts::maxCosTheta))
 		{
@@ -535,11 +551,11 @@ namespace Belle {
 	  for(vector<Particle*>::const_iterator it2=v_secondHemi.begin();it2!=v_secondHemi.end();it2++)
 	    {
 	      ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
-	      if(pinf.z+pinf2.z < cuts::min2H_Z)
+	      if(pinf.z[0]+pinf2.z[0] < cuts::min2H_Z)
 		{
 		  //continue;
 		}
-	      if(pinf.z+pinf2.z < 0.001)
+	      if(pinf.z[0]+pinf2.z[0] < 0.001)
 		{
 		  continue;
 		}

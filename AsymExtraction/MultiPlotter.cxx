@@ -136,7 +136,14 @@ void MultiPlotter::loadBinnings()
 };
 
 
+void MultiPlotter::saveSmearingMatrix()
+{
+  rFile.cd();
+  kinematicSmearingMatrix->Write();
+  xini->Write();
+  bini->Write();
 
+}
 
 
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
@@ -254,7 +261,59 @@ void MultiPlotter::savePlots( plotType mPlotType)
   rFile.Write();
 }
 
+//if accSmearing the number of pairs in the array might be different
+//hp1 is the measured, hp2 the mc one, so we only check on hp1 if it is cut
+void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, bool accSmearing)
+ {
+  //needed for the mean computation...
+   if(hp1->numPairs!=hp2->numPairs)
+     {
+       cout <<" smearing  hadron pairs not the same size: "<< hp1->numPairs <<", to " << hp2->numPairs <<endl;
+       return;
+     }
+  for(int i=0;i<hp1->numPairs;i++)
+    {
+      if(hp1->cut[i] )
+	{
+	  //	  	  cout <<"hadron pair cut" <<endl;
+	  continue;
+	}
+      else
+	{
+	  //	  cout <<"hadron pair survived " <<endl;
+	}
 
+
+      int chargeBin=hp1->chargeType[i];
+
+      //      int particleBin1=hp->particleType1[i];
+      //      int particleBin2=hp->particleType2[i];
+      //      int particleBin=hp->particleType[i];
+
+      //don'te care for now...
+
+
+
+     int kTBin1=getBin(binningKt,hp1->kT[i]);
+      int kTBin2=getBin(binningKt,hp2->kT[i]);
+      //      cout <<"kt: " << kT <<" bin: "<< kTBin<<endl;
+
+     int  z1Bin1=getBin(binningZ,hp1->z1[i]);
+     int z1bBn2=getBin(binningZ,hp1->z2[i]);
+
+     int  z2Bin1=getBin(binningZ,hp2->z1[i]);
+     int z2Bin2=getBin(binningZ,hp2->z2[i]);
+
+      ///let's only use the first z bin...
+      int recBin=z1Bin1*numKtBins+kTBin1;
+      int iniBin=z2Bin1*numKtBins+kTBin2;
+      xini->Fill(iniBin);
+      bini->Fill(recBin);
+      //true observable on the y axis, reconstrubted on the x axis
+      kinematicSmearingMatrix->Fill(recBin,iniBin);
+
+    }
+ }
 void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 {
   //    cout <<"filling with " << hq->numHadQuads << " quads " << endl;
@@ -311,6 +370,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       zbin1=getBin(binningZ,hp->z1[i]);
       //      cout <<"zbin1: "<< zbin1 <<endl;
       zbin2=getBin(binningZ,hp->z2[i]);
+
+
 
       labThetaBin1=getBin(binningLabTheta,hp->labTheta1[i]);
       labThetaBin2=getBin(binningLabTheta,hp->labTheta2[i]);

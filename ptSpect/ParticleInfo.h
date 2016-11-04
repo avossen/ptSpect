@@ -1,7 +1,7 @@
 #ifndef PARTICLEINFO__H
 #define PARTICLEINFO__H
 #include "particle/ParticleUserInfo.h"
-
+#include "TVector3.h"
 #if defined(BELLE_NAMESPACE)
 namespace Belle {
 #endif
@@ -9,7 +9,17 @@ namespace Belle {
 class ParticleInfo:public ParticleUserInfo
 {
  public:
-  double z;
+  double z[5];
+  Hep3Vector boostedMoms[5];
+  //identified as
+  int idAs;
+
+  float p_Pi;
+  float p_K;
+  float p_p;
+  float p_e;
+  float p_mu;
+
   double labTheta;
   double cmsTheta;
   double phi;

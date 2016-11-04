@@ -20,6 +20,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
  public:
   MultiPlotter(const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(filenameBase,nameAdd,exNr,onRes,uds,charm,mc)
     {
+
       zeroBin=0;
       rFile.mkdir("plotHistos");
 
@@ -29,6 +30,11 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       loadBinnings();
       numKtBins=binningKt.size();
       maxKinBins=binningZ.size();
+      int maxSmearing=numKtBins*binningZ.size();
+      kinematicSmearingMatrix=new TH2D("kinematicSmearingMatrix","kinematicSmearingMatrix",maxSmearing,1,maxSmearing,maxSmearing,1,maxSmearing);
+      xini=new TH1D("xini","xini",maxSmearing,1,maxSmearing);
+      bini=new TH1D("bini","bini",maxSmearing,1,maxSmearing);
+
       	  cout <<"loading " << binningZ.size() <<" z bins " << endl;
       if(binningKt.size()>binningZ.size())
 	{
@@ -83,6 +89,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //    void setFitReuslt();
 
     void addHadPairArray(HadronPairArray* hq, MEvent& event);
+    void addSmearingEntry(HadronPairArray* hq1, HadronPairArray* hq2,bool accSmearing=false);
     void setBinningMap();
     void doPlots();
     void savePlots(plotType);
@@ -101,6 +108,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       {
 	return binningType*NumCharges*maxKinBins*maxKinBins+chargeType*maxKinBins*maxKinBins+firstKinBin*maxKinBins+secondKinBin;
       }
+
+    void saveSmearingMatrix();
  protected:
     //to reorder arrays used for fitting such that the x values are ascending and do not wrap around
     //should work because y is moved as well
@@ -114,6 +123,10 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     TH1D* hOneDVsTwoDA1;
     TH1D* hOneDVsTwoDA2;
     TH1D* hOneDVsTwoDA3;
+
+    TH2D* kinematicSmearingMatrix;
+    TH1D* xini;
+    TH1D* bini;
 
 
     //give negative values for first or second bin if they should not be part of the name

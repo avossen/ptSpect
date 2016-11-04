@@ -36,12 +36,49 @@ class HadronPair
   float z1;
   float z2;
 
+
+  ///this is already the product, in principle we only need to save 6 values
+  float p_PiPi;
+  float p_PiK;
+  float p_PiP;
+
+  float p_KPi;
+  float p_KK;
+  float p_KP;
+
+  float p_PPi;
+  float p_PK;
+  float p_PP;
+
   float z;
   Hep3Vector P_h; //sum of the momenta
   Hep3Vector PDiff;
 
   double mass; //inv mass of two hadron system
   double kT;
+
+
+  double kT_PiPi;
+  double kT_PiK;
+  double kT_PiP;
+
+  double kT_KPi;
+  double kT_KK;
+  double kT_KP;
+
+  double kT_PPi;
+  double kT_PK;
+  double kT_PP;
+
+  float z1_Pi;
+  float z1_K;
+  float z1_P;
+
+  float z2_Pi;
+  float z2_K;
+  float z2_P;
+
+
   //only for mc
   double diffPhi;
   double diffTheta;
@@ -56,6 +93,12 @@ class HadronPair
   AnaDef::SingleHadType hadPType2;
 
 
+
+  //compute PID weights based on the original classification
+  void computePIDWeights()
+  {
+
+  }
   //everything relative to thrust
 
   //set the various values based on the two hadrons
@@ -84,9 +127,18 @@ class HadronPair
       //      cout <<"rsum boosted: "<< RSumBoosted.vect() << " r1 boosted: "<< R1Boosted.vect() <<" r2: " << R2Boosted.vect() <<endl;
       ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
       ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
-      z1=pinf.z;
-      z2=pinf2.z;
-      z=pinf.z+pinf2.z;
+      z1=pinf.z[0];
+      z2=pinf2.z[0];
+
+      z1_Pi=pinf.z[0];
+      z2_Pi=pinf2.z[0];
+      z1_K=pinf.z[1];
+      z2_K=pinf2.z[1];
+      z1_P=pinf.z[2];
+      z2_P=pinf2.z[2];
+
+
+      z=z1+z2;
       double E1,E2;
       E1=firstHadron->p().e();
       E2=secondHadron->p().e();
@@ -97,7 +149,6 @@ class HadronPair
       diffTheta=PDiff.theta();
       kT=firstHadron->p3().perp(secondHadron->p3());
 
-
       //set charges/particle types...
       hadCharge1=getHadCharge(firstHadron->lund());
       hadCharge2=getHadCharge(firstHadron->lund());
@@ -107,6 +158,8 @@ class HadronPair
 
       hadCharge=getTwoHadCharge(hadCharge1,hadCharge2);
       hadPType=getTwoHadType(hadPType1,hadPType2);
+
+      computePIDWeights();
 
   }
 

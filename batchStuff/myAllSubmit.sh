@@ -16,8 +16,9 @@ do
 myDir=subData_ex$ex\_$res
 mkdir $myDir
 echo " dir: $myDir " ;
-mkdir /pic/projects/belle/voss771/ptSpect/$myDir
-mkdir /pic/projects/belle/voss771/ptSpectOut/$myDir
+mkdir /group/belle/users/vossen/ptSpect/$myDir
+mkdir /group/belle/users/vossen/ptSpectOut/$myDir
+
 
 
 #for d in `cat mc$1_onRes.list`
@@ -33,11 +34,11 @@ let "subCounter+=1"
 targetShFile=$myDir/job_$subCounter.sh
 #cp batchHead.sh $targetShFile
 cp batchHead1.sh $targetShFile
-echo "#SBATCH -o /pic/projects/belle/voss771/ptSpectOut/$myDir/jobId_$subCounter.out" >> $targetShFile
-echo "#SBATCH -e /pic/projects/belle/voss771/ptSpectOut/$myDir/jobId_$subCounter.err" >> $targetShFile
-echo "#SBATCH -J ptSpect_$subCounter"  >> $targetShFile 
+echo "#BSUB -o  /group/belle/users/vossen/ptSpectOut/$myDir/jobId_$subCounter.out" >> $targetShFile
+echo "#BSUB -e  /group/belle/users/vossen/ptSpectOut/$myDir/jobId_$subCounter.err" >> $targetShFile
+echo "#BSUB -J handedness_$subCounter"  >> $targetShFile 
 cat batchHead2.sh >> $targetShFile 
-echo "module put_parameter ptSpect rfname\\/pic/projects/belle/voss771/ptSpect/$myDir/job_$subCounter.root" >> $targetShFile
+echo "module put_parameter ptSpect rfname\\/group/belle/users/vossen/ptSpect/$myDir/job_$subCounter.root" >> $targetShFile
 cat batchMiddle.sh >> $targetShFile
 echo "process_event $d 0" >> $targetShFile
 cat batchEnd.sh >> $targetShFile

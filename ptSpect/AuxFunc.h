@@ -9,9 +9,13 @@
 
 
 //hopefully the correct lund codes..
+#define lc_ePlus -11
+#define lc_muPlus 13
 #define lc_piPlus 211
 #define lc_kPlus 321
 #define lc_pi0 111
+#define lc_eMinus 11
+#define lc_muMinus 13
 #define lc_piMinus -211
 #define lc_kMinus -321
 #define lc_pPlus 2212

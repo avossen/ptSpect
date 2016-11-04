@@ -20,7 +20,7 @@ path add_module main fix_mdst
 path add_condition main >:0:analysis
 path add_condition main <=:0:KILL
 path add_module analysis ${MODULE}
-module put_parameter ptSpect rfname\/people/voss771/ptSpect/mcEx55.root
+module put_parameter ptSpect rfname\/home/belle/vossen/myProjects/ptSpect/mcEx55.root
 module put_parameter fix_mdst Make_pi0_option\2
 module put_parameter fix_mdst Make_pi0_lower_limit\-20.0
 module put_parameter fix_mdst Make_pi0_upper_limit\25.0
@@ -28,34 +28,9 @@ module put_parameter fix_mdst Correct_ecl_option\1
 initialize
 nprocess set 0
 histogram define ${HBKFILE}
-
-#process_event /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r000867-b20090127_0910.mdst 100000
-#process_event   /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r000867-b20090127_0910.mdst 0
+process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/00/all/0127/continuum/07/evtgen-uds-00-all-e000055r000793-b20090127_0910.mdst 0
 
 
-#process_event /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r001746-b20090127_0910.mdst
-#process_event /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r001722-b20090127_0910.mdst
-
-process_event  /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/charm/2011 evtgen-charm-00-all-e000055r001742-b20090127_0910.mdst 0
-
-#process_event  /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/charm/evtgen-charm-00-all-e000055r001746-b20090127_0910.mdst 1000
-
-process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP43/on_resonance/charm/evtgen-charm-00-all-e000043r000004-b20090127_0910.mdst 0
-
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r001635-b20090127_0910.mdst 0
-
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r001635-b20090127_0910.mdst 0
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000801-b20090127_0910.mdst 0
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000802-b20090127_0910.mdst
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000806-b20090127_0910.mdst
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000817-b20090127_0910.mdst
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000818-b20090127_0910.mdst
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000818-b20090127_0910.mdst-001
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000819-b20090127_0910.mdst
-#process_event /pic/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r001429-b20090127_0910.mdst-003 0
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000819-b20090127_0910.mdst-001
-#process_event /pic-disk/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/continuum/uds/evtgen-uds-00-all-e000055r000820-b20090127_0910.mdst
-#/pic/projects/belle/ZMDST/MC/MC_4S/MC_4S_EXP55/on_resonance/uds/evtgen-uds-00-all-e000055r001429-b20090127_0910.mdst-003 
 output close
 terminate
 EOF

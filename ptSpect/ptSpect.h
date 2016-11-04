@@ -126,6 +126,22 @@ static int getBin(vector<float>& b1, float value)
   Ptype cKPlus;
   Ptype cKNeg;
  protected: 
+  //17 momentum bins, 9 theta bin 5 particles
+  static const int numMomBins=17;
+  static const int numThetaBins=9;
+  static const int numPIDs=5;
+
+  float masses[5];
+  float ****pidMatrixPositive;
+  float ****pidMatrixNegative;
+
+  //follow belle convention
+static const  int pionIdx=2;
+static const  int kaonIdx=3;
+static const  int protonIdx=4;
+static const  int electronIdx=0;
+static const  int muonIdx=1;
+
     vector<Particle*> chargedPiCandidates;
     vector<Particle*> chargedKCandidates;
     vector<Particle*> pi0Candidates;

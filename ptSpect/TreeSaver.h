@@ -223,7 +223,9 @@ public:
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(v_p[i]->userInfo());
 	pinf.motherGenId=v_g[i]->mother().idhep();
 	float m_z=2*boostedVec.t()/kinematics::Q;
-	pinf.z=m_z;
+	int geantID=abs(v_g[i]->idhep());
+
+	pinf.z[gi.getIdxFromGeantId(geantID)]=m_z;
 	pinf.labTheta=labTheta;
 	pinf.labPhi=labPhi;
 
@@ -239,7 +241,7 @@ public:
 	  axis=gi.jet2;
 	pinf.thrustProj=axis.dot(boostedVec.vect())/(axis.mag()*boostedVec.vect().mag());
 
-	int geantID=abs(v_g[i]->idhep());
+
 	if(!(geantID==lc_pi0 || geantID==lc_piPlus || geantID==lc_kPlus || geantID ==lc_pPlus))
 	  validType=false;
 
@@ -420,6 +422,45 @@ public:
 	{
 	  dataF.push_back(pair->z1);//z1
 	  dataF.push_back(pair->z2); //z2
+
+
+ 	  dataF.push_back(pair->p_PiPi);
+	  dataF.push_back(pair->p_PiK);	  
+	  dataF.push_back(pair->p_PiP);
+
+
+	  dataF.push_back(pair->p_KPi);
+	  dataF.push_back(pair->p_KK);	  
+	  dataF.push_back(pair->p_KP);
+
+
+	  dataF.push_back(pair->p_PPi);
+	  dataF.push_back(pair->p_PK);	  
+	  dataF.push_back(pair->p_PP);
+
+ 	  dataF.push_back(pair->kT_PiPi);
+	  dataF.push_back(pair->kT_PiK);	  
+	  dataF.push_back(pair->kT_PiP);
+
+
+	  dataF.push_back(pair->kT_KPi);
+	  dataF.push_back(pair->kT_KK);	  
+	  dataF.push_back(pair->kT_KP);
+
+
+	  dataF.push_back(pair->kT_PPi);
+	  dataF.push_back(pair->kT_PK);	  
+	  dataF.push_back(pair->kT_PP);
+
+
+	  dataF.push_back(pair->z1_Pi);
+	  dataF.push_back(pair->z1_K);
+	  dataF.push_back(pair->z1_P);
+
+	  dataF.push_back(pair->z2_Pi);
+	  dataF.push_back(pair->z2_K);
+	  dataF.push_back(pair->z2_P);
+
 
 	  float labTheta1=dynamic_cast<ParticleInfo&>(pair->firstHadron->userInfo()).labTheta;
 	  float labTheta2=dynamic_cast<ParticleInfo&>(pair->secondHadron->userInfo()).labTheta;

@@ -3,6 +3,7 @@ const bool PRINT=false;
 #include "ptSpect/mc.h"  //one central place to put the define mc
 #include "event/BelleEvent.h"
 #include "particle/Particle.h"
+#include "ptSpect/TwoHadAsymsCommons.h"
 #include "particle/utility.h"
 #include "tuple/BelleTupleManager.h"
 #include "basf/module.h"
@@ -165,6 +166,47 @@ namespace Belle {
 
     srand(time(NULL));
 
+    //declare and read in pid matrices
+    pidMatrixPositive=new float***[numMomBins];
+    pidMatrixNegative=new float***[numMomBins];
+
+    masses[pionIdx]=0.14;
+    masses[protonIdx]=1.0;
+    masses[electronIdx]=0.03;
+    masses[muonIdx]=0.14;
+    masses[kaonIdx]=0.5;
+
+    for(int i=0;i<numMomBins;i++)
+      {
+	pidMatrixPositive[i]=new float**[numThetaBins];
+	pidMatrixNegative[i]=new float**[numThetaBins];
+	for(int j=0;j<numThetaBins;j++)
+	  {
+	    pidMatrixPositive[i][j]=new float*[numPIDs];
+	    pidMatrixNegative[i][j]=new float*[numPIDs];
+	    for(int k=0;k<numPIDs;k++)
+	      {
+		pidMatrixPositive[i][j][k]=new float[numPIDs];
+		pidMatrixNegative[i][j][k]=new float[numPIDs];
+		for(int l=0;l<numPIDs;l++)
+		  {
+		    //here we should load Martin's matrices
+		    if(k==l)
+		      {
+			pidMatrixPositive[i][j][k][l]=1.0;
+			pidMatrixNegative[i][j][k][l]=1.0;
+		      }
+		  }
+	      }
+	  }
+      }
+
+
+
+
+
+
+
   }
 
 
@@ -259,6 +301,42 @@ namespace Belle {
     pTreeSaver->setDebugHistos(&m_histos);
     pTreeSaver->addArrayF("z1");
     pTreeSaver->addArrayF("z2");
+
+
+    //storing entire objects would certainly be better, but we already went down this path...
+    //these are the probabilities (weights) for each possible pair
+    pTreeSaver->addArrayF("p_PiPi");
+    pTreeSaver->addArrayF("p_PiK");
+    pTreeSaver->addArrayF("p_PiP");
+    pTreeSaver->addArrayF("p_KPi");
+    pTreeSaver->addArrayF("p_KK");
+    pTreeSaver->addArrayF("p_KP");
+    pTreeSaver->addArrayF("p_PPi");
+    pTreeSaver->addArrayF("p_PK");
+    pTreeSaver->addArrayF("p_PP");
+
+    pTreeSaver->addArrayF("kT_PiPi");
+    pTreeSaver->addArrayF("kT_PiK");
+    pTreeSaver->addArrayF("kT_PiP");
+    pTreeSaver->addArrayF("kT_KPi");
+    pTreeSaver->addArrayF("kT_KK");
+    pTreeSaver->addArrayF("kT_KP");
+    pTreeSaver->addArrayF("kT_PPi");
+    pTreeSaver->addArrayF("kT_PK");
+    pTreeSaver->addArrayF("kT_PP");
+
+
+    pTreeSaver->addArrayF("z1_Pi");
+    pTreeSaver->addArrayF("z1_K");
+    pTreeSaver->addArrayF("z1_P");
+
+    pTreeSaver->addArrayF("z2_Pi");
+    pTreeSaver->addArrayF("z2_K");
+    pTreeSaver->addArrayF("z2_P");
+
+
+
+
 
     //theta of the particles...  for mc it is the difference...
     pTreeSaver->addArrayF("labTheta1");
@@ -488,7 +566,7 @@ namespace Belle {
 	double m_theta=0;
 	double m_phi=0;
 	double m_qt=0;
-	double m_z=0;
+	double m_z[5]={0,0,0,0,0};
 	strcpy(ptypName,"unknown");
 	lundPC=-1;
 	double charge=(*chr_it).charge();
@@ -541,6 +619,17 @@ namespace Belle {
 	    m_mass=m_muon;
 	    massHyp=1;
 	    isLepton=true;
+		  if(charge>0)
+		    {
+		      strcpy(ptypName,"K+");
+		      lundPC=321;
+		    }
+		  else
+		    {
+		      strcpy(ptypName,"K-");
+		      lundPC=-321;
+		    }
+
 	    m_histos.hPidMu->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
 	  }
 	if(mu_id>0.9&& e_id>e_cut)
@@ -551,8 +640,20 @@ namespace Belle {
 	      }
 	    m_histos.hPidEPi->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_pi());
 	    m_mass=m_e;
+	    //massHyp is already set to zero above 
 	    isLepton=true;
 	    m_histos.hPidE->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
+	    if(charge>0)
+	      {
+		strcpy(ptypName,"E+");
+		lundPC=-11;
+	      }
+	    else
+	      {
+		strcpy(ptypName,"E-");
+		lundPC=11;
+	      }
+
 	  }
 
 
@@ -664,10 +765,20 @@ namespace Belle {
 		Hep3Vector h3Vect(refitPx,refitPy,refitPz);
 	////
 
-	double E=sqrt(m_mass*m_mass+h3Vect.mag2());
-	HepLorentzVector nonBoostedVec(h3Vect,E);
-	HepLorentzVector boostedVec(h3Vect,E);
-	boostedVec.boost(kinematics::CMBoost);
+		double E[5];
+		for(int i=0;i<5;i++)
+		  {
+		    E[i]=sqrt(masses[i]*masses[i]+h3Vect.mag2());
+		  }
+		HepLorentzVector nonBoostedVec[5];
+		HepLorentzVector boostedVec[5];
+	for(int i=0;i<5;i++)
+	  {
+	    nonBoostedVec[i]=HepLorentzVector(h3Vect,E[i]);
+	   
+	    boostedVec[i]=HepLorentzVector(h3Vect,E[i]);
+	    boostedVec[i].boost(kinematics::CMBoost);
+	  }
 
 
 
@@ -681,7 +792,10 @@ namespace Belle {
 	    //	      cout <<"removing pt=: " << h3Vect.perp() <<endl;
 	    continue;
 	  }
-	m_z=2*boostedVec.e()/kinematics::Q;
+	for(int i=0;i<5;i++)
+	  {
+	    m_z[i]=2*boostedVec[i].e()/kinematics::Q;
+	  }
 	iChTrks++;
 	if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	  {
@@ -689,28 +803,28 @@ namespace Belle {
 	  }
 
 
-	if(m_z<cuts::minZThrust)
+	if(m_z[massHyp]<cuts::minZThrust)
 	  continue;
 	if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	  {
 	    //	  cout <<"adding charged track: " << boostedVec.x() <<" y: " << boostedVec.y() << " z: " << boostedVec.z() << " e: " << boostedVec.e() <<endl;
 	  }
-	allParticlesBoosted.push_back(boostedVec.vect());
+	allParticlesBoosted.push_back(boostedVec[massHyp].vect());
 	allPB_particleClass.push_back(massHyp);
 	//disasterous code...
 	allPB_particleCharge.push_back(charge);
 
-	nonBoostedE.push_back(E);
-	fjParticles.push_back(PseudoJet(boostedVec.px(),boostedVec.py(),boostedVec.pz(),boostedVec.e()));
+	nonBoostedE.push_back(E[massHyp]);
+	fjParticles.push_back(PseudoJet(boostedVec[massHyp].px(),boostedVec[massHyp].py(),boostedVec[massHyp].pz(),boostedVec[massHyp].e()));
 	//	cout <<"add to allparticles boosted " <<endl;
 	allParticlesNonBoosted.push_back(h3Vect);
-	allPB_E.push_back(boostedVec.e());
+	allPB_E.push_back(boostedVec[massHyp].e());
 	if(DEBUG_EVENT==evtNr)
 	  {
 	    //	  (*pXCheck).precision(3);
 	    //	  (*pXCheck)<<boostedVec.vect().x() << " " <<boostedVec.vect().y() << " " << boostedVec.vect().z() << " " << m_mass <<" charged " <<endl;
 	  }
-	visEnergy+=boostedVec.e();
+	visEnergy+=boostedVec[massHyp].e();
 
 	//this is now done by the new and better functions...
 	findDStar(allParticlesBoosted, allPB_particleClass, allPB_particleCharge);
@@ -731,40 +845,19 @@ namespace Belle {
 		{
 		  chargedKCandidates.push_back(pNonBoosted);
 		}
-	      pNonBoosted->momentum().momentum(nonBoostedVec);
+	      pNonBoosted->momentum().momentum(nonBoostedVec[massHyp]);
 	    }
 
 
 	}
 
-
-	if(isLepton)
-	  {
-	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
-	      {
-		//	      cout <<"is lepton z: " << m_z <<endl;
-	      }
-	    //	    cout <<"is lepton z: " << m_z <<endl;
-	    //	    continue;
-	  }
-	if(!(isPionKaon || isProton))
-	  {
-	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
-	      {
-		//cout <<"is not pion/kaon: " << m_z <<endl;
-	      }
-	    //	    cout <<"is not pion/kaon: " << m_z <<endl;
-	    continue;
-	  }
-
-	if(DEBUG_EVENT==evtNr)
-	  {
-	    //	    cout << "z: " << m_z <<"charge: " << charge <<endl;
-	  }
+	//////
+	////// To use the PID unfolding we also have to save leptons and protons
+	/////
 
 
 
-	if(m_z<cuts::minZ)
+	if(m_z[massHyp]<cuts::minZ)
 	  {
 	    //	    cout <<"didn't pass min z...: "<< m_z <<", energy: " << boostedVec.e()<<endl;
 	    continue;
@@ -789,21 +882,27 @@ namespace Belle {
 	//has to be in parantheses
 	p->userInfo(*(new ParticleInfo()));
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
-	pinf.z=m_z;
+	pinf.idAs=massHyp;
+	for(int i=0;i<5;i++)
+	  {
+	    pinf.z[i]=m_z[i];
+	    pinf.boostedMoms[i]=boostedVec[i].vect();
+	  }
+	////need to set the PID matrices
 	pinf.labTheta=h3Vect.theta();
-	pinf.cmsTheta=boostedVec.theta();
+	pinf.cmsTheta=boostedVec[massHyp].theta();
 	//	cout <<"theta lab:" << h3Vect.theta() <<"cms: "<< boostedVec.theta()<<endl;
 	//	cout <<"theta phi:" << h3Vect.phi() <<"cms: "<< boostedVec.phi()<<endl;
 
 	pinf.labPhi=h3Vect.phi();
-	pinf.cmsPhi=boostedVec.phi();
+	pinf.cmsPhi=boostedVec[massHyp].phi();
 	Ptype& m_pt=p->pType();
 	//is it ok, to leave the default error matrix?
-	p->momentum().momentum(boostedVec);
+	p->momentum().momentum(boostedVec[massHyp]);
 
 	//	cout <<"add to all particles for comp " <<endl;
 	//only hadrons, even if unidentified trust that leptons can be separated
-	if(!isLepton)
+	//	if(!isLepton)  --> changed since we apply PID unfolding
 	  v_allParticles.push_back(p);
 
       }
@@ -838,7 +937,7 @@ namespace Belle {
 	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
 	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
 	///let's have 100 MeV here...
-		if(g1Energy < 0.05 || g2Energy < 0.05)
+	if(g1Energy < 0.05 || g2Energy < 0.05)
 	//	if(g1Energy < 0.1 || g2Energy < 0.1)
 	  continue;
 
@@ -906,6 +1005,7 @@ namespace Belle {
 	  continue;
 	  }
 	float photTheta= photVec.theta();
+	photTheta=180*(photTheta/TMath::Pi());
 	if(photTheta >cuts::barrelThetaMax) 
 	  {
 	    if(gammaE<cuts::minGammaEEndcapBkwd)
@@ -1484,7 +1584,7 @@ namespace Belle {
 	if(fabs(pinf.thrustProj)<cuts::minThrustProj)
 	  continue;
 
-	m_histos.hz->Fill(pinf.z);
+	m_histos.hz->Fill(pinf.z[pinf.idAs]);
 	m_histos.hTheta->Fill(pinf.cmsTheta);
 	m_histos.hCosTheta->Fill(cos(pinf.cmsTheta));
 	m_histos.hThrustProj->Fill(pinf.thrustProj);
@@ -1495,7 +1595,7 @@ namespace Belle {
 	  {
 
 	    m_histos.hThetaPos->Fill(pinf.cmsTheta);
-	    m_histos.hZPos->Fill(pinf.z);
+	    m_histos.hZPos->Fill(pinf.z[pinf.idAs]);
 	  }
 	else
 	  {
@@ -1504,13 +1604,13 @@ namespace Belle {
 		m_histos.hPi0Mass->Fill(dynamic_cast<ParticleInfoMass&>(pinf).mass);
 
 		m_histos.hThetaNeut->Fill(pinf.cmsTheta);
-		m_histos.hZNeut->Fill(pinf.z);
+		m_histos.hZNeut->Fill(pinf.z[pinf.idAs]);
 	      }
 	    else
 	      {
 
 		m_histos.hThetaNeg->Fill(pinf.cmsTheta);
-		m_histos.hZNeg->Fill(pinf.z);
+		m_histos.hZNeg->Fill(pinf.z[pinf.idAs]);
 	      }
 	  }
 	m_tup->dumpData();

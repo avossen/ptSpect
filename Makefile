@@ -8,7 +8,7 @@ exes : $(EXECUTABLES)
 LIBS = -L$(BELLE_RUN_DIR)/lib/so -ltuple -lip -lkid -leid -lparticle \
        -lkfitter -lbenergy -lbelleCLHEP -lcrypt -lm \
        -lgcc $(shell root-config --libs)
-SOFLAGS = -shared -Wl,-export-dynamic $(shell root-config --ldflags) $(shell ../fastjet/fastjet-install/bin/fastjet-config --libs --plugins)
+SOFLAGS = -shared -Wl,-export-dynamic $(shell root-config --ldflags) $(shell ../../fastjet-install/bin/fastjet-config --libs --plugins)
 
 CPPFLAGS = -DHAVE_LIBCURSES=1 -DHAVE_LIBREADLINE=1 -DHAVE_POSTGRES=1 \
 	   -DHAVE_LIBCURSES=1 -DHAVE_LIBTERMCAP=1 -DHAVE_LIBHISTORY=1 \
@@ -17,7 +17,7 @@ CPPFLAGS = -DHAVE_LIBCURSES=1 -DHAVE_LIBREADLINE=1 -DHAVE_POSTGRES=1 \
 	   -DHAVE_LIBNSL=1 -DHAVE_LIBDL=1 -DFORTRAN_PPU=1 -DHAVE_LIBCRYPT=1 \
            -DCERNLIB_TYPE -DHEP_SHORT_NAMES -DBELLE_SHORT_NAMES \
            -DDSTXX_NOINLINE -DBELLE_TARGET_H=\"belle-default.h\" \
-	   -fPIC -O3 $(shell root-config --cflags) $(shell ../fastjet/fastjet-install/bin/fastjet-config --cxxflags --plugins)
+	   -fPIC -O3 $(shell root-config --cflags) $(shell ../../fastjet-install/bin/fastjet-config --cxxflags --plugins)
 
 INCLUDE = -I$(BELLE_TOP_DIR)/include -I. 
 

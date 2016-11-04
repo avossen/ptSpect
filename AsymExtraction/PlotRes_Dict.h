@@ -15,8 +15,7 @@
 #define G__ANSIHEADER
 #define G__DICTIONARY
 #define G__PRIVATE_GVALUE
-#include "G__ci.h"
-#include "FastAllocString.h"
+#include "cint/G__ci.h"
 extern "C" {
 extern void G__cpp_setup_tagtablePlotRes_Dict();
 extern void G__cpp_setup_inheritancePlotRes_Dict();
@@ -45,8 +44,6 @@ extern G__linked_taginfo G__PlotRes_DictLN_TMemberInspector;
 extern G__linked_taginfo G__PlotRes_DictLN_TObject;
 extern G__linked_taginfo G__PlotRes_DictLN_vectorlEROOTcLcLTSchemaHelpercOallocatorlEROOTcLcLTSchemaHelpergRsPgR;
 extern G__linked_taginfo G__PlotRes_DictLN_reverse_iteratorlEvectorlEROOTcLcLTSchemaHelpercOallocatorlEROOTcLcLTSchemaHelpergRsPgRcLcLiteratorgR;
-extern G__linked_taginfo G__PlotRes_DictLN_vectorlETVirtualArraymUcOallocatorlETVirtualArraymUgRsPgR;
-extern G__linked_taginfo G__PlotRes_DictLN_reverse_iteratorlEvectorlETVirtualArraymUcOallocatorlETVirtualArraymUgRsPgRcLcLiteratorgR;
 extern G__linked_taginfo G__PlotRes_DictLN_PlotResults;
 
 /* STUB derived class for protected member access */

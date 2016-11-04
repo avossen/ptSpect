@@ -18,7 +18,7 @@ namespace AnaDef
   };
 
   enum SingleHadCharge{Pos, Neg, Neut, SH_ChargeUnknown};
-  enum SingleHadType{Pion, Kaon, Proton, MuonElectron,SH_TypeUnknown};
+  enum SingleHadType{Pion, Kaon, Proton, Muon,Electron,MuonElectron,SH_TypeUnknown};
 
 enum status
   {

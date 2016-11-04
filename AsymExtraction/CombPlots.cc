@@ -143,9 +143,6 @@ int main(int argc, char** argv)
 		      int resIdx=pPlotter->getResIdx(binningType,chargeBin,firstBin,secondBin);
 		      if(binningType==binType_zOnly && chargeBin==pairChargeInt)
 			{
-
-
-
 			  //			  cout <<"resIdx is " << resIdx<<" firstBin: "<<firstBin<<" second: "<< secondBin<<endl;
 			  zOnlyResIdx.insert(resIdx);
 			}
@@ -254,6 +251,8 @@ int main(int argc, char** argv)
 	}
 
       pPlotter->savePlots(plotType_2D);
+
+
 
       for(int i=0;i<200;i++)
 	{
