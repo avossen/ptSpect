@@ -9,9 +9,17 @@ using namespace std;
 namespace Belle {
 #endif
 
+  //follow belle convention
+#define pionIdx 2
+#define kaonIdx 3
+#define protonIdx 4
+#define electronIdx 0
+#define muonIdx 1
+
+
 namespace AnaDef
 {
-  enum TwoHadCharge{PN, NP,PP,NN,PZ,ZP,ZN,NZ,ZZ,PNNP,PZZP,ZNNZ, NA};//the unknown is for mc, when we
+  enum TwoHadCharge{PN, NP,PP,NN,PZ,ZP,ZN,NZ,ZZ,PNNP,PZZP,ZNNZ, Likesign,Unlikesign,NA};//the unknown is for mc, when we
   enum TwoHadPType{PiPi,PiK,KPi,KK,UNKNOWN};
   enum ErrorCodes{
     smallRt

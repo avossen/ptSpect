@@ -6,6 +6,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 //#include "ptSpect/ptSpect.h"
 #include "ptSpect/ParticleInfo.h"
+
 #include "ptSpect/AuxFunc.h"
 
 
@@ -104,6 +105,23 @@ class HadronPair
   //set the various values based on the two hadrons
   void compute()
   {
+    ////compute pid products, kT and z..
+    ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
+    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
+
+    p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
+    p_PiK=pinf1.p_Pi*pinf2.p_K;
+    p_PiP=pinf1.p_Pi*pinf2.p_p;
+
+    p_KPi=pinf1.p_K*pinf2.p_Pi;
+    p_KK=pinf1.p_K*pinf2.p_K;
+    p_KP=pinf1.p_K*pinf2.p_p;
+
+    //      kT=firstHadron->p3().perp(secondHadron->p3());
+    kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
+
+    ///////---------
+
       HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
       HepLorentzVector vR1=firstHadron->p();
       HepLorentzVector vR2=secondHadron->p();
@@ -123,20 +141,18 @@ class HadronPair
       qT=vPhoton.perp(R1Boosted.vect());
 
 
-
       //      cout <<"rsum boosted: "<< RSumBoosted.vect() << " r1 boosted: "<< R1Boosted.vect() <<" r2: " << R2Boosted.vect() <<endl;
-      ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
-      ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
-      z1=pinf.z[0];
+      //      ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
+      //      ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
+      z1=pinf1.z[0];
       z2=pinf2.z[0];
 
-      z1_Pi=pinf.z[0];
+      z1_Pi=pinf1.z[0];
       z2_Pi=pinf2.z[0];
-      z1_K=pinf.z[1];
+      z1_K=pinf1.z[1];
       z2_K=pinf2.z[1];
-      z1_P=pinf.z[2];
+      z1_P=pinf1.z[2];
       z2_P=pinf2.z[2];
-
 
       z=z1+z2;
       double E1,E2;

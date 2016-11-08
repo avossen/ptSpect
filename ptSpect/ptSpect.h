@@ -25,6 +25,12 @@ using namespace std;
 
 
 
+
+#define  pb 17   //(number of momentum bins)
+#define  thb 9 //  (number of theta bins)
+const float plabb[pb+1] = { 0.5, 0.65, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0, 3.5, 4.0, 5.0, 8.0 };
+const float costhetab[thb+1] = { -0.511, -0.300, -0.152, 0.017, 0.209, 0.355, 0.435, 0.542, 0.692, 0.842 };
+
 using namespace std;
 #if defined(BELLE_NAMESPACE)
 namespace Belle {
@@ -48,6 +54,7 @@ public:
   bool recDStarMC();
   bool recD0MC();
   int goodHadronB() const;
+  void setHadronPIDProbs(ParticleInfo* info, float mom);
   genhep_vec *getDaughters(const Gen_hepevt &mother);
   // begin_run function
   void begin_run ( BelleEvent*, int* );
@@ -93,6 +100,28 @@ public:
   TH1D* numPartInJet;
 
 
+static int getBin(const float* borders, int maxbin, float value)
+{
+  int coo1=-1;
+
+  for(unsigned int i=0;i<maxbin;i++)
+    {
+      if(value<=borders[i])
+	{
+	coo1=i;
+	break;
+	}
+    }
+  /*  if(coo1<0)
+    {
+        cout <<"wrong coo: val: " << value <<endl;
+	}*/
+  //  cout <<"value: " << value <<" coo: " << coo1 <<endl;
+  return coo1;
+
+
+}
+
 static int getBin(vector<float>& b1, float value)
 {
   int coo1=-1;
@@ -127,20 +156,13 @@ static int getBin(vector<float>& b1, float value)
   Ptype cKNeg;
  protected: 
   //17 momentum bins, 9 theta bin 5 particles
-  static const int numMomBins=17;
-  static const int numThetaBins=9;
+  static const int numMomBins=pb+1;
+  static const int numThetaBins=thb+1;
   static const int numPIDs=5;
 
   float masses[5];
   float ****pidMatrixPositive;
   float ****pidMatrixNegative;
-
-  //follow belle convention
-static const  int pionIdx=2;
-static const  int kaonIdx=3;
-static const  int protonIdx=4;
-static const  int electronIdx=0;
-static const  int muonIdx=1;
 
     vector<Particle*> chargedPiCandidates;
     vector<Particle*> chargedKCandidates;

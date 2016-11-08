@@ -1,5 +1,6 @@
 const bool PRINT=false;
 #include <iomanip>
+
 #include "ptSpect/mc.h"  //one central place to put the define mc
 #include "event/BelleEvent.h"
 #include "particle/Particle.h"
@@ -88,6 +89,7 @@ namespace Belle {
 //#define DEBUG_EVENT 15859
 #define DEBUG_EVENT2 -287880
 #include "ptSpect/AnaConsts.h"
+
 #include "ptSpect/HadronPair.h"
 #include "ptSpect/ptSpect.h"
 #include "ptSpect/ParticleInfo.h"
@@ -119,8 +121,6 @@ namespace Belle {
     histoDStar=new TH1D("dStarspect","dStarspect",300,1.8,5.0);
     histoPiSlowMom=new TH1D("piSlow","piSlow",100,0,3.0);
     histoRecDStarSpectToD0Pi=new TH1D("RecdStarSpectD0Pi","RecdStarSpectToD0Pi",300,1.8,2.2);
-
-
   }  
   ofstream* pXCheck;
   // Destructor
@@ -200,10 +200,6 @@ namespace Belle {
 	      }
 	  }
       }
-
-
-
-
 
 
 
@@ -305,6 +301,7 @@ namespace Belle {
 
     //storing entire objects would certainly be better, but we already went down this path...
     //these are the probabilities (weights) for each possible pair
+    //these are also too many combinations, could do the same with 2x3
     pTreeSaver->addArrayF("p_PiPi");
     pTreeSaver->addArrayF("p_PiK");
     pTreeSaver->addArrayF("p_PiP");
@@ -384,7 +381,7 @@ namespace Belle {
     pTreeSaver->addArrayF("HadDiffPhi_mc");
 
 #endif
-    //!!!! this charge type is in principle worthless, look at the charges of the hadrons!!
+    //!!!! this charge type is in principle worthless, look at the charges of the hadrons!!-->change this to likesign and unlikesign
     pTreeSaver->addArrayI("chargeType");
     pTreeSaver->addArrayI("particleType");
     pTreeSaver->addArrayI("chargeType1");
@@ -567,9 +564,15 @@ namespace Belle {
 	double m_phi=0;
 	double m_qt=0;
 	double m_z[5]={0,0,0,0,0};
-	strcpy(ptypName,"unknown");
-	lundPC=-1;
 	double charge=(*chr_it).charge();
+	///we take all (and the name doesn't really matter, so make this pion default)
+	//	strcpy(ptypName,"unknown");
+	if(charge>0)
+	strcpy(ptypName,"PI+");
+	else
+	strcpy(ptypName,"PI-");
+	lundPC=-1;
+
 
 	//      HepLorentzVector hepvec;
 	//immer daran denken in die richtung -boostvector zu boosten! ... nein ist anscheinend schon in der boost vector definition drin...
@@ -764,7 +767,7 @@ namespace Belle {
 	//		Hep3Vector h3Vect((*chr_it).p(0),(*chr_it).p(1),(*chr_it).p(2));
 		Hep3Vector h3Vect(refitPx,refitPy,refitPz);
 	////
-
+		float labMom=h3Vect.mag();
 		double E[5];
 		for(int i=0;i<5;i++)
 		  {
@@ -883,6 +886,7 @@ namespace Belle {
 	p->userInfo(*(new ParticleInfo()));
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
 	pinf.idAs=massHyp;
+	pinf.charge=charge;
 	for(int i=0;i<5;i++)
 	  {
 	    pinf.z[i]=m_z[i];
@@ -890,6 +894,9 @@ namespace Belle {
 	  }
 	////need to set the PID matrices
 	pinf.labTheta=h3Vect.theta();
+
+	setHadronPIDProbs(&pinf, labMom);
+
 	pinf.cmsTheta=boostedVec[massHyp].theta();
 	//	cout <<"theta lab:" << h3Vect.theta() <<"cms: "<< boostedVec.theta()<<endl;
 	//	cout <<"theta phi:" << h3Vect.phi() <<"cms: "<< boostedVec.phi()<<endl;
@@ -1724,8 +1731,9 @@ namespace Belle {
 	    HadronPair* hp=new HadronPair();
 	    hp->firstHadron=*it;
 	    hp->secondHadron=*it2;
-	    hp->hadCharge=AnaDef::PN;
-	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
+
+	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
 
 	    //	  cout <<"R1: " << hp->phiR<<endl;
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
@@ -2900,7 +2908,58 @@ namespace Belle {
 
     return false;
   }
+  void ptSpect::setHadronPIDProbs(ParticleInfo* info, float mom)
+  {
+    //    cout <<"pb+1 " << pb+1 <<" phb+1: "<< thb+1 <<endl;
+    //    cout <<"getting mombin for mom: " << mom <<endl;
+    int momBin=getBin(plabb,pb+1,mom);
+    //    cout <<"getting mombin for theta: " << info->labTheta <<endl;
+    int thetaBin=getBin(costhetab,thb+1,info->labTheta);
+    //probability for each mass hyposthesis
 
+    int idAs=info->idAs;
+    for(int hypo=0;hypo<5;hypo++)
+      {
+	//	cout <<"momBin: " << momBin <<" thetaBin: "<< thetaBin <<" hypo: " << hypo <<  " idAs: "<< idAs << " charge: "<< info->charge <<endl;
+	if(info->charge > 0)
+	  {
+	    //we don't have matrices for everything
+	    if(thetaBin>=0 && momBin>=0){
+	      info->pidProbabilities[hypo]=pidMatrixPositive[momBin][thetaBin][hypo][idAs];
+	    }
+	    else
+	      {
+		if(idAs==hypo)
+		  info->pidProbabilities[hypo]=1.0;
+		else
+		  info->pidProbabilities[hypo]=0.0;
+	      }
+
+	  }
+	else
+	  {
+	    if(thetaBin>=0 && momBin>=0){
+	      info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	    
+	    }
+	   else
+	      {
+		if(idAs==hypo)
+		  info->pidProbabilities[hypo]=1.0;
+		else
+		  info->pidProbabilities[hypo]=0.0;
+	      }
+
+
+
+	  }
+      }
+    info->p_Pi=info->pidProbabilities[pionIdx];
+    info->p_K=info->pidProbabilities[kaonIdx];
+    info->p_p=info->pidProbabilities[protonIdx];
+    info->p_e=info->pidProbabilities[electronIdx];
+    info->p_mu=info->pidProbabilities[muonIdx];
+
+  }
 
 #if defined(BELLE_NAMESPACE)
 } // namespace Belle

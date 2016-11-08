@@ -13,7 +13,9 @@ class ParticleInfo:public ParticleUserInfo
   Hep3Vector boostedMoms[5];
   //identified as
   int idAs;
+  int charge;
 
+  float pidProbabilities[5];
   float p_Pi;
   float p_K;
   float p_p;
