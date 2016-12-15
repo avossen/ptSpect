@@ -35,7 +35,7 @@ class PlotResults   : public TObject
   //1D, 2d, DR
   int calcType;
 
-  int binningType, chargeBin, firstKinBin, secondKinBin;
+  int binningType, pidBin,chargeBin, firstKinBin, secondKinBin;
   int resultIndex;
   //needed to create vtable needed for base class...
   PlotResults(): numKtValues(0), mPrint(false)
@@ -61,8 +61,6 @@ inline void PlotResults::doPrint(bool print)
 
 inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 {
-
-
 
       double intRhsCount=0;
       double intCount=0;
@@ -101,6 +99,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
   firstKinBin=rhs.firstKinBin;
   secondKinBin=rhs.secondKinBin;
   resultIndex=rhs.resultIndex;
+  pidBin=rhs.pidBin;
   return *this;
       
 }

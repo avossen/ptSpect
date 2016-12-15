@@ -173,6 +173,8 @@ static int getBin(vector<float>& b1, float value)
     vector<Particle*> chargedDCandidates;
     vector<Particle*> DStarCandidates;
 
+
+    void loadPIDMatrix();
     void reconstructD0();
     void reconstructChargedD();
     void reconstructDStar();

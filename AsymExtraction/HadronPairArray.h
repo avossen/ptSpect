@@ -22,6 +22,43 @@ struct HadronPairArray:public ReaderBase
   float z2[Max_ArrSize];
 
 
+  float p_PiPi[Max_ArrSize];
+  float p_PiK[Max_ArrSize];
+
+  float p_PiP[Max_ArrSize];
+
+  float p_KPi[Max_ArrSize];
+  float p_KK[Max_ArrSize];
+  float p_KP[Max_ArrSize];
+
+  float p_PPi[Max_ArrSize];
+  float p_PK[Max_ArrSize];
+  float p_PP[Max_ArrSize];
+
+  float kT_PiPi[Max_ArrSize];
+  float kT_PiK[Max_ArrSize];
+
+
+  float kT_PiP[Max_ArrSize];
+  float kT_KPi[Max_ArrSize]
+;
+  float kT_KK[Max_ArrSize];
+  float kT_KP[Max_ArrSize];
+  float kT_PPi[Max_ArrSize];
+  float kT_PK[Max_ArrSize];
+  float kT_PP[Max_ArrSize];
+
+
+  float z1_Pi[Max_ArrSize];
+  float z1_K[Max_ArrSize];
+  float z1_P[Max_ArrSize];
+
+  float z2_Pi[Max_ArrSize];
+  float z2_K[Max_ArrSize];
+  float z2_P[Max_ArrSize];
+
+
+
   float labTheta1[Max_ArrSize];
   float labTheta2[Max_ArrSize];
 
@@ -76,6 +113,43 @@ struct HadronPairArray:public ReaderBase
 	branchPointersI.push_back(&numPairs);
 	branchPointers.push_back(z1);
 	branchPointers.push_back(z2);
+	//if we just test that it is not mcFlagWoA, the mc pair branches on the same fields, so the data field only gets 0..
+	if(mMCFlag==mcFlagNone)
+	  {
+	    branchPointers.push_back(z1_Pi);
+	    branchPointers.push_back(z1_K);
+	    branchPointers.push_back(z1_P);
+
+	    branchPointers.push_back(z2_Pi);
+	    branchPointers.push_back(z2_K);
+	    branchPointers.push_back(z2_P);
+	    
+	    
+	    branchPointers.push_back(p_PiPi);
+	    branchPointers.push_back(p_PiK);
+	    branchPointers.push_back(p_PiP);
+
+	    branchPointers.push_back(p_KPi);
+	    branchPointers.push_back(p_KK);
+	    branchPointers.push_back(p_KP);
+
+	    branchPointers.push_back(p_PPi);
+	    branchPointers.push_back(p_PK);
+	    branchPointers.push_back(p_PP);
+
+	    branchPointers.push_back(kT_PiPi);
+	    branchPointers.push_back(kT_PiK);
+	    branchPointers.push_back(kT_PiP);
+	    
+	    branchPointers.push_back(kT_KPi);
+	    branchPointers.push_back(kT_KK);
+	    branchPointers.push_back(kT_KP);
+
+	    branchPointers.push_back(kT_PPi);
+	    branchPointers.push_back(kT_PK);
+	    branchPointers.push_back(kT_PP);
+	  }
+
 
 	branchPointers.push_back(labTheta1);
 	branchPointers.push_back(labTheta2);
@@ -95,6 +169,8 @@ struct HadronPairArray:public ReaderBase
 	branchPointers.push_back(kT);
 	//only for mc...
 	branchPointers.push_back(qT);
+
+
 
 	branchPointers.push_back(hadDiffTheta);
 	branchPointers.push_back(hadDiffPhi);
@@ -118,6 +194,45 @@ struct HadronPairArray:public ReaderBase
 	branchNamesI.push_back("z1"+addendum+"Counter");
 	branchNames.push_back("z1"+addendum);
 	branchNames.push_back("z2"+addendum);
+	//if we just test that it is not mcFlagWoA, the mc pair branches on the same fields, so the data field only gets 0..
+	if(mMCFlag==mcFlagNone)
+	  {
+	    branchNames.push_back("z1_Pi");
+	    branchNames.push_back("z1_K");
+	    branchNames.push_back("z1_P");
+	    
+	    branchNames.push_back("z2_Pi");
+	    branchNames.push_back("z2_K");
+	    branchNames.push_back("z2_P");
+	    
+	    branchNames.push_back("p_PiPi");
+	    branchNames.push_back("p_PiK");
+	    branchNames.push_back("p_PiP");
+
+
+	    branchNames.push_back("p_KPi");
+	    branchNames.push_back("p_KK");
+	    branchNames.push_back("p_KP");
+	    
+	    branchNames.push_back("p_PPi");
+	    branchNames.push_back("p_PK");
+	    branchNames.push_back("p_PP");
+	    
+	    
+	    branchNames.push_back("kT_PiPi");
+	    branchNames.push_back("kT_PiK");
+	    branchNames.push_back("kT_PiP");
+	    
+
+	    branchNames.push_back("kT_KPi");
+	    branchNames.push_back("kT_KK");
+	    branchNames.push_back("kT_KP");
+	    
+	    branchNames.push_back("kT_PPi");
+	    branchNames.push_back("kT_PK");
+	    branchNames.push_back("kT_PP");
+	    
+	  }
 
 	branchNames.push_back("labTheta1"+addendum);
 	branchNames.push_back("labTheta2"+addendum);
@@ -143,8 +258,6 @@ struct HadronPairArray:public ReaderBase
 	  branchNames.push_back("qT"+addendum);
 	else
 	  branchNames.push_back("qT");
-
-
 
 
 	branchNames.push_back("HadDiffTheta"+addendum);
@@ -183,6 +296,8 @@ struct HadronPairArray:public ReaderBase
   {
     for(int i=0;i<numPairs;i++)
       {
+	//	cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
+	//	cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	//	cout <<"hp after fill!" <<endl;
 	cut[i]=0;
 
@@ -216,9 +331,9 @@ struct HadronPairArray:public ReaderBase
 
 	if(asymFlag && asymmetryFlag){
 	  cut[i]=1;}
-	if(particleType1[i]!=0 || particleType2[i]!=0)
+       if(particleType1[i]!=0 || particleType2[i]!=0)
 	  {
-	    cut[i]=1;
+	    //	    cut[i]=1;
 	  }
 
 	if(z2[i]<secondZCut)

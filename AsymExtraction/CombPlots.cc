@@ -1,4 +1,4 @@
-
+#include "TLegend.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -19,8 +19,6 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-
-
   vector<string> flavor;
 
   flavor.push_back("_uds");
@@ -31,8 +29,6 @@ int main(int argc, char** argv)
   set<int> badOnRes;
 
   set<int> badCont;
-
-
 
 //   badOnRes.insert(49);
 //  badOnRes.insert(35);
@@ -102,7 +98,7 @@ int main(int argc, char** argv)
   //  vector< pair<string,TChain*> > vFitterNames;
   vector<string> vPlotterNames;
   vPlotterNames.push_back("Normal");
-  vPlotterNames.push_back("NormalWoA");
+  //    vPlotterNames.push_back("NormalWoA");
 
   vector<MultiPlotter*> vPlotters;
   TChain* chAll=0;
@@ -134,14 +130,16 @@ int main(int argc, char** argv)
       chAll->SetBranchAddress("PlotBranch",&plotResults);
       for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
 	{
+	  for(int pidBin=0;pidBin<3;pidBin++)
+	    {
 	  for(int chargeBin=0;chargeBin<1;chargeBin++)
 	    {
 	      for(int firstBin=0;firstBin<pPlotter->maxKinMap[binningType].first;firstBin++)
 		{
 		  for(int secondBin=0;secondBin<pPlotter->maxKinMap[binningType].second;secondBin++)
 		    {
-		      int resIdx=pPlotter->getResIdx(binningType,chargeBin,firstBin,secondBin);
-		      if(binningType==binType_zOnly && chargeBin==pairChargeInt)
+		      int resIdx=pPlotter->getResIdx(binningType,pidBin,chargeBin,firstBin,secondBin);
+		      if(binningType==binType_zOnly && chargeBin==unlikesign)
 			{
 			  //			  cout <<"resIdx is " << resIdx<<" firstBin: "<<firstBin<<" second: "<< secondBin<<endl;
 			  zOnlyResIdx.insert(resIdx);
@@ -152,7 +150,7 @@ int main(int argc, char** argv)
 		}
 	    }
 	}
-
+	}
 
       //enough space for 100 exp * on/off resonance
       float** mX=allocateArray<float>(3,200);
@@ -195,8 +193,6 @@ int main(int argc, char** argv)
 	    {
 	      expCounts[plotResults->exp]=0;
 	    }
-
-
 
 
 	  //for now only continuum:
@@ -251,7 +247,101 @@ int main(int argc, char** argv)
 	}
 
       pPlotter->savePlots(plotType_2D);
+      ///get smearing matrix, xini, bini
+      TDirectory* dir=gDirectory;
+      TFile* smearingFile=new TFile("smearing.root");
+      //      for(int c=0;c<MultiPlotter::NumCharges;c++)
+      TCanvas cnvs;
+      for(int c=0;c<2;c++)
+	{
+	  for(int p=0;p<9;p++)
+	  //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
+	    {
+	      char buffer[500];
+	      sprintf(buffer,"kinematicSmearingMatrix_pidBin%d_chargeBin%d",p,c);
+	      TH2D* smearingMatrix=(TH2D*)smearingFile->Get(buffer);
+	      if(smearingMatrix->Integral()<10)
+		{
+		  cout <<" c: "<< c <<" p: "<< p << " integarl: " << smearingMatrix->Integral()<<endl;
+		  continue;
+		}
+	      smearingMatrix->Draw("colz");
+	      sprintf(buffer,"debug_smM_pid%d_charge_%d.png",p,c);
+	      cnvs.SaveAs(buffer);
+	      sprintf(buffer,"xini_pidBin%d_chargeBin%d",p,c);
+	      TH1D* xini=(TH1D*)smearingFile->Get(buffer);
+	      xini->Draw();
+	      sprintf(buffer,"debug_xini_pid%d_charge_%d.png",p,c);
+	      cnvs.SaveAs(buffer);
+	      sprintf(buffer,"bini_pidBin%d_chargeBin%d",p,c);
+	      TH1D* bini=(TH1D*)smearingFile->Get(buffer);
+	      bini->Draw();
+	      sprintf(buffer,"debug_bini_pid%d_charge_%d.png",p,c);
+	      cnvs.SaveAs(buffer);
+	      //get combined z/kT histogram for this charge, pid bin
+	      TH1D* combinedHisto=pPlotter->getHistogram(c,p);
+	      combinedHisto->Draw();
+	      sprintf(buffer,"debug_combinedH_pid%d_charge_%d.png",p,c);
+	      cnvs.SaveAs(buffer);
+	      TH1D** d=new (TH1D*);
 
+	      //	       TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+	      //for closure test, bini is output....
+	       	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,bini,d);
+	      output->Draw();
+	      sprintf(buffer,"debug_unfoldedH_pid%d_charge_%d.png",p,c);
+	      cnvs.SaveAs(buffer);
+	      //	      (*d)->Draw();
+	      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
+	      //	      cnvs.SaveAs(buffer);
+	      //
+
+	      TH1D** sepKtZHistos_mcInput=pPlotter->convertUnfold2Plots(xini,c,p,"mcInput");
+	      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,c,p,"mcOut");
+	      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,c,p,"dataUnfold");
+	      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,c,p,"dataInput");
+	      TCanvas cnvs2;
+	      //need one canvas for the legend
+	      TLegend leg(0.0,0,1.0,1.0);
+	      if(pPlotter->binningZ.size()>5)
+		cnvs2.Divide(3,3);
+	      else
+		cnvs2.Divide(2,3);
+	      for(int iZ=0;iZ<pPlotter->binningZ.size();iZ++)
+		{
+		  cnvs2.cd(iZ+1);
+		  sepKtZHistos_mcInput[iZ]->SetMarkerColor(kRed);
+		  sepKtZHistos_mcInput[iZ]->SetMarkerStyle(21);
+		  sepKtZHistos_mcOutput[iZ]->SetMarkerColor(kGreen);
+		  sepKtZHistos_mcOutput[iZ]->SetMarkerStyle(12);
+		  sepKtZHistosDataInput[iZ]->SetMarkerStyle(34);
+		  sepKtZHistosDataInput[iZ]->SetMarkerColor(kBlack);
+		  sepKtZHistos[iZ]->SetMarkerColor(kBlue);
+		  sepKtZHistos[iZ]->SetMarkerStyle(23);
+		  sepKtZHistos_mcInput[iZ]->Draw("A P E1");
+		  sepKtZHistos_mcOutput[iZ]->Draw("SAME P E1");		  
+		  sepKtZHistos[iZ]->Draw("SAME P  E1");
+		  sepKtZHistosDataInput[iZ]->Draw("SAME P  E1");
+		  if(iZ==0)
+		    {
+		      leg.AddEntry(sepKtZHistos_mcInput[iZ],"MC Input","lep");
+		      leg.AddEntry(sepKtZHistos_mcOutput[iZ],"MC Output","lep");
+		      leg.AddEntry(sepKtZHistosDataInput[iZ],"Data Input","lep");
+		      leg.AddEntry(sepKtZHistos[iZ],"Data Output","lep");
+		    }
+		}
+	      cnvs2.cd(pPlotter->binningZ.size()+1);
+	      leg.Draw();
+	      sprintf(buffer,"unfoldedResult_pid_%d_charge_%d.png",p,c);
+	      cnvs2.SaveAs(buffer);
+
+	      //	      sprintf("");
+
+	    }
+	}
+      dir->cd();
+      smearingFile->Close();
+      ///save the returned plots... put them on the same plot etc..
 
 
       for(int i=0;i<200;i++)

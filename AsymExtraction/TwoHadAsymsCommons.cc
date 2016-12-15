@@ -276,121 +276,121 @@ cout <<"with after close: " << m_kinSpectraH[0][0][0][0]->GetNbinsX() <<" bins "
 }
 
 
-void saveKinPars(TH1D***** kinSpectraH, vector<float>* binningM )
-{
-  char fName[]="kinPars1D.root";
-  ofstream indFile("indFile.txt",ios::in);
-  TFile fKinematics(fName,"recreate");
-      for(int iCh1=PN;iCh1<=LAST_CHARGE_COMB;iCh1++)
-	{
-	  for(int iCh2=PN;iCh2<=iCh1;iCh2++)
-	    {
-	      if(!(iCh1==PN || iCh1==PZ || iCh1==ZN))
-		continue;
-	      if(!(iCh2==PN || iCh2==PZ || iCh2==ZN))
-		continue;
-	      for(int iPa1=PiPi;iPa1<=LAST_PARTICLE_COMB;iPa1++)
-		{
-		  for(int iPa2=PiPi;iPa2<=iPa1;iPa2++)
-		    {
-		      for(unsigned int iM=0;iM<binningM[iPa1].size();iM++)
-			{
-			  for(unsigned int iM2=0;iM2<binningM[iPa1].size();iM2++)
-			    {
-			      indFile <<ind(iCh1,iCh2,NumCharge)<< " " <<  ind(iPa1,iPa2,NumParticle)<< " " <<iM <<" " << iM2 <<" "<<kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName()<<endl;
-			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Write();
-			    }
-			}
-		    }
-		}
-	    }
-	}
-      fKinematics.Write();
-      fKinematics.Close();
-}
+//void saveKinPars(TH1D***** kinSpectraH, vector<float>* binningM )
+//{
+//  char fName[]="kinPars1D.root";
+//  ofstream indFile("indFile.txt",ios::in);
+//  TFile fKinematics(fName,"recreate");
+//      for(int iCh1=PN;iCh1<=LAST_CHARGE_COMB;iCh1++)
+//	{
+//	  for(int iCh2=PN;iCh2<=iCh1;iCh2++)
+//	    {
+//	      if(!(iCh1==PN || iCh1==PZ || iCh1==ZN))
+//		continue;
+//	      if(!(iCh2==PN || iCh2==PZ || iCh2==ZN))
+//		continue;
+//	      for(int iPa1=PiPi;iPa1<=LAST_PARTICLE_COMB;iPa1++)
+//		{
+//		  for(int iPa2=PiPi;iPa2<=iPa1;iPa2++)
+//		    {
+//		      for(unsigned int iM=0;iM<binningM[iPa1].size();iM++)
+//			{
+//			  for(unsigned int iM2=0;iM2<binningM[iPa1].size();iM2++)
+//			    {
+//			      indFile <<ind(iCh1,iCh2,NumCharge)<< " " <<  ind(iPa1,iPa2,NumParticle)<< " " <<iM <<" " << iM2 <<" "<<kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName()<<endl;
+//			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Write();
+//			    }
+//			}
+//		    }
+//		}
+//	    }
+//	}
+//      fKinematics.Write();
+//      fKinematics.Close();
+//}
+//
 
-
-void saveKinPars(TH2D***** kinSpectraH, vector<float>* binningM)
-{
-  char fName[]="kinPars.root";
-  TFile fKinematics(fName,"recreate");
-  TTree m_treeKin("KinematicsHistoTree","KinematicsHistoTree");
-
-  //m_treeKin.Branch("zBin1",&kinematics::zBin1,"zBin1/I");
-  //m_treeKin.Branch("zBin2",&kinematics::zBin2,"zBin2/I");
-  m_treeKin.Branch("mBin1",&kinematics::mBin1,"mBin1/I");
-  m_treeKin.Branch("mBin2",&kinematics::mBin2,"mBin2/I");
-  m_treeKin.Branch("chargeType1",&kinematics::chargeType1,"chargeType1/I");
-  m_treeKin.Branch("particleType1",&kinematics::particleType1,"particleType1/I");
-  m_treeKin.Branch("chargeType2",&kinematics::chargeType2,"chargeType2/I");
-  m_treeKin.Branch("particleType2",&kinematics::particleType2,"particleType2/I");
-  m_treeKin.Branch("counts",&kinematics::counts,"counts/I");
-
-
-  char name[200];
-
-      //     TF1 mFit("fit","[0]*([1]*cos(x)+1)",-pi,pi);
-      //     mFit.SetParNames("C","Amp");
-  TF2 mFit2("fit2D","([0]*x^3+[1]*x^2+[2]*x+[3])*([4]*y^3+[5]*y^2+[6]*y+[7])",0,1,0,1);
-  mFit2.SetParNames("a0","a1","a2","a3","b0","b1","b2","b3");
-  //  TF2 mFit2("fit2D","([0]*x^0.5*[1]*(1-x)^3)*([4]*y^3+[5]*y^2+[6]*y+[7])",0,1,0,1);
-  //mFit2.SetParNames("a0","a1","a2","a3","b0","b1","b2","b3");
-      for(int i=0;i<6;i++)
-	{
-	  mFit2.SetParameter(i,0.1);
-	}
-
-      for(int iCh1=PN;iCh1<=LAST_CHARGE_COMB;iCh1++)
-	{
-	  kinematics::chargeType1=iCh1;
-
-	  for(int iCh2=PN;iCh2<=iCh1;iCh2++)
-	    {
-	      if(!(iCh1==PN || iCh1==PZ || iCh1==ZN))
-		continue;
-	      if(!(iCh2==PN || iCh2==PZ || iCh2==ZN))
-		continue;
-	      kinematics::chargeType2=iCh2;
-	      for(int iPa1=PiPi;iPa1<=LAST_PARTICLE_COMB;iPa1++)
-		{
-		  kinematics::particleType1=iPa1;
-		  for(int iPa2=PiPi;iPa2<=iPa1;iPa2++)
-		    {
-		      if(iPa1!=iPa2 || iPa1 !=PiPi)
-			continue;
-		      kinematics::particleType2=iPa2;
-		      TCanvas c("mCanvas","mCanvas");
-		      c.Divide(binningM[iPa1].size(),binningM[iPa2].size());
-		      for(unsigned int iM=0;iM<binningM[iPa1].size();iM++)
-			{
-			  kinematics::mBin1=iM;
-			  for(unsigned int iM2=0;iM2<binningM[iPa1].size();iM2++)
-			    {
-			      c.cd(iM*binningM[iPa1].size()+iM2+1);
-			      kinematics::mBin2=iM2;
-			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Fit("fit2D");
-			      cout <<" ndf: " << mFit2.GetNDF()<<" chi2: " << mFit2.GetChisquare() << " chi2/ndf" << mFit2.GetChisquare()/mFit2.GetNDF() <<endl;
-			      cout <<"im: " << iM <<" im2: " << iM2 << "ich1: " << iCh1 <<" iCh2 " << iCh2 <<" ipa1: " << iPa1 <<" pa2: " << iPa2 << endl;
-			      cout <<"num entries for " <<kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName()<< " " << kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetEntries();
-			      for(int iP=0;iP<6;iP++)
-				{
-				  cout <<"Par: " << iP << ": " << mFit2.GetParameter(iP);
-				}
-			      sprintf(name,"fitResults/%s.png",kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName());
-			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Draw("col");
-
-
-			    }
-			}
-		      //		      c.SaveAs("fitResults.pdf");
-		    }
-		}
-	    }
-	}
-      fKinematics.Write();
-      fKinematics.Close();
-}
-
+//void saveKinPars(TH2D***** kinSpectraH, vector<float>* binningM)
+//{
+//  char fName[]="kinPars.root";
+//  TFile fKinematics(fName,"recreate");
+//  TTree m_treeKin("KinematicsHistoTree","KinematicsHistoTree");
+//
+//  //m_treeKin.Branch("zBin1",&kinematics::zBin1,"zBin1/I");
+//  //m_treeKin.Branch("zBin2",&kinematics::zBin2,"zBin2/I");
+//  m_treeKin.Branch("mBin1",&kinematics::mBin1,"mBin1/I");
+//  m_treeKin.Branch("mBin2",&kinematics::mBin2,"mBin2/I");
+//  m_treeKin.Branch("chargeType1",&kinematics::chargeType1,"chargeType1/I");
+//  m_treeKin.Branch("particleType1",&kinematics::particleType1,"particleType1/I");
+//  m_treeKin.Branch("chargeType2",&kinematics::chargeType2,"chargeType2/I");
+//  m_treeKin.Branch("particleType2",&kinematics::particleType2,"particleType2/I");
+//  m_treeKin.Branch("counts",&kinematics::counts,"counts/I");
+//
+//
+//  char name[200];
+//
+//      //     TF1 mFit("fit","[0]*([1]*cos(x)+1)",-pi,pi);
+//      //     mFit.SetParNames("C","Amp");
+//  TF2 mFit2("fit2D","([0]*x^3+[1]*x^2+[2]*x+[3])*([4]*y^3+[5]*y^2+[6]*y+[7])",0,1,0,1);
+//  mFit2.SetParNames("a0","a1","a2","a3","b0","b1","b2","b3");
+//  //  TF2 mFit2("fit2D","([0]*x^0.5*[1]*(1-x)^3)*([4]*y^3+[5]*y^2+[6]*y+[7])",0,1,0,1);
+//  //mFit2.SetParNames("a0","a1","a2","a3","b0","b1","b2","b3");
+//      for(int i=0;i<6;i++)
+//	{
+//	  mFit2.SetParameter(i,0.1);
+//	}
+//
+//      for(int iCh1=PN;iCh1<=LAST_CHARGE_COMB;iCh1++)
+//	{
+//	  kinematics::chargeType1=iCh1;
+//
+//	  for(int iCh2=PN;iCh2<=iCh1;iCh2++)
+//	    {
+//	      if(!(iCh1==PN || iCh1==PZ || iCh1==ZN))
+//		continue;
+//	      if(!(iCh2==PN || iCh2==PZ || iCh2==ZN))
+//		continue;
+//	      kinematics::chargeType2=iCh2;
+//	      for(int iPa1=PiPi;iPa1<=LAST_PARTICLE_COMB;iPa1++)
+//		{
+//		  kinematics::particleType1=iPa1;
+//		  for(int iPa2=PiPi;iPa2<=iPa1;iPa2++)
+//		    {
+//		      if(iPa1!=iPa2 || iPa1 !=PiPi)
+//			continue;
+//		      kinematics::particleType2=iPa2;
+//		      TCanvas c("mCanvas","mCanvas");
+//		      c.Divide(binningM[iPa1].size(),binningM[iPa2].size());
+//		      for(unsigned int iM=0;iM<binningM[iPa1].size();iM++)
+//			{
+//			  kinematics::mBin1=iM;
+//			  for(unsigned int iM2=0;iM2<binningM[iPa1].size();iM2++)
+//			    {
+//			      c.cd(iM*binningM[iPa1].size()+iM2+1);
+//			      kinematics::mBin2=iM2;
+//			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Fit("fit2D");
+//			      cout <<" ndf: " << mFit2.GetNDF()<<" chi2: " << mFit2.GetChisquare() << " chi2/ndf" << mFit2.GetChisquare()/mFit2.GetNDF() <<endl;
+//			      cout <<"im: " << iM <<" im2: " << iM2 << "ich1: " << iCh1 <<" iCh2 " << iCh2 <<" ipa1: " << iPa1 <<" pa2: " << iPa2 << endl;
+//			      cout <<"num entries for " <<kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName()<< " " << kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetEntries();
+//			      for(int iP=0;iP<6;iP++)
+//				{
+//				  cout <<"Par: " << iP << ": " << mFit2.GetParameter(iP);
+//				}
+//			      sprintf(name,"fitResults/%s.png",kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->GetName());
+//			      kinSpectraH[ind(iCh1,iCh2,NumCharge)][ind(iPa1,iPa2,NumParticle)][iM][iM2]->Draw("col");
+//
+//
+//			    }
+//			}
+//		      //		      c.SaveAs("fitResults.pdf");
+//		    }
+//		}
+//	    }
+//	}
+//      fKinematics.Write();
+//      fKinematics.Close();
+//}
+//
 
 void loadKinematics(double****** kinSpectraReducedPars,double******* kinSpectraPars,double***** kinSpectraReduced,double****** kinSpectra, char* rFileName, int lastPT, int lastCharge, int numBinZ, int numBinM, vector<float>* binningM)
 {
@@ -563,7 +563,7 @@ string iToStrCharge(int i)
     case NP:
       return "NegPos";
       break;
-    case PP:
+    case cPP:
       return "PosPos";
       break;
     case NN:
@@ -1355,7 +1355,7 @@ vector<pair<float, float> >* fitTheSh__(int*** counts, vector<float>& binningAng
 vector<pair<float, float> >* fitTheSh__(float*** counts, vector<float>& binningAng,int numKinBins, ofstream* errorVglFile, int numPara)
    {
      vector<pair<float,float> >* ret;
-     cout <<"ret in f: " << ret <<endl;
+     //cout <<"ret in f: " << ret <<endl;
      ret=new std::vector<std::pair<float,float> >;
      cout <<"ret2: " << ret <<endl;
      cout <<"1stsize of ret: " << ret->size()<<endl;

@@ -34,7 +34,7 @@ class HadronPair
   Particle* firstHadron;
   Particle* secondHadron;
   ///for ease of access
-  float z1;
+  float z1; 
   float z2;
 
 
@@ -117,8 +117,25 @@ class HadronPair
     p_KK=pinf1.p_K*pinf2.p_K;
     p_KP=pinf1.p_K*pinf2.p_p;
 
+    p_PPi=pinf1.p_p*pinf2.p_Pi;
+    p_PK=pinf1.p_p*pinf2.p_K;
+    p_PP=pinf1.p_p*pinf2.p_p;
+
+
     //      kT=firstHadron->p3().perp(secondHadron->p3());
     kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
+    kT_PiK=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[kaonIdx]);
+    kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
+
+
+    kT_KPi=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[pionIdx]);
+    kT_KK=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[kaonIdx]);
+    kT_KP=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[protonIdx]);
+
+    kT_PPi=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[pionIdx]);
+    kT_PK=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[kaonIdx]);
+    kT_PP=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[protonIdx]);
+
 
     ///////---------
 
@@ -167,14 +184,14 @@ class HadronPair
 
       //set charges/particle types...
       hadCharge1=getHadCharge(firstHadron->lund());
-      hadCharge2=getHadCharge(firstHadron->lund());
+      hadCharge2=getHadCharge(secondHadron->lund());
 
       hadPType1=getHadType(firstHadron->lund());
-      hadPType2=getHadType(firstHadron->lund());
+      hadPType2=getHadType(secondHadron->lund());
 
       hadCharge=getTwoHadCharge(hadCharge1,hadCharge2);
       hadPType=getTwoHadType(hadPType1,hadPType2);
-
+      //      cout <<"we set the type to : " << hadPType <<endl;
       computePIDWeights();
 
   }
@@ -202,6 +219,7 @@ class HadronPair
   AnaDef::SingleHadType getHadType(int lund)
     {
       int llund=fabs(lund);
+
       if(llund==13 || llund==11)
 	return AnaDef::MuonElectron;
       if(llund==211)
@@ -212,35 +230,44 @@ class HadronPair
       if(llund==2212)
 	return AnaDef::Proton;
 
+      cout <<"unknown single hadron "<< llund<<endl;
       return AnaDef::SH_TypeUnknown;
     }
 
   AnaDef::TwoHadCharge getTwoHadCharge(AnaDef::SingleHadCharge c1, AnaDef::SingleHadCharge c2)
     {
-      if(AnaDef::SH_ChargeUnknown==c1 || AnaDef::SH_ChargeUnknown==c2)
-	return AnaDef::NA;
-      if((AnaDef::Pos==c1 && AnaDef::Neg==c2)|| (AnaDef::Neg==c1 && AnaDef::Pos==c2))
-	return AnaDef::PN;
-      if(AnaDef::Pos==c1 && AnaDef::Pos==c2)
-	return AnaDef::PP;
-      if(AnaDef::Neg==c1 && AnaDef::Neg==c2)
-	return AnaDef::NN;
-
-      return AnaDef::NA;
+      if(c1==c2)
+	return AnaDef::Likesign;
+      else
+	return AnaDef::Unlikesign;
+//      if(AnaDef::SH_ChargeUnknown==c1 || AnaDef::SH_ChargeUnknown==c2)
+//	return AnaDef::NA;
+//      if((AnaDef::Pos==c1 && AnaDef::Neg==c2)|| (AnaDef::Neg==c1 && AnaDef::Pos==c2))
+//	return AnaDef::PN;
+//      if(AnaDef::Pos==c1 && AnaDef::Pos==c2)
+//	return AnaDef::PP;
+//      if(AnaDef::Neg==c1 && AnaDef::Neg==c2)
+//	return AnaDef::NN;
+//
+//      return AnaDef::NA;
     }
 
   AnaDef::TwoHadPType getTwoHadType(AnaDef::SingleHadType c1, AnaDef::SingleHadType c2)
     {
       if(AnaDef::SH_TypeUnknown==c1 || AnaDef::SH_TypeUnknown==c2)
+	{
+	  //	  cout <<" unknown two had " <<endl;
 	return AnaDef::UNKNOWN;
+	}
 
       if(AnaDef::Pion==c1&& AnaDef::Pion==c2)
 	return AnaDef::PiPi;
       if(AnaDef::Kaon==c1&& AnaDef::Kaon==c2)
 	return AnaDef::KK;
-
-      if((AnaDef::Kaon==c1&& AnaDef::Pion==c2)&&(AnaDef::Pion==c1&&AnaDef::Kaon==c2))
+      if((AnaDef::Kaon==c1&& AnaDef::Pion==c2)||(AnaDef::Pion==c1&&AnaDef::Kaon==c2))
 	return AnaDef::PiK;
+
+
 
       return AnaDef::UNKNOWN;
     }

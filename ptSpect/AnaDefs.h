@@ -19,8 +19,8 @@ namespace Belle {
 
 namespace AnaDef
 {
-  enum TwoHadCharge{PN, NP,PP,NN,PZ,ZP,ZN,NZ,ZZ,PNNP,PZZP,ZNNZ, Likesign,Unlikesign,NA};//the unknown is for mc, when we
-  enum TwoHadPType{PiPi,PiK,KPi,KK,UNKNOWN};
+  enum TwoHadCharge{Likesign,Unlikesign,NA};//the unknown is for mc, when we
+  enum TwoHadPType{PiPi,PiK,PiP,KPi,KK,KP,PPi, PK, PP,UNKNOWN};
   enum ErrorCodes{
     smallRt
   };

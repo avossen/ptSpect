@@ -161,55 +161,105 @@ class AuxFunc
     }
   static AnaDef::TwoHadCharge getCharge(const Ptype& pt1, const Ptype pt2)
     {
-      if(pt1.charge() > 0)
-	{
-	  if(pt2.charge() > 0)
-	    return AnaDef::PP;
-	  if(pt2.charge() < 0)
-	    {
-	    return AnaDef::PN;
-	    }
 
-	  return AnaDef::PZ;
+      if(pt1.charge()==pt2.charge())
+	{
+	  return AnaDef::Likesign;
 	}
       else
 	{
-	  if(pt1.charge()<0)
-	    {
-	      if(pt2.charge() > 0)
-		{
-		  //		  cout <<"forbidden charge combination" << endl;
-		  //not relly, in mc possible (of course not wanted)
-		  return AnaDef::NP;
-		}
-
-	      if(pt2.charge() < 0)
-		return AnaDef::NN;
-
-
-	      cout <<"forbidden charge combination" << endl;
-	      return AnaDef::NZ;
-	      //	      return AnaDef::NZ;
-	    }
-	      if(pt2.charge() > 0)
-		{
-		  cout <<"forbidden charge combination" << endl;
-		  return AnaDef::NP;
-		}
-	      if(pt2.charge() < 0)
-		return AnaDef::ZN;
-
-	      return AnaDef::ZZ;
+	  return AnaDef::Unlikesign;
 	}
-      cout <<"no matching charge!" << endl;
-      exit(0);
-
+//      if(pt1.charge() > 0)
+//	{
+//	  if(pt2.charge() > 0)
+//	    return AnaDef::PP;
+//	  if(pt2.charge() < 0)
+//	    {
+//	    return AnaDef::PN;
+//	    }
+//
+//	  return AnaDef::PZ;
+//	}
+//      else
+//	{
+//	  if(pt1.charge()<0)
+//	    {
+//	      if(pt2.charge() > 0)
+//		{
+//		  //		  cout <<"forbidden charge combination" << endl;
+//		  //not relly, in mc possible (of course not wanted)
+//		  return AnaDef::NP;
+//		}
+//
+//	      if(pt2.charge() < 0)
+//		return AnaDef::NN;
+//
+//
+//	      cout <<"forbidden charge combination" << endl;
+//	      return AnaDef::NZ;
+//	      //	      return AnaDef::NZ;
+//	    }
+//	      if(pt2.charge() > 0)
+//		{
+//		  cout <<"forbidden charge combination" << endl;
+//		  return AnaDef::NP;
+//		}
+//	      if(pt2.charge() < 0)
+//		return AnaDef::ZN;
+//
+//	      return AnaDef::ZZ;
+//	}
+//      cout <<"no matching charge!" << endl;
+//      exit(0);
+//
     }
 
 static  AnaDef::TwoHadPType getPType(const Ptype& pt1,const Ptype& pt2)
     {
       //      cout <<"(getPType)first: " << pt1.name() << " second "<< pt2.name()<<endl;
       //      cout <<"bool 1: " << (cPiZero==pt1) <<", bool 2 : " << (cPiZero==pt1) <<endl;
+      if(fabs(pt1.lund()==lc_piPlus) && fabs(pt2.lund()==lc_piPlus))
+	{
+	  return AnaDef::PiPi;
+	}
+      if(fabs(pt1.lund()==lc_piPlus) && fabs(pt2.lund()==lc_kPlus))
+	{
+	  return AnaDef::PiK;
+	}
+      if(fabs(pt1.lund()==lc_piPlus) && fabs(pt2.lund()==2212))
+	{
+	  return AnaDef::PiP;
+	}
+      if(fabs(pt1.lund()==lc_kPlus) && fabs(pt2.lund()==lc_piPlus))
+	{
+	  return AnaDef::KPi;
+	}
+      if(fabs(pt1.lund()==lc_kPlus) && fabs(pt2.lund()==lc_kPlus))
+	{
+	  return AnaDef::KK;
+	}
+      if(fabs(pt1.lund()==lc_kPlus) && fabs(pt2.lund()==2212))
+	{
+	  return AnaDef::KP;
+	}
+
+      if(fabs(pt1.lund()==2212) && fabs(pt2.lund()==lc_piPlus))
+	{
+	  return AnaDef::PPi;
+	}
+      if(fabs(pt1.lund()==2212) && fabs(pt2.lund()==lc_kPlus))
+	{
+	  return AnaDef::PK;
+	}
+      if(fabs(pt1.lund()==2212) && fabs(pt2.lund()==2212))
+	{
+	  return AnaDef::PP;
+	}
+
+
+
+
       if((pt1.lund()==lc_piPlus||pt1.lund()==lc_pi0) && (pt2.lund()==lc_piMinus||pt2.lund()==lc_pi0))
 	{
 	  //	  cout <<"return right" <<endl;

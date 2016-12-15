@@ -1,4 +1,4 @@
-#ifndef TREESAVER_H
+ #ifndef TREESAVER_H
 #define TREESAVER_H
 #include "ptSpect/mc.h"  //one central place to put the define mc
 #include <mdst/mdst.h>
@@ -82,7 +82,9 @@ public:
   void fillWPairData(vector<HadronPair*>& vecHadronPairs,EventInfo& evtInfo)
     {
 #ifdef MC
+      //      cout <<" gi.fillInf" <<endl;
       gi.fillInf();
+      //      cout <<" gi done " <<endl;
       //      if(sgn(gi.cmThrust.z())!=sgn(kinematics::thrustDirCM.z()))
 
 
@@ -99,7 +101,6 @@ public:
       int qoffset=0;//offset from one quadruple to the next
       //for the number of hadron quad vectors, e.g. 4
 
-
 	  if(vecHadronPairs.empty())	  //if one is empty all are
 	    {
 	      return;
@@ -110,6 +111,7 @@ public:
 	      cout <<"too many entries " <<endl;
 	      return;
 	    }
+	  //	  cout <<"vecHadronPairsSize " << vecHadronPairs.size()  <<endl;
 	  for(int i=0;i<vecHadronPairs.size();i++)
 	    {
 	      fillWSinglePairData(vecHadronPairs[i]);	 
@@ -117,13 +119,15 @@ public:
 	      //this then also calls fillWQuadrupleData, either with 0 (no correspondence) or mcpart =true
 	      getQGenInfo(vecHadronPairs[i]);
 #endif
+	      //	      cout <<"after getQ " <<endl;
 	      //	      cout <<"dataf: " << numF <<" i: " << numI <<endl;
 	      numF=dataF.size();  //always the same, 
 	      numI=dataI.size(); 
-	      //	      cout <<"dataf: " << numF <<" i: " << numI <<endl;
+	      //	      	      cout <<"dataf: " << numF <<" i: " << numI <<endl;
 	      //dataf 44, then 42 for all, i always 12
 	      for(int j=0;j<dataF.size();j++)
 		{
+		  //		  cout <<"j: "<< j <<endl;
 		  if(i+qoffset >=1200)
 		    {
 		      cout <<"index q to large" <<endl;
@@ -136,19 +140,25 @@ public:
 		    }
 		  ((float*)treeData[2*j+1])[i+qoffset]=dataF[j];
 		}
+	      //	      cout <<"/-1" <<endl;
 	      //dataI has size 4
+	      //	      cout <<"dataI size: "<< dataI.size()<<endl;
 	      for(int j=0;j<dataI.size();j++)
 		{
+		  //		  cout<<"j2: "<< j <<", treeData size: "<< treeData.size()<<endl;
 		  if(2*(j+numF)+1 > treeData.size())
 		    {
 		      cout <<"index td to large" <<endl;
 		      continue;
 		    }
+		  //		  cout <<"wanting to access treedata " << 2*(j+numF)+1 <<", i+qoffset " << i+qoffset <<endl;
 		  ((int*)treeData[2*(j+numF)+1])[i+qoffset]=dataI[j];
+
 		}
 	      dataF.clear();
 	      dataI.clear();
 	    }
+	  //	  cout <<"-2 " <<endl;
 	  qoffset+=vecHadronPairs.size();
 	  //save counter info
 	  for(int j=0;j<numF;j++)
@@ -159,7 +169,7 @@ public:
 	    {
 	      *(int*)treeData[2*(j+numF)]=qoffset;
 	    }
-
+	  //	  cout <<"2.." <<endl;
       if(numF < 0) //no events, all quad vector empty
 	return;
       fillWEvtData(evtInfo);
@@ -222,8 +232,15 @@ public:
 	v_p[i]->userInfo(*(new ParticleInfo())); //gets deleted in destructor of Particle
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(v_p[i]->userInfo());
 	pinf.motherGenId=v_g[i]->mother().idhep();
+
 	float m_z=2*boostedVec.t()/kinematics::Q;
+	//	cout <<"z is : " << m_z <<endl;
 	int geantID=abs(v_g[i]->idhep());
+	//	cout <<"looking at index " << i << " idhep: "<< geantID <<endl;
+
+	//this is mc, so the z is independent of the pid (we know the pid). But because the compute function
+	//in HadronPair puts the value of z[0] (pion) as the default, we use it here.
+	pinf.z[0]=m_z;
 
 	pinf.z[gi.getIdxFromGeantId(geantID)]=m_z;
 	pinf.labTheta=labTheta;
@@ -241,20 +258,25 @@ public:
 	  axis=gi.jet2;
 	pinf.thrustProj=axis.dot(boostedVec.vect())/(axis.mag()*boostedVec.vect().mag());
 
-
+	//turns out that the ones where z is -1 are all the electron/muon 
+	//compinations
 	if(!(geantID==lc_pi0 || geantID==lc_piPlus || geantID==lc_kPlus || geantID ==lc_pPlus))
-	  validType=false;
-
+	  {
+	    //	    cout <<"geantID not pion or kaon:: "<< geantID <<endl;
+	    validType=false;
+	  }
+	//	cout <<" valid Type: "<< validType <<endl;
 	v_p[i]->momentum().momentum(boostedVec);
 
       }
       HadronPair hp;
-
+      ///the below (charge, type ) is anyways overridden by the 'compute' functions...
       if(validType)
 	{
+	  //	  cout <<"tree saver getting type and charge : "<< endl;
 	  hp.hadCharge=AuxFunc::getCharge(v_p[0]->pType(),v_p[1]->pType());
 	  hp.hadPType=AuxFunc::getPType(v_p[0]->pType(),v_p[1]->pType());
-
+	  //	  cout <<"got charge: "<< hp.hadCharge <<" type: "<< hp.hadPType<<endl;
 	}
       else
 	{
@@ -266,7 +288,10 @@ public:
       hp.firstHadron=v_p[0];
       hp.secondHadron=v_p[1];
       if(hp.firstHadron->p().vect()==hp.secondHadron->p().vect())
-	validType=false;
+	{
+	  //	  cout <<" hadrons are the same..?" <<endl;
+	  validType=false;
+	}
 
       float labTheta1=dynamic_cast<ParticleInfo&>(v_p[0]->userInfo()).labTheta;
       float labTheta2=dynamic_cast<ParticleInfo&>(v_p[1]->userInfo()).labTheta;
@@ -423,44 +448,45 @@ public:
 	  dataF.push_back(pair->z1);//z1
 	  dataF.push_back(pair->z2); //z2
 
-
- 	  dataF.push_back(pair->p_PiPi);
-	  dataF.push_back(pair->p_PiK);	  
-	  dataF.push_back(pair->p_PiP);
-
-
-	  dataF.push_back(pair->p_KPi);
-	  dataF.push_back(pair->p_KK);	  
-	  dataF.push_back(pair->p_KP);
+	  if(!mcPart)
+	    {
+	      dataF.push_back(pair->p_PiPi);
+	      dataF.push_back(pair->p_PiK);	  
+	      dataF.push_back(pair->p_PiP);
 
 
-	  dataF.push_back(pair->p_PPi);
-	  dataF.push_back(pair->p_PK);	  
-	  dataF.push_back(pair->p_PP);
-
- 	  dataF.push_back(pair->kT_PiPi);
-	  dataF.push_back(pair->kT_PiK);	  
-	  dataF.push_back(pair->kT_PiP);
-
-
-	  dataF.push_back(pair->kT_KPi);
-	  dataF.push_back(pair->kT_KK);	  
-	  dataF.push_back(pair->kT_KP);
-
-
-	  dataF.push_back(pair->kT_PPi);
-	  dataF.push_back(pair->kT_PK);	  
-	  dataF.push_back(pair->kT_PP);
+	      dataF.push_back(pair->p_KPi);
+	      dataF.push_back(pair->p_KK);	  
+	      dataF.push_back(pair->p_KP);
+	      
+	      
+	      dataF.push_back(pair->p_PPi);
+	      dataF.push_back(pair->p_PK);	  
+	      dataF.push_back(pair->p_PP);
+	      
+	      dataF.push_back(pair->kT_PiPi);
+	      dataF.push_back(pair->kT_PiK);	  
+	      dataF.push_back(pair->kT_PiP);
 
 
-	  dataF.push_back(pair->z1_Pi);
-	  dataF.push_back(pair->z1_K);
-	  dataF.push_back(pair->z1_P);
+	      dataF.push_back(pair->kT_KPi);
+	      dataF.push_back(pair->kT_KK);	  
+	      dataF.push_back(pair->kT_KP);
+	      
+	      
+	      dataF.push_back(pair->kT_PPi);
+	      dataF.push_back(pair->kT_PK);	  
+	      dataF.push_back(pair->kT_PP);
+	      
+	      
+	      dataF.push_back(pair->z1_Pi);
+	      dataF.push_back(pair->z1_K);
+	      dataF.push_back(pair->z1_P);
 
-	  dataF.push_back(pair->z2_Pi);
-	  dataF.push_back(pair->z2_K);
-	  dataF.push_back(pair->z2_P);
-
+	      dataF.push_back(pair->z2_Pi);
+	      dataF.push_back(pair->z2_K);
+	      dataF.push_back(pair->z2_P);
+	    }
 
 	  float labTheta1=dynamic_cast<ParticleInfo&>(pair->firstHadron->userInfo()).labTheta;
 	  float labTheta2=dynamic_cast<ParticleInfo&>(pair->secondHadron->userInfo()).labTheta;

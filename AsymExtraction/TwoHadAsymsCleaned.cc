@@ -140,7 +140,10 @@ int main(int argc, char** argv)
 
   kMCFlags hadMCFlag=dataMCFlag;
   if(isMC==mcAsData)
-    hadMCFlag=mcFlagMC;
+    {
+      cout <<" mcAsData" <<endl;
+      hadMCFlag=mcFlagMC;
+    }
 
   HadronPairArray hadPairMC(chAll,hadMCFlag);
 
@@ -206,7 +209,9 @@ int main(int argc, char** argv)
 	}
 
       //      cout <<"normal quad after fill" <<endl;
+      //           cout<<" data after fill " <<endl;
       hadPair.afterFill();
+      //      cout <<"mc after fill " <<endl;
       hadPairMC.afterFill();
  
       for(int i=0;i<hadPair.numPairs;i++)

@@ -1,6 +1,6 @@
 const bool PRINT=false;
 #include <iomanip>
-
+#include "TMatrixD.h"
 #include "ptSpect/mc.h"  //one central place to put the define mc
 #include "event/BelleEvent.h"
 #include "particle/Particle.h"
@@ -135,7 +135,7 @@ namespace Belle {
     pXCheck=new ofstream("xcheck");
 #endif
     gROOT->SetStyle("Plain");
-    m_file=new TFile(rFileName,"recreate");
+
     thetaPhiLab=new TH2D("thetaPhiLab","thetaPhiLab",100,0,6.3,100,-3.15,3.15);
     thetaPhiCMS=new TH2D("thetaPhiCMS","thetaPhiCMS",100,0,6.3,100,-3.15,3.15);
 
@@ -201,8 +201,9 @@ namespace Belle {
 	  }
       }
 
-
-
+    loadPIDMatrix();
+    //do this after the PID matrix load, so we don't have to deal with changing root directories
+    m_file=new TFile(rFileName,"recreate");
   }
 
 
@@ -2918,6 +2919,7 @@ namespace Belle {
     //probability for each mass hyposthesis
 
     int idAs=info->idAs;
+    //    cout <<" set hadron pid probs idAs: " << idAs <<" thetaBin: "<< thetaBin << " momBin: "<< momBin <<endl;
     for(int hypo=0;hypo<5;hypo++)
       {
 	//	cout <<"momBin: " << momBin <<" thetaBin: "<< thetaBin <<" hypo: " << hypo <<  " idAs: "<< idAs << " charge: "<< info->charge <<endl;
@@ -2926,6 +2928,7 @@ namespace Belle {
 	    //we don't have matrices for everything
 	    if(thetaBin>=0 && momBin>=0){
 	      info->pidProbabilities[hypo]=pidMatrixPositive[momBin][thetaBin][hypo][idAs];
+	      //	      cout <<"pid probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
 	    }
 	    else
 	      {
@@ -2939,6 +2942,7 @@ namespace Belle {
 	else
 	  {
 	    if(thetaBin>=0 && momBin>=0){
+	      //	      cout <<"pid neg probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
 	      info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	    
 	    }
 	   else
@@ -2958,9 +2962,57 @@ namespace Belle {
     info->p_p=info->pidProbabilities[protonIdx];
     info->p_e=info->pidProbabilities[electronIdx];
     info->p_mu=info->pidProbabilities[muonIdx];
-
+    //    cout <<"p_Pi " << info->p_Pi <<" p_K: " << info->p_K <<" p_p: "<< info->p_p << " p_e " << info->p_e <<" p_mu : " << info->p_mu <<endl;
   }
 
+  //code from FRancesca
+  void  ptSpect::loadPIDMatrix()
+  {
+   TFile* fpid = new TFile("newpid.root","read");
+   char matrix_name[300];
+   if (fpid->IsZombie()) {
+     printf("File code.root does not exist.\n");
+     return;
+   }
+  
+// reading all matrices together, as the code crashes if I try to open the file too many times...
+ for (Int_t u = 0; u < pb; u++)
+   for (Int_t v = 0; v < thb; v++)
+     for (Int_t w = 0; w < 2; w++){
+       //w is charge ( 0  negative, 1 positive);
+      sprintf(matrix_name,"invanalyticmatrix_u%d_v%d_w%d",u,v,w); // invanalyticmatrix_u16_v0_w0 does not exists!!! 
+                                                                //u16 starts from v3 (invanalyticmatrix_u16_v3_w0)
+                                                                  // corresponds to z > 1 (smearing?) additional uncertainties would be 1-2
+    // up to 9 July 2015! int k= u*8*2+v*2+w; using 8 instead of 9!
+      //    int k= u*thb*2+v*2+w;
+
+   
+
+     if(u<16 || v>2 ){
+       //       cout <<" u:  " << u << " v: " << v << " w: " << w <<endl;
+       TMatrixD mat = *(TMatrixD*)fpid->Get(matrix_name);
+
+       for (Int_t i = 0; i <= 4; i++)
+         for (Int_t j = 0; j <= 4; j++){
+	   if(w==1)
+	     {
+	     pidMatrixPositive[u][v][i][j]=mat(i,j);
+	     //    cout <<"loading positive " << mat(i,j) <<endl;
+	     }
+	   else
+	     {
+	     pidMatrixNegative[u][v][i][j]=mat(i,j);
+	     //	     cout <<"loading negative " << mat(i,j) <<endl;
+	     }
+
+	   //          matrix[k][i][j] = mat(i,j);
+          //if(k==72) cout << i << " " << j <<" " <<  mat(i,j) << endl;
+       }
+     }
+  }
+ fpid->Close();
+
+  }
 #if defined(BELLE_NAMESPACE)
 } // namespace Belle
 #endif
