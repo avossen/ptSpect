@@ -102,7 +102,7 @@ struct HadronPairArray:public ReaderBase
 
 
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
-  HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.2),zUpperCut(1.4), secondZCut(0.2), hadronTagFiducialCut(3.2), asymmetryFlag(false)
+  HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.1),zUpperCut(1.4), secondZCut(0.1), hadronTagFiducialCut(3.2), asymmetryFlag(false)
   {
     //no chain implies standalone. Cannot branch on the same field twice, this would override
     //    cout <<" do we have a chain? " << chain<<endl;
@@ -209,7 +209,6 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("p_PiK");
 	    branchNames.push_back("p_PiP");
 
-
 	    branchNames.push_back("p_KPi");
 	    branchNames.push_back("p_KK");
 	    branchNames.push_back("p_KP");
@@ -217,13 +216,11 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("p_PPi");
 	    branchNames.push_back("p_PK");
 	    branchNames.push_back("p_PP");
-	    
-	    
+	    	    
 	    branchNames.push_back("kT_PiPi");
 	    branchNames.push_back("kT_PiK");
 	    branchNames.push_back("kT_PiP");
 	    
-
 	    branchNames.push_back("kT_KPi");
 	    branchNames.push_back("kT_KK");
 	    branchNames.push_back("kT_KP");

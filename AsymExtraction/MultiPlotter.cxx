@@ -65,34 +65,24 @@ void MultiPlotter::loadBinnings()
 
 
   /////  binningZ.push_back(0.2);
+  binningZ.push_back(0.1);
+  binningZ.push_back(0.2);
   binningZ.push_back(0.3);
-  binningZ.push_back(0.4);
-  binningZ.push_back(0.5);
   ////  binningZ.push_back(0.7);
-  binningZ.push_back(0.6); //// 
-  binningZ.push_back(1.5);
+  binningZ.push_back(0.4); //// 
+  //  binningZ.push_back(0.5);
+  //  binningZ.push_back(0.6);
+  binningZ.push_back(2.6);
 
-  binningKt.push_back(0.1);
   binningKt.push_back(0.15);
-  binningKt.push_back(0.2);
-   binningKt.push_back(0.25);
   binningKt.push_back(0.3);
-    binningKt.push_back(0.35);
-  binningKt.push_back(0.4);
-    binningKt.push_back(0.45);
-  binningKt.push_back(0.5);
-    binningKt.push_back(0.55);
-  binningKt.push_back(0.6);
-    binningKt.push_back(0.65);
-  binningKt.push_back(0.7);
-    binningKt.push_back(0.75);
-  binningKt.push_back(0.8);
-  binningKt.push_back(0.9);
-    binningKt.push_back(1.0);
-    binningKt.push_back(1.25);
-    binningKt.push_back(1.5);
+  binningKt.push_back(0.45);
+   binningKt.push_back(0.6);
+  binningKt.push_back(0.75);
+    binningKt.push_back(0.9);
+  binningKt.push_back(1.05);
+  //  binningKt.push_back(1.5);
   binningKt.push_back(2.0);
-
   binningKt.push_back(10000);
 
   //    binningLabTheta.push_back(0.9);
@@ -143,23 +133,26 @@ void MultiPlotter::saveSmearingMatrix()
 {
   rFile.cd();
   //numCharges is 3, but only the first two should be populated (likesign, unlikesign)
+  for(int b=0;b<2;b++)
+    {
   for(int c=0;c<NumCharges;c++)
     {
       for(int p=0;p<NumPIDs;p++)
 	{
-	  kinematicSmearingMatrix[p][c]->Write();
+	  kinematicSmearingMatrix[b][p][c]->Write();
       
-	  xini[p][c]->Write();
-	  bini[p][c]->Write();
+	  xini[b][p][c]->Write();
+	  bini[b][p][c]->Write();
 	}
     }
-  
+    }
 }
 
 
 //convert the convuoluted histogram we get from unfolding into 'regular' plots
 //also put in the binwidth factors that were not used for the unfolding
-TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input,  int chargeBin, int pidBin, const char* nameAdd)
+//for the z_z binning, just put out the parallel bins for now...
+TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBin, int pidBin, const char* nameAdd)
 {
   char buffer[300];
 
@@ -167,7 +160,7 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input,  int chargeBin, int pidBin
 
   for(int zBin=0;zBin<binningZ.size();zBin++)
     {
-      sprintf(buffer,"un_convert_cBin_%d_pBin_%d_zBin_%d_%s",chargeBin,pidBin,zBin,nameAdd);
+      sprintf(buffer,"un_convert_binning_%d_cBin_%d_pBin_%d_zBin_%d_%s",binning,chargeBin,pidBin,zBin,nameAdd);
       ret[zBin]=new TH1D(buffer,buffer,numKtBins,0,numKtBins);
     }
 
@@ -190,7 +183,9 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input,  int chargeBin, int pidBin
 	  binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
 	  binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 
-	  int combBin=zBin*numKtBins+kTBin;
+	  int combBin=zBin*binningZ.size()*numKtBins+zBin*numKtBins+kTBin;
+	  if(binning==1)//onlyZ
+	    combBin=zBin*numKtBins+kTBin;
 	  //	  cout<<endl <<"combBin : " << combBin<<endl;
 	  if(combBin>=input->GetNbinsX())
 	    {
@@ -221,7 +216,9 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   //      d->Fill(i%105);
   //
   //    }
-
+  char buffer[300];
+  sprintf(buffer,"statcof_%s",data->GetName());
+  TH2D* statcovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
   cout <<" input has " << MC_input->GetNbinsX();
   cout <<" bins and output " << MC_out->GetNbinsX() <<" data: " << data->GetNbinsX() <<" smearing matrix " << smearingMatrix->GetNbinsX() <<" x " << smearingMatrix->GetNbinsY() <<endl;
   for(int i =0;i<MC_input->GetNbinsX();i++)
@@ -238,8 +235,12 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   cout <<endl<<endl;
   for(int i =0;i<data->GetNbinsX();i++)
     {
-      cout <<data->GetBinContent(i+1) <<" " ;
-
+      cout <<data->GetBinContent(i+1) <<" error: " << data->GetBinError(i+1)<<" ";
+  for(int j =0;j<data->GetNbinsX();j++)
+    {
+      statcovMatrix->SetBinContent(i+1,j+1,data->GetBinError(i+1)*data->GetBinError(j+1));
+    }
+ 
     }
   cout <<endl<<endl;
   for(int i =0;i<smearingMatrix->GetNbinsX();i++)
@@ -254,25 +255,43 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   cout <<endl;
 
   int rank=MC_input->GetNbinsX();
-  TSVDUnfold f(data,MC_input,MC_out,smearingMatrix);
-  TH1D* ret=f.Unfold(100);
-  (*d)=f.GetD();
-  char buffer[300];
-  sprintf(buffer,"debug_D_from%s.png",MC_input->GetName());
+  TSVDUnfold* f=new TSVDUnfold(data,statcovMatrix,MC_out,MC_input,smearingMatrix);
+  f->SetNormalize(false);
 
+  TH1D* ret=f->Unfold(rank);
+  TH2D* uadetcov=f->GetAdetCovMatrix(100);
+  TH2D* utaucov= f->GetXtau();
+  utaucov->Add(uadetcov);
+  sprintf(buffer,"unfold_from_%s",data->GetName());
+  cout <<" unfolding " << buffer <<endl;
+  TH1D* ret2=(TH1D*)ret->Clone(buffer);
+  for(int i=0;i<ret2->GetNbinsX();i++)
+    {
+      ret2->SetBinError(i,TMath::Sqrt(utaucov->GetBinContent(i,i)));
+    }
+  (*d)=f->GetD();
+  for(int i=0;i<ret->GetNbinsX();i++)
+    {
+      //      cout <<"data: "<< data->GetBinContent(i+1) <<" unfolded: " << ret->GetBinContent(i+1) <<" mc out: "<< MC_out->GetBinContent(i+1) <<" mc in: "<< MC_input->GetBinContent(i+1)<<endl;
+
+    }
+
+
+
+  sprintf(buffer,"debug_D_from%s.png",MC_input->GetName());
   cout <<"d: bins: "<< (*d)->GetNbinsX()<<endl;
   TCanvas c;
   (*d)->Draw();
   c.SetLogy();
   c.SaveAs(buffer);
-  return ret;
+  return ret2;
 }
 
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
 
-//for now only for the zOnly binning
+//for now only for the zOnly binning--> changed to z1,z2 and zOnly (binning argument)
 //don't do the bin width normalization since we also don't do it for the xini, bini
-TH1D* MultiPlotter::getHistogram(int chargeType, int pidType)
+TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
 {
   PlotResults* m_plotResults=plotResults;
   PlotResults* loc_plotResults=0;
@@ -282,18 +301,21 @@ TH1D* MultiPlotter::getHistogram(int chargeType, int pidType)
   float mY[50];
   float mXErr[50];
   float mYErr[50];
-  int binningType=binType_zOnly;
+
+  int binningType=binType_z_z;
+  if(1==binning)
+    binningType=binType_zOnly;
 
   string binName=getBinName(binningType,pidType,chargeType,-1,-1);
   sprintf(buffer,"%s",binName.c_str());
   sprintf(buffer1,"histo_%s",buffer);
-  TH1D* ret=new TH1D(buffer1,buffer1,maxSmearing,0,maxSmearing);
+  TH1D* ret=new TH1D(buffer1,buffer1,maxSmearing[binning],0,maxSmearing[binning]);
   //  cout <<" getH: " << maxSmearing <<endl;
     cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
   for(int i=0;i<maxKinMap[binningType].first;i++)
     {
       //      for(int j=0;j<maxKinMap[binningType].second;j++)
-      for(int j=0;j<binningZ.size();j++)
+      for(int j=0;j<maxKinMap[binningType].second;j++)
 	{
 	  double normFactor=1.0;
 	  double maxVal=-1.0;
@@ -343,6 +365,7 @@ TH1D* MultiPlotter::getHistogram(int chargeType, int pidType)
 	      ////	      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 
 	      binWidthFactor=1.0;
+	      //this is a bit confusing: becuase the z_z binning saves as pair z1, z2, but in this case j is the index of z1, we have to take this into account
 	      int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
 	      //	      cout <<"looking at index:" << resIdx<<endl;
 	      mX[iKtBin]=m_plotResults[resIdx].kTMeans[iKtBin];
@@ -357,7 +380,10 @@ TH1D* MultiPlotter::getHistogram(int chargeType, int pidType)
 	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      //have to add one due to histos counting from 1
-	      ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
+	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
+		ret->SetBinContent(j*maxKinMap[binningType].first*numKtBins+i*numKtBins+iKtBin+1,binContent);
+	      else
+		ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
 	      //	      cout <<" getH, bin number: j: "<< j << " iKtBin  "<<iKtBin <<" bin number: " << j*numKtBins+iKtBin << " content: " << binContent <<endl;
 	      mYErr[iKtBin]=sqrt(m_plotResults[resIdx].kTValues[iKtBin])*normFactor/binWidthFactor;
 	      //	      cout <<"mY["<<iKtBin <<"] " << mY[iKtBin]<<endl;
@@ -604,15 +630,22 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      //          cout <<" second (mc) z: "<< hp2->z1[i] <<endl;
 	  //          cout <<" second (mc) z2: "<< hp2->z2[i] <<endl;
       ///let's only use the first z bin...
-      int recBin=z1Bin1*numKtBins+kTBin1;
-      int iniBin=z2Bin1*numKtBins+kTBin2;
+     int numZBins=binningZ.size();
+      int recBin0=z1Bin2*numZBins*numKtBins+z1Bin1*numKtBins+kTBin1;
+      int iniBin0=z2Bin2*numZBins*numKtBins+z2Bin1*numKtBins+kTBin2;
+      int recBin1=z1Bin1*numKtBins+kTBin1;
+      int iniBin1=z2Bin1*numKtBins+kTBin2;
 
       //      cout <<"ini bin: " << iniBin <<" recBin: " << recBin <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
       //      cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<" iniBin: "<< iniBin <<endl;
-      xini[pidBin][chargeBin]->Fill(iniBin);
-      bini[pidBin][chargeBin]->Fill(recBin);
+      xini[0][pidBin][chargeBin]->Fill(iniBin0);
+      bini[0][pidBin][chargeBin]->Fill(recBin0);
+      xini[1][pidBin][chargeBin]->Fill(iniBin1);
+      bini[1][pidBin][chargeBin]->Fill(recBin1);
+
       //true observable on the y axis, reconstrubted on the x axis
-      kinematicSmearingMatrix[pidBin][chargeBin]->Fill(recBin,iniBin);
+      kinematicSmearingMatrix[0][pidBin][chargeBin]->Fill(recBin0,iniBin0);
+      kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
     }
  }
 

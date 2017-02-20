@@ -1,3 +1,4 @@
+
 #include "TLegend.h"
 #include <iostream>
 #include <fstream>
@@ -21,8 +22,8 @@ int main(int argc, char** argv)
 {
   vector<string> flavor;
 
-  flavor.push_back("_uds");
-  flavor.push_back("_charm");
+  //  flavor.push_back("_uds");
+  //  flavor.push_back("_charm");
   flavor.push_back("_all");
 
   set<int> zOnlyResIdx;
@@ -252,13 +253,16 @@ int main(int argc, char** argv)
       TFile* smearingFile=new TFile("smearing.root");
       //      for(int c=0;c<MultiPlotter::NumCharges;c++)
       TCanvas cnvs;
+      //z1_z2 binning (b==0) and onlyZ
+      for(int b=0;b<2;b++)
+	{
       for(int c=0;c<2;c++)
 	{
 	  for(int p=0;p<9;p++)
 	  //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
 	    {
 	      char buffer[500];
-	      sprintf(buffer,"kinematicSmearingMatrix_pidBin%d_chargeBin%d",p,c);
+	      sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
 	      TH2D* smearingMatrix=(TH2D*)smearingFile->Get(buffer);
 	      if(smearingMatrix->Integral()<10)
 		{
@@ -266,40 +270,47 @@ int main(int argc, char** argv)
 		  continue;
 		}
 	      smearingMatrix->Draw("colz");
-	      sprintf(buffer,"debug_smM_pid%d_charge_%d.png",p,c);
+	      sprintf(buffer,"debug_smM_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
-	      sprintf(buffer,"xini_pidBin%d_chargeBin%d",p,c);
+	      sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
+	      cout <<"trying to load " << buffer <<endl;
+
 	      TH1D* xini=(TH1D*)smearingFile->Get(buffer);
 	      xini->Draw();
-	      sprintf(buffer,"debug_xini_pid%d_charge_%d.png",p,c);
+	      sprintf(buffer,"debug_xini_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
-	      sprintf(buffer,"bini_pidBin%d_chargeBin%d",p,c);
+	      sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
+	      cout <<"trying to load " << buffer <<endl;
 	      TH1D* bini=(TH1D*)smearingFile->Get(buffer);
 	      bini->Draw();
-	      sprintf(buffer,"debug_bini_pid%d_charge_%d.png",p,c);
+	      sprintf(buffer,"debug_bini_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
 	      //get combined z/kT histogram for this charge, pid bin
-	      TH1D* combinedHisto=pPlotter->getHistogram(c,p);
+	      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p);
 	      combinedHisto->Draw();
-	      sprintf(buffer,"debug_combinedH_pid%d_charge_%d.png",p,c);
+	      sprintf(buffer,"debug_combinedH_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
 	      TH1D** d=new (TH1D*);
 
 	      //	       TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
 	      //for closure test, bini is output....
-	       	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,bini,d);
+	      //	      for(int t=0;t<combinedHisto->GetNbinsX();t++)
+	      //		{
+	      //		  combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1)+1);
+	      //		}
+	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,bini,d);
 	      output->Draw();
-	      sprintf(buffer,"debug_unfoldedH_pid%d_charge_%d.png",p,c);
+	      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
 	      //	      (*d)->Draw();
 	      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
 	      //	      cnvs.SaveAs(buffer);
 	      //
 
-	      TH1D** sepKtZHistos_mcInput=pPlotter->convertUnfold2Plots(xini,c,p,"mcInput");
-	      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,c,p,"mcOut");
-	      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,c,p,"dataUnfold");
-	      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,c,p,"dataInput");
+	      TH1D** sepKtZHistos_mcInput=pPlotter->convertUnfold2Plots(xini,b,c,p,"mcInput");
+	      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,b,c,p,"mcOut");
+	      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,b,c,p,"dataUnfold");
+	      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,b,c,p,"dataInput");
 	      TCanvas cnvs2;
 	      //need one canvas for the legend
 	      TLegend leg(0.0,0,1.0,1.0);
@@ -309,7 +320,7 @@ int main(int argc, char** argv)
 		cnvs2.Divide(2,3);
 	      for(int iZ=0;iZ<pPlotter->binningZ.size();iZ++)
 		{
-		  cnvs2.cd(iZ+1);
+		  TVirtualPad* pad=cnvs2.cd(iZ+1);
 		  sepKtZHistos_mcInput[iZ]->SetMarkerColor(kRed);
 		  sepKtZHistos_mcInput[iZ]->SetMarkerStyle(21);
 		  sepKtZHistos_mcOutput[iZ]->SetMarkerColor(kGreen);
@@ -322,27 +333,36 @@ int main(int argc, char** argv)
 		  sepKtZHistos_mcOutput[iZ]->Draw("SAME P E1");		  
 		  sepKtZHistos[iZ]->Draw("SAME P  E1");
 		  sepKtZHistosDataInput[iZ]->Draw("SAME P  E1");
+		  pad->Update();
+		  Double_t x1,x2,y1,y2;
+		  pad->GetRangeAxis(x1,y1,x2,y2);
+		  pad->DrawFrame(x1,y1,x2,y2*1.3);
+		  sepKtZHistos_mcInput[iZ]->Draw("SAME P E1");
+		  sepKtZHistos_mcOutput[iZ]->Draw("SAME P E1");		  
+		  sepKtZHistos[iZ]->Draw("SAME P  E1");
+		  sepKtZHistosDataInput[iZ]->Draw("SAME P  E1");
 		  if(iZ==0)
 		    {
 		      leg.AddEntry(sepKtZHistos_mcInput[iZ],"MC Input","lep");
 		      leg.AddEntry(sepKtZHistos_mcOutput[iZ],"MC Output","lep");
 		      leg.AddEntry(sepKtZHistosDataInput[iZ],"Data Input","lep");
-		      leg.AddEntry(sepKtZHistos[iZ],"Data Output","lep");
+		      leg.AddEntry(sepKtZHistos[iZ],"MC Unfolded","lep");
 		    }
 		}
 	      cnvs2.cd(pPlotter->binningZ.size()+1);
 	      leg.Draw();
-	      sprintf(buffer,"unfoldedResult_pid_%d_charge_%d.png",p,c);
+	      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.png",b,p,c);
 	      cnvs2.SaveAs(buffer);
 
 	      //	      sprintf("");
 
 	    }
 	}
+	}
       dir->cd();
       smearingFile->Close();
       ///save the returned plots... put them on the same plot etc..
-
+    
 
       for(int i=0;i<200;i++)
 	{

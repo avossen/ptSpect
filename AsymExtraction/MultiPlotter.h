@@ -12,6 +12,7 @@
 #include "TSVDUnfold.h"
 
 enum binningType{binType_labTheta_z, binType_ThrustLabTheta_z, binType_z_z,binType_zOnly, binType_labThetaOnly, binType_qTOnly, binType_ThrustOnly,binType_end};
+//enum binningType{ binType_z_z,binType_zOnly,binType_end};
 enum pairType{pairChargeLikesign, pairPN,  pairUnknown,pairTypeEnd};
 enum plotType{plotType_2D ,plotType_end};
 //enum pidType{PiPi, PiK, PiP, KPi, KK, KP, PPi, PK, PP, pidTypeEnd};
@@ -31,24 +32,33 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       loadBinnings();
       numKtBins=binningKt.size();
       maxKinBins=binningZ.size();
-      maxSmearing=numKtBins*binningZ.size();
-      kinematicSmearingMatrix=new TH2D**[NumPIDs];
-      xini=new TH1D**[NumPIDs];
-      bini=new TH1D**[NumPIDs];
+      maxSmearing[0]=numKtBins*binningZ.size()*binningZ.size();
+      maxSmearing[1]=numKtBins*binningZ.size();
 
-      for(int p=0;p<NumPIDs;p++)
+      kinematicSmearingMatrix=new TH2D***[2];
+      xini=new TH1D***[2];
+      bini=new TH1D***[2];
+
+      for(int b=0;b<2;b++)
 	{
-	  kinematicSmearingMatrix[p]=new TH2D*[NumCharges];
-	  xini[p]=new TH1D*[NumCharges];
-	  bini[p]=new TH1D*[NumCharges];
-	  for(int c=0;c<NumCharges;c++)
+
+	  kinematicSmearingMatrix[b]=new TH2D**[NumPIDs];
+	  xini[b]=new TH1D**[NumPIDs];
+	  bini[b]=new TH1D**[NumPIDs];
+	  for(int p=0;p<NumPIDs;p++)
 	    {
-	      sprintf(buffer,"kinematicSmearingMatrix_pidBin%d_chargeBin%d",p,c);
-	      kinematicSmearingMatrix[p][c]=new TH2D(buffer,buffer,maxSmearing,0,maxSmearing,maxSmearing,0,maxSmearing);
-	      sprintf(buffer,"xini_pidBin%d_chargeBin%d",p,c);
-	      xini[p][c]=new TH1D(buffer,buffer,maxSmearing,0,maxSmearing);
-	      sprintf(buffer,"bini_pidBin%d_chargeBin%d",p,c);
-	      bini[p][c]=new TH1D(buffer,buffer,maxSmearing,0,maxSmearing);
+	      kinematicSmearingMatrix[b][p]=new TH2D*[NumCharges];
+	      xini[b][p]=new TH1D*[NumCharges];
+	      bini[b][p]=new TH1D*[NumCharges];
+	      for(int c=0;c<NumCharges;c++)
+		{
+		  sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
+		  kinematicSmearingMatrix[b][p][c]=new TH2D(buffer,buffer,maxSmearing[b],0,maxSmearing[b],maxSmearing[b],0,maxSmearing[b]);
+		  sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
+		  xini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[b],0,maxSmearing[b]);
+		  sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
+		  bini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[b],0,maxSmearing[b]);
+		}
 	    }
 	}
       cout <<"loading " << binningZ.size() <<" z bins " << endl;
@@ -108,11 +118,11 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void doPlots();
     void savePlots(plotType);
 
-    //get the histogram that is to be unfolded. This is a 1D histogram binned in z1 and kT
-    TH1D* getHistogram(int chargeBin, int pidBin);
+    //get the histogram that is to be unfolded. This is a 1D histogram binned in z1, (z2) and kT
+    TH1D* getHistogram(int binning, int chargeBin, int pidBin);
     //d is a return value
     TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d);
-    TH1D** convertUnfold2Plots(TH1D* input,  int chargeBin, int pidBin, const char* nameAdd);
+    TH1D** convertUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
     void setName(string s);
     string getName();
     PlotResults* plotResults;
@@ -145,9 +155,9 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     TH1D* hOneDVsTwoDA2;
     TH1D* hOneDVsTwoDA3;
 
-    TH2D*** kinematicSmearingMatrix;
-    TH1D*** xini;
-    TH1D*** bini;
+    TH2D**** kinematicSmearingMatrix;
+    TH1D**** xini;
+    TH1D**** bini;
 
 
     //give negative values for first or second bin if they should not be part of the name
@@ -167,7 +177,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     int zbin1;
     int zbin2;
     int kTBin;
-    int maxSmearing;
+    int maxSmearing[2];
     //always zero
     int zeroBin;
     int labThetaBin1;

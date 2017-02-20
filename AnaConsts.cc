@@ -46,7 +46,8 @@ namespace cuts
   //0.02 should corresnpond to 0.1 gev
   //  float minZThrust=0.02; //min Z so that this particle goes into thrust computation
     float minZThrust=0.0; //min Z so that this particle goes into thrust computation
-    float minZ=0.1;//min z so that this particle is used in asymmetry extraction
+      float minZ=0.05;//min z so that this particle is used in asymmetry extraction
+  //    float minZ=0.1;//min z so that this particle is used in asymmetry extraction
   //float minZ=0.0;//min z so that this particle is used in asymmetry extraction
     float minThrust=0.3;
   //    float minThrust=0.0;

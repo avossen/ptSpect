@@ -589,7 +589,7 @@ namespace Belle {
 	float e_cut=0.85;
 	float mu_cut=0.9;
 	double e_id=sel_e.prob(0,-1,0);
-
+	//	cout <<"atcKP " << atcKP <<" atcPiP : "<< atcPiP <<endl;
 	if(DEBUG_EVENT==evtNr)
 	  {
 	    //	    cout <<"pid kpi: " << atcKPiAlt <<" pid KP: " << atcKPAlt << " e_id: " << e_id << " mu_id: " << mu_id <<endl;
@@ -600,6 +600,7 @@ namespace Belle {
 	bool isPionKaon=false;
 	bool isProton=false;
       
+	//	cout <<"e id: "<< e_id <<" mu id: "<< mu_id << endl;
 	if(e_id>e_cut&& mu_id<0.9)
 	  {
 	    if(DEBUG_EVENT==evtNr)
@@ -663,7 +664,7 @@ namespace Belle {
 
 	if(!isLepton)
 	  {
-	    if(atcKPi>0.6 && atcKPi < 1.0) //kaon
+	    if(atcKPi>0.6 && atcKPi < 1.0 && atcKP >0.2 && atcKP < 1.0) //kaon
 		{
 		  m_mass=m_k;
 		  massHyp=3;
@@ -732,7 +733,7 @@ namespace Belle {
 	  }
 
 
-
+	//	cout <<"massHyp: "<< massHyp <<endl;
 	double dr, dz, refitPx, refitPy, refitPz;
 	getDrDz(chr_it, massHyp,dr,dz, refitPx, refitPy, refitPz);
 	v_vertexR.push_back(dr);
@@ -1735,7 +1736,7 @@ namespace Belle {
 
 	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
 	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
-
+	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
 	    //	  cout <<"R1: " << hp->phiR<<endl;
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
 	    hp->compute();
@@ -2960,6 +2961,8 @@ namespace Belle {
     info->p_Pi=info->pidProbabilities[pionIdx];
     info->p_K=info->pidProbabilities[kaonIdx];
     info->p_p=info->pidProbabilities[protonIdx];
+
+
     info->p_e=info->pidProbabilities[electronIdx];
     info->p_mu=info->pidProbabilities[muonIdx];
     //    cout <<"p_Pi " << info->p_Pi <<" p_K: " << info->p_K <<" p_p: "<< info->p_p << " p_e " << info->p_e <<" p_mu : " << info->p_mu <<endl;
@@ -2968,7 +2971,10 @@ namespace Belle {
   //code from FRancesca
   void  ptSpect::loadPIDMatrix()
   {
-   TFile* fpid = new TFile("newpid.root","read");
+
+
+    //   TFile* fpid = new TFile("newpid.root","read");
+   TFile* fpid = new TFile("invertedpidmatrices_setb061810I_inv1_MConlyatlooseends.root","read");
    char matrix_name[300];
    if (fpid->IsZombie()) {
      printf("File code.root does not exist.\n");
@@ -2985,24 +2991,20 @@ namespace Belle {
                                                                   // corresponds to z > 1 (smearing?) additional uncertainties would be 1-2
     // up to 9 July 2015! int k= u*8*2+v*2+w; using 8 instead of 9!
       //    int k= u*thb*2+v*2+w;
-
-   
-
      if(u<16 || v>2 ){
        //       cout <<" u:  " << u << " v: " << v << " w: " << w <<endl;
        TMatrixD mat = *(TMatrixD*)fpid->Get(matrix_name);
-
        for (Int_t i = 0; i <= 4; i++)
          for (Int_t j = 0; j <= 4; j++){
 	   if(w==1)
 	     {
-	     pidMatrixPositive[u][v][i][j]=mat(i,j);
-	     //    cout <<"loading positive " << mat(i,j) <<endl;
+	       pidMatrixPositive[u][v][i][j]=mat(i,j);
+	     //	     cout <<"loading positive "<< i <<", " << j << " "  << mat(i,j) <<endl;
 	     }
 	   else
 	     {
-	     pidMatrixNegative[u][v][i][j]=mat(i,j);
-	     //	     cout <<"loading negative " << mat(i,j) <<endl;
+	       pidMatrixNegative[u][v][i][j]=mat(i,j);
+	     //	     cout <<"loading negative " << i << ", " << j << " "  << mat(i,j) <<endl;
 	     }
 
 	   //          matrix[k][i][j] = mat(i,j);

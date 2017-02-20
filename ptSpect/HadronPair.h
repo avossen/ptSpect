@@ -191,7 +191,7 @@ class HadronPair
 
       hadCharge=getTwoHadCharge(hadCharge1,hadCharge2);
       hadPType=getTwoHadType(hadPType1,hadPType2);
-      //      cout <<"we set the type to : " << hadPType <<endl;
+      //        cout <<"and now we set the type to : " << hadPType <<endl;
       computePIDWeights();
 
   }
@@ -240,6 +240,7 @@ class HadronPair
 	return AnaDef::Likesign;
       else
 	return AnaDef::Unlikesign;
+
 //      if(AnaDef::SH_ChargeUnknown==c1 || AnaDef::SH_ChargeUnknown==c2)
 //	return AnaDef::NA;
 //      if((AnaDef::Pos==c1 && AnaDef::Neg==c2)|| (AnaDef::Neg==c1 && AnaDef::Pos==c2))
@@ -260,12 +261,24 @@ class HadronPair
 	return AnaDef::UNKNOWN;
 	}
 
-      if(AnaDef::Pion==c1&& AnaDef::Pion==c2)
+      if(AnaDef::Pion==c1 && AnaDef::Pion==c2)
 	return AnaDef::PiPi;
-      if(AnaDef::Kaon==c1&& AnaDef::Kaon==c2)
+      if(AnaDef::Kaon==c1 && AnaDef::Kaon==c2)
 	return AnaDef::KK;
-      if((AnaDef::Kaon==c1&& AnaDef::Pion==c2)||(AnaDef::Pion==c1&&AnaDef::Kaon==c2))
+      if(AnaDef::Pion==c1&&AnaDef::Kaon==c2)
 	return AnaDef::PiK;
+      if(AnaDef::Kaon==c1&& AnaDef::Pion==c2)
+	return AnaDef::KPi;
+      if(AnaDef::Kaon==c1&& AnaDef::Proton==c2)
+	return AnaDef::KP;
+      if(AnaDef::Proton==c1&& AnaDef::Kaon==c2)
+	return AnaDef::PK;
+      if(AnaDef::Pion==c1&& AnaDef::Proton==c2)
+	return AnaDef::PiP;
+      if(AnaDef::Proton==c1&& AnaDef::Pion==c2)
+	return AnaDef::PPi;
+      if(AnaDef::Proton==c1&& AnaDef::Proton==c2)
+	return AnaDef::PP;
 
 
 
