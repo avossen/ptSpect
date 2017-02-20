@@ -14,9 +14,9 @@ void MultiPlotter::doPlots()
 	{
 	  for(int pidBin=0;pidBin<NumPIDs;pidBin++)
 	    {
-	      for(int firstBin=0;firstBin<maxKinMap[bt].first;firstBin++)
+	      for(int firstBin=0;firstBin<maxKinMap[pidBin][bt].first;firstBin++)
 		{
-		  for(int secondBin=0;secondBin<maxKinMap[bt].second;secondBin++)
+		  for(int secondBin=0;secondBin<maxKinMap[pidBin][bt].second;secondBin++)
 		    {
 		      double locCount=0;
 		      int resIdx=getResIdx(bt,pidBin,chargeBin,firstBin,secondBin);
@@ -62,17 +62,34 @@ void MultiPlotter::doPlots()
 void MultiPlotter::loadBinnings()
 {
 
+  binningZ=new vector<float>[6];
 
-
-  /////  binningZ.push_back(0.2);
-  binningZ.push_back(0.1);
-  binningZ.push_back(0.2);
-  binningZ.push_back(0.3);
+  //pions
+  binningZ[0].push_back(0.1);
+  binningZ[0].push_back(0.15);
+  binningZ[0].push_back(0.2);
+  binningZ[0].push_back(0.3);
   ////  binningZ.push_back(0.7);
-  binningZ.push_back(0.4); //// 
+  binningZ[0].push_back(0.4); //// 
   //  binningZ.push_back(0.5);
   //  binningZ.push_back(0.6);
-  binningZ.push_back(2.6);
+  binningZ[0].push_back(2.6);
+
+  //the rest
+  for(int i=1;i<6;i++)
+    {
+      binningZ[i].push_back(0.2);
+      binningZ[i].push_back(0.3);
+      binningZ[i].push_back(0.4);
+      ////  binningZ.push_back(0.7);
+      binningZ[i].push_back(0.5); //// 
+  //  binningZ.push_back(0.5);
+  //  binningZ.push_back(0.6);
+      binningZ[i].push_back(2.6);
+
+
+    }
+
 
   binningKt.push_back(0.15);
   binningKt.push_back(0.3);
@@ -156,9 +173,20 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
 {
   char buffer[300];
 
-  TH1D** ret=new TH1D*[binningZ.size()];
+  pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
+  int maxZBin=(binningZ[zIdx.first].size()>binningZ[zIdx.second].size()) ? binningZ[zIdx.first].size() : binningZ[zIdx.second].size();
+  int minMaxZBin=(binningZ[zIdx.first].size()<binningZ[zIdx.second].size()) ? binningZ[zIdx.first].size() : binningZ[zIdx.second].size();
 
-  for(int zBin=0;zBin<binningZ.size();zBin++)
+  //for z1 binning, just take number of z1 bins. For z1/z2 where we do the diagonal, take smaller of the two
+  int locMaxZBin=binningZ[zIdx.first].size();
+  if(binning==0)
+    {
+      locMaxZBin=minMaxZBin;
+    }
+
+  TH1D** ret=new TH1D*[locMaxZBin];
+  //this should be the smaller of the two since we are doing the diagonal bins
+  for(int zBin=0;zBin<locMaxZBin;zBin++)
     {
       sprintf(buffer,"un_convert_binning_%d_cBin_%d_pBin_%d_zBin_%d_%s",binning,chargeBin,pidBin,zBin,nameAdd);
       ret[zBin]=new TH1D(buffer,buffer,numKtBins,0,numKtBins);
@@ -166,7 +194,7 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
 
   Double_t value;
   //      int recBin=z1Bin1*numKtBins+kTBin1;
-  for(int zBin=0;zBin<binningZ.size();zBin++)
+  for(int zBin=0;zBin<locMaxZBin;zBin++)
     {
       for(int kTBin=0;kTBin<binningKt.size();kTBin++)
 	{
@@ -182,8 +210,9 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
 	  //for the last bin, it doesn't make sense to divide by 1000 or so...
 	  binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
 	  binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
-
-	  int combBin=zBin*binningZ.size()*numKtBins+zBin*numKtBins+kTBin;
+	  //the first one is z2, so the array size is multiplied with the max z1 bns
+	  ///see : 
+	  int combBin=zBin*binningZ[zIdx.first].size()*numKtBins + zBin*numKtBins + kTBin;
 	  if(binning==1)//onlyZ
 	    combBin=zBin*numKtBins+kTBin;
 	  //	  cout<<endl <<"combBin : " << combBin<<endl;
@@ -224,7 +253,6 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   for(int i =0;i<MC_input->GetNbinsX();i++)
     {
       cout <<MC_input->GetBinContent(i+1) <<" ";
-
     }
   cout <<endl;
   for(int i =0;i<MC_out->GetNbinsX();i++)
@@ -309,13 +337,13 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
   string binName=getBinName(binningType,pidType,chargeType,-1,-1);
   sprintf(buffer,"%s",binName.c_str());
   sprintf(buffer1,"histo_%s",buffer);
-  TH1D* ret=new TH1D(buffer1,buffer1,maxSmearing[binning],0,maxSmearing[binning]);
+  TH1D* ret=new TH1D(buffer1,buffer1,maxSmearing[pidType][binning],0,maxSmearing[pidType][binning]);
   //  cout <<" getH: " << maxSmearing <<endl;
     cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
-  for(int i=0;i<maxKinMap[binningType].first;i++)
+  for(int i=0;i<maxKinMap[pidType][binningType].first;i++)
     {
       //      for(int j=0;j<maxKinMap[binningType].second;j++)
-      for(int j=0;j<maxKinMap[binningType].second;j++)
+      for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
 	{
 	  double normFactor=1.0;
 	  double maxVal=-1.0;
@@ -381,7 +409,7 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
 	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      //have to add one due to histos counting from 1
 	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
-		ret->SetBinContent(j*maxKinMap[binningType].first*numKtBins+i*numKtBins+iKtBin+1,binContent);
+		ret->SetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1,binContent);
 	      else
 		ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
 	      //	      cout <<" getH, bin number: j: "<< j << " iKtBin  "<<iKtBin <<" bin number: " << j*numKtBins+iKtBin << " content: " << binContent <<endl;
@@ -424,9 +452,9 @@ void MultiPlotter::savePlots( plotType mPlotType)
 	      string binName=getBinName(binningType,pidType,chargeType,-1,-1);
 	      sprintf(buffer,"%s",binName.c_str());
 	      cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
-	      for(int i=0;i<maxKinMap[binningType].first;i++)
+	      for(int i=0;i<maxKinMap[pidType][binningType].first;i++)
 		{
-	      for(int j=0;j<maxKinMap[binningType].second;j++)
+	      for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
 		{
 		  //		  cout <<" bin: " << i << ", " << j << endl;
 		  
@@ -511,6 +539,75 @@ void MultiPlotter::savePlots( plotType mPlotType)
   rFile.Write();
 }
 
+
+pair<int,int> MultiPlotter::pidBin2ZBinningIdx(int pidBin)
+{
+  pair<int,int> ret;
+  ret.first=0;
+  ret.second=0;
+  if(pidBin< 0 || pidBin > PP)
+    {
+      cout <<"pidbin2zbinninningidx: wrong index" <<endl;
+      return ret;
+    }
+   switch(pidBin)
+       {
+       case PiPi:
+	 //already set to 0,0
+	 return ret;
+	 break;
+
+       case PiK:
+	 ret.second=1;
+	 return ret;
+	 break;
+
+       case PiP:
+	 ret.second=2;
+	 return ret;
+	 break;
+
+
+	 break;
+       case KPi:
+	 ret.first=1;
+	 return ret;
+
+	 break;
+
+       case KK:
+	 ret.first=1;
+	 ret.second=1;
+	 return ret;
+	 break;
+
+       case KP:
+	 ret.first=1;
+	 ret.second=2;
+	 return ret;
+	 break;
+       case PPi:
+	 ret.first=2;
+	 return ret;
+	 break;
+
+       case PK:
+	 ret.first=2;
+	 ret.second=1;
+	 return ret;
+
+	 break;
+
+       case PP:
+	 ret.first=2;
+	 ret.second=2;
+	 return ret;
+	 break;
+
+       }
+   return ret;
+ 
+}
 //if accSmearing the number of pairs in the array might be different
 //hp1 is the measured, hp2 the mc one, so we only check on hp1 if it is cut
 void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, bool accSmearing)
@@ -542,6 +639,8 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
       //this is from MC, so there is no PID smearing, second hp is MC truth so we take that
       int pidBin=hp2->particleType[i];
+
+      pair<int,int> zIdx2=pidBin2ZBinningIdx(pidBin);
       //      cout <<"pidBin: " << pidBin <<" chargeBin: " << chargeBin <<endl;
       //probably no matching particle
       if(pidBin<0) 
@@ -553,70 +652,70 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      //       cout <<" kt data " << hp1->kT[i] << " kit mc: "<< hp2->kT[i] << " data PiPi " << hp1->kT_PiPi[i] << " mc " << hp2->kT_PiPi[i] <<endl;
 
 
-     int  z2Bin1=getBin(binningZ,hp2->z1[i]);
-     int z2Bin2=getBin(binningZ,hp2->z2[i]);
-     int  z1Bin1=getBin(binningZ,hp1->z1[i]);
-     int z1Bin2=getBin(binningZ,hp1->z2[i]);
+     int  z2Bin1=getBin(binningZ[zIdx2.first],hp2->z1[i]);
+     int z2Bin2=getBin(binningZ[zIdx2.second],hp2->z2[i]);
+     int  z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1[i]);
+     int z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2[i]);
 
      switch(pidBin)
        {
        case PiPi:
 	 kTBin1=getBin(binningKt,hp1->kT_PiPi[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_Pi[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_Pi[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_Pi[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_Pi[i]);
 	 break;
 
        case PiK:
 	 kTBin1=getBin(binningKt,hp1->kT_PiK[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_Pi[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_K[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_Pi[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_K[i]);
 
 	 break;
 
        case PiP:
 	 kTBin1=getBin(binningKt,hp1->kT_PiP[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_Pi[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_P[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_Pi[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_P[i]);
 
 	 break;
        case KPi:
 	 kTBin1=getBin(binningKt,hp1->kT_KPi[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_K[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_Pi[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_K[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_Pi[i]);
 
 	 break;
 
        case KK:
 	 kTBin1=getBin(binningKt,hp1->kT_KK[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_K[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_K[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_K[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_K[i]);
 
 	 break;
 
        case KP:
 	 kTBin1=getBin(binningKt,hp1->kT_KP[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_K[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_P[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_K[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_P[i]);
 
 	 break;
        case PPi:
 	 kTBin1=getBin(binningKt,hp1->kT_PPi[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_P[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_Pi[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_P[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_Pi[i]);
 
 	 break;
 
        case PK:
 	 kTBin1=getBin(binningKt,hp1->kT_PK[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_P[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_K[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_P[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_K[i]);
 
 	 break;
 
        case PP:
 	 kTBin1=getBin(binningKt,hp1->kT_PP[i]);
-	 z1Bin1=getBin(binningZ,hp1->z1_P[i]);
-	 z1Bin2=getBin(binningZ,hp1->z2_P[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_P[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_P[i]);
 
 	 break;
 
@@ -630,9 +729,14 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      //          cout <<" second (mc) z: "<< hp2->z1[i] <<endl;
 	  //          cout <<" second (mc) z2: "<< hp2->z2[i] <<endl;
       ///let's only use the first z bin...
-     int numZBins=binningZ.size();
-      int recBin0=z1Bin2*numZBins*numKtBins+z1Bin1*numKtBins+kTBin1;
-      int iniBin0=z2Bin2*numZBins*numKtBins+z2Bin1*numKtBins+kTBin2;
+
+
+  pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
+
+     int numZBins1=binningZ[zIdx.first].size();
+     int numZBins2=binningZ[zIdx.second].size();
+      int recBin0=z1Bin2*numZBins1*numKtBins+z1Bin1*numKtBins+kTBin1;
+      int iniBin0=z2Bin2*numZBins1*numKtBins+z2Bin1*numKtBins+kTBin2;
       int recBin1=z1Bin1*numKtBins+kTBin1;
       int iniBin1=z2Bin1*numKtBins+kTBin2;
 
@@ -777,9 +881,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       kTBin=getBin(binningKt,kT);
       //      cout <<"kt: " << kT <<" bin: "<< kTBin<<endl;
 
-      zbin1=getBin(binningZ,this->z1);
+      pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
+      zbin1=getBin(binningZ[zIdx.first],this->z1);
       //      cout <<"zbin1: "<< zbin1 <<endl;
-      zbin2=getBin(binningZ,this->z2);
+      zbin2=getBin(binningZ[zIdx.second],this->z2);
 
       labThetaBin1=getBin(binningLabTheta,hp->labTheta1[i]);
       labThetaBin2=getBin(binningLabTheta,hp->labTheta2[i]);
@@ -826,6 +931,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 void MultiPlotter::setBinningMap()
 {
 
+
+  //add hoc hack of course with the problem that the max z bin is not pid dependent. So there might be empty bins
+  
+  maxKinMap=new vector< pair<int, int> >[NumPIDs];
+
+
   for(int bt=binType_labTheta_z; bt<binType_end;bt++)
     {
       switch(bt)
@@ -833,42 +944,35 @@ void MultiPlotter::setBinningMap()
 	case binType_labTheta_z:
 	  binningMap.push_back(pair<int*, int* >(&(this->labThetaBin1), &(this->zbin1)));
 	  meanMap.push_back(pair<float*, float*>(&(this->labTheta1),&(this->z1)));
-	  maxKinMap.push_back(pair<int,int>(binningLabTheta.size(),binningZ.size()));
 	  break;
 	case binType_ThrustLabTheta_z:
 	  binningMap.push_back(pair<int*, int* >(&(this->thrustLabThetaBin), &(this->zbin1)));
 	  meanMap.push_back(pair<float*, float*>(&(this->thrustLabTheta),&(this->z1)));
-	  maxKinMap.push_back(pair<int,int>(binningThrustLabTheta.size(),binningZ.size()));
 	  break;
 	case binType_z_z:
 	  binningMap.push_back(pair<int*, int* >(&(this->zbin1), &(this->zbin2)));
 	  meanMap.push_back(pair<float*, float*>(&(this->z1),&(this->z2)));
-	  maxKinMap.push_back(pair<int,int>(binningZ.size(),binningZ.size()));
 	  break;
 	case binType_zOnly:
 	  binningMap.push_back(pair<int*, int* > (  &(this->zeroBin), &(this->zbin1)));
 	  meanMap.push_back(pair<float*, float*>(&(this->z1),&(this->z1) ));
-	  maxKinMap.push_back(pair<int,int>(1,binningZ.size()));
 	  break;
 
 
 	case binType_labThetaOnly:
 	  binningMap.push_back(pair<int*, int* > (  &(this->zeroBin), &(this->labThetaBin1)));
 	  meanMap.push_back(pair<float*, float*>(&(this->labTheta1),&(this->labTheta1) ));
-	  maxKinMap.push_back(pair<int,int>(1,binningLabTheta.size()));
 	  break;
 
 	case binType_qTOnly:
 	  binningMap.push_back(pair<int*, int* > (  &(this->zeroBin), &(this->qTBin)));
 	  meanMap.push_back(pair<float*, float*>(&(this->qT),&(this->qT) ));
-	  maxKinMap.push_back(pair<int,int>(1,binningLabTheta.size()));
 	  break;
 
 
 	case binType_ThrustOnly:
 	  binningMap.push_back(pair<int*,int* > (&(this->zeroBin),&(this->thrustBin)));
 	  meanMap.push_back(pair<float*, float*>(&(this->thrust),&(this->thrust) ));
-	  maxKinMap.push_back(pair<int,int>(1,binningThrust.size()));
 	  break;
 
 	default:
@@ -876,6 +980,54 @@ void MultiPlotter::setBinningMap()
 	  exit(0);
 	}
 
+    }
+
+
+
+  //we have to do maxKinMap extra, because here the z binning changes for the pids
+  for(int pidBin=0;pidBin<NumPIDs;pidBin++)
+    {
+      pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
+      int maxZ1=zIdx.first;
+      int maxZ2=zIdx.second;
+      
+      
+      for(int bt=binType_labTheta_z; bt<binType_end;bt++)
+	{
+	  switch(bt)
+	    {
+	    case binType_labTheta_z:
+	      maxKinMap[pidBin].push_back(pair<int,int>(binningLabTheta.size(),maxZ1));
+	      break;
+	    case binType_ThrustLabTheta_z:
+	  maxKinMap[pidBin].push_back(pair<int,int>(binningThrustLabTheta.size(),maxZ1));
+	  break;
+	    case binType_z_z:
+	      maxKinMap[pidBin].push_back(pair<int,int>(maxZ1,maxZ2));
+	      break;
+	    case binType_zOnly:
+	      maxKinMap[pidBin].push_back(pair<int,int>(1,maxZ1));
+	      break;
+	      
+	    case binType_labThetaOnly:
+	      maxKinMap[pidBin].push_back(pair<int,int>(1,binningLabTheta.size()));
+	      break;
+	      
+	    case binType_qTOnly:
+	      maxKinMap[pidBin].push_back(pair<int,int>(1,binningLabTheta.size()));
+	      break;
+	      
+	      
+	    case binType_ThrustOnly:
+	      maxKinMap[pidBin].push_back(pair<int,int>(1,binningThrust.size()));
+	      break;
+	      
+	    default:
+	      cout <<"binning not recognized!!"<<endl;
+	      exit(0);
+	    }
+	  
+	}
     }
 }
 

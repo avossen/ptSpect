@@ -23,6 +23,12 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
   MultiPlotter(const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(filenameBase,nameAdd,exNr,onRes,uds,charm,mc)
     {
 
+      maxSmearing=new int*[NumPIDs];
+      for(int i=0;i<NumPIDs;i++)
+	{
+	  maxSmearing[i]=new int[2];
+	}
+			       
       zeroBin=0;
       rFile.mkdir("plotHistos");
 
@@ -31,9 +37,13 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       //l      loadBinning(binningKt, binningZ);
       loadBinnings();
       numKtBins=binningKt.size();
-      maxKinBins=binningZ.size();
-      maxSmearing[0]=numKtBins*binningZ.size()*binningZ.size();
-      maxSmearing[1]=numKtBins*binningZ.size();
+      int maxZBins=binningZ[0].size();
+      for(int i=1;i<6;i++)
+	{
+	  if(binningZ[i].size()>maxZBins)
+	    maxZBins=binningZ[i].size();
+	}
+      maxKinBins=maxZBins;
 
       kinematicSmearingMatrix=new TH2D***[2];
       xini=new TH1D***[2];
@@ -47,22 +57,26 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	  bini[b]=new TH1D**[NumPIDs];
 	  for(int p=0;p<NumPIDs;p++)
 	    {
+	      pair<int,int> zIdx=pidBin2ZBinningIdx(p);
+	      maxSmearing[p][0]=numKtBins*binningZ[zIdx.first].size()*binningZ[zIdx.second].size();
+	      maxSmearing[p][1]=numKtBins*binningZ[zIdx.first].size();
+
 	      kinematicSmearingMatrix[b][p]=new TH2D*[NumCharges];
 	      xini[b][p]=new TH1D*[NumCharges];
 	      bini[b][p]=new TH1D*[NumCharges];
 	      for(int c=0;c<NumCharges;c++)
 		{
 		  sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
-		  kinematicSmearingMatrix[b][p][c]=new TH2D(buffer,buffer,maxSmearing[b],0,maxSmearing[b],maxSmearing[b],0,maxSmearing[b]);
+		  kinematicSmearingMatrix[b][p][c]=new TH2D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b],maxSmearing[p][b],0,maxSmearing[p][b]);
 		  sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
-		  xini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[b],0,maxSmearing[b]);
+		  xini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b]);
 		  sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
-		  bini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[b],0,maxSmearing[b]);
+		  bini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b]);
 		}
 	    }
 	}
-      cout <<"loading " << binningZ.size() <<" z bins " << endl;
-      if(binningKt.size()>binningZ.size())
+      cout <<"loading " << maxZBins <<" z bins " << endl;
+      if(binningKt.size()>maxZBins)
 	{
 	  maxKinBins=numKtBins;
 	}
@@ -132,7 +146,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //maps the type of binning to two bin pointers
     vector< pair<int*,int*> > binningMap;
     vector< pair<float*,float*> > meanMap;
-    vector< pair<int, int> > maxKinMap;
+    vector< pair<int, int> >* maxKinMap;
     inline int getResIdx(int binningType,int pidType,int chargeType, int firstKinBin, int secondKinBin)
       {
 	return binningType*NumPIDs*NumCharges*maxKinBins*maxKinBins+pidType*NumCharges*maxKinBins*maxKinBins+chargeType*maxKinBins*maxKinBins+firstKinBin*maxKinBins+secondKinBin;
@@ -141,7 +155,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void saveSmearingMatrix();
     static const int NumCharges;
     static const int NumPIDs;
-
+    pair<int,int> pidBin2ZBinningIdx(int pidBin);
  protected:
     //to reorder arrays used for fitting such that the x values are ascending and do not wrap around
     //should work because y is moved as well
@@ -166,7 +180,9 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void loadBinnings();
  public:
     vector<float> binningKt;
-    vector<float> binningZ;
+    //make this dependent on particle id
+    vector<float>* binningZ;
+
     vector<float> binningLabTheta;
     vector<float> binningThrustLabTheta;
     vector<float> binningQt;
@@ -177,7 +193,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     int zbin1;
     int zbin2;
     int kTBin;
-    int maxSmearing[2];
+    int** maxSmearing;
     //always zero
     int zeroBin;
     int labThetaBin1;

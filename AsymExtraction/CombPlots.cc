@@ -135,9 +135,9 @@ int main(int argc, char** argv)
 	    {
 	  for(int chargeBin=0;chargeBin<1;chargeBin++)
 	    {
-	      for(int firstBin=0;firstBin<pPlotter->maxKinMap[binningType].first;firstBin++)
+	      for(int firstBin=0;firstBin<pPlotter->maxKinMap[pidBin][binningType].first;firstBin++)
 		{
-		  for(int secondBin=0;secondBin<pPlotter->maxKinMap[binningType].second;secondBin++)
+		  for(int secondBin=0;secondBin<pPlotter->maxKinMap[pidBin][binningType].second;secondBin++)
 		    {
 		      int resIdx=pPlotter->getResIdx(binningType,pidBin,chargeBin,firstBin,secondBin);
 		      if(binningType==binType_zOnly && chargeBin==unlikesign)
@@ -314,11 +314,17 @@ int main(int argc, char** argv)
 	      TCanvas cnvs2;
 	      //need one canvas for the legend
 	      TLegend leg(0.0,0,1.0,1.0);
-	      if(pPlotter->binningZ.size()>5)
+	      pair<int,int> zIdx=pPlotter->pidBin2ZBinningIdx(p);
+	      int maxZ1=zIdx.first;
+	      int maxZ2=zIdx.second;
+	      int maxZ=maxZ1;
+	      if(maxZ2>maxZ1)
+		maxZ=maxZ2;
+	      if(maxZ>5)
 		cnvs2.Divide(3,3);
 	      else
 		cnvs2.Divide(2,3);
-	      for(int iZ=0;iZ<pPlotter->binningZ.size();iZ++)
+	      for(int iZ=0;iZ<maxZ;iZ++)
 		{
 		  TVirtualPad* pad=cnvs2.cd(iZ+1);
 		  sepKtZHistos_mcInput[iZ]->SetMarkerColor(kRed);
@@ -349,7 +355,7 @@ int main(int argc, char** argv)
 		      leg.AddEntry(sepKtZHistos[iZ],"MC Unfolded","lep");
 		    }
 		}
-	      cnvs2.cd(pPlotter->binningZ.size()+1);
+	      cnvs2.cd(maxZ+1);
 	      leg.Draw();
 	      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.png",b,p,c);
 	      cnvs2.SaveAs(buffer);
