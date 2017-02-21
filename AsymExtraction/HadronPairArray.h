@@ -100,9 +100,9 @@ struct HadronPairArray:public ReaderBase
 
   int cut[Max_ArrSize];
 
-
+  // pid dependent z cut is then in MultiPlotter because it has to be applied in each event for each weight differently
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
-  HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.1),zUpperCut(1.4), secondZCut(0.1), hadronTagFiducialCut(3.2), asymmetryFlag(false)
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.4), secondZCut(0.05), hadronTagFiducialCut(3.2), asymmetryFlag(false)
   {
     //no chain implies standalone. Cannot branch on the same field twice, this would override
     //    cout <<" do we have a chain? " << chain<<endl;

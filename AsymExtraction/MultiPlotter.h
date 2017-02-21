@@ -20,7 +20,7 @@ enum plotType{plotType_2D ,plotType_end};
 class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 {
  public:
-  MultiPlotter(const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(filenameBase,nameAdd,exNr,onRes,uds,charm,mc)
+ MultiPlotter(const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(filenameBase,nameAdd,exNr,onRes,uds,charm,mc),zCutPi(0.05),zCutPK(0.1)
     {
 
       maxSmearing=new int*[NumPIDs];
@@ -125,7 +125,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 
     //
     //    void setFitReuslt();
-
+  unsigned int getNumKtBins(){return numKtBins;};
     void addHadPairArray(HadronPairArray* hq, MEvent& event);
     void addSmearingEntry(HadronPairArray* hq1, HadronPairArray* hq2,bool accSmearing=false);
     void setBinningMap();
@@ -137,6 +137,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //d is a return value
     TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d);
     TH1D** convertUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
+    TH1D*** convertAllUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
     void setName(string s);
     string getName();
     PlotResults* plotResults;
@@ -178,6 +179,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     string getBinName(int binningType,int pidType,int chargeType, int firstBin, int secondBin);
     string getXAxisName(int binningType);
     void loadBinnings();
+    
  public:
     vector<float> binningKt;
     //make this dependent on particle id
@@ -217,6 +219,9 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     float cmsThrustTheta;
     float qT;
     float thrust;
+
+    float zCutPi;
+    float zCutPK;
 
     unsigned int numKtBins;
     unsigned int maxKinBins;

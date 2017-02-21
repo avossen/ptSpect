@@ -10,7 +10,7 @@
 #include "MultiPlotter.h"
 #include "TwoHadAsymsCommons.h"
 #include "PlotResults.h"
-
+#include "CombPlots.h"
 //#define MAX_EVENTS 100
 
 
@@ -256,6 +256,7 @@ int main(int argc, char** argv)
       //z1_z2 binning (b==0) and onlyZ
       for(int b=0;b<2;b++)
 	{
+
       for(int c=0;c<2;c++)
 	{
 	  for(int p=0;p<9;p++)
@@ -302,6 +303,10 @@ int main(int argc, char** argv)
 	      output->Draw();
 	      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
+
+
+
+
 	      //	      (*d)->Draw();
 	      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
 	      //	      cnvs.SaveAs(buffer);
@@ -311,21 +316,30 @@ int main(int argc, char** argv)
 	      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,b,c,p,"mcOut");
 	      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,b,c,p,"dataUnfold");
 	      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,b,c,p,"dataInput");
+	      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(output,b,c,p,"dataInput");
+
+
+
 	      TCanvas cnvs2;
 	      //need one canvas for the legend
 	      TLegend leg(0.0,0,1.0,1.0);
 	      pair<int,int> zIdx=pPlotter->pidBin2ZBinningIdx(p);
-	      int maxZ1=zIdx.first;
-	      int maxZ2=zIdx.second;
-	      int maxZ=maxZ1;
-	      if(maxZ2>maxZ1)
-		maxZ=maxZ2;
-	      if(maxZ>5)
+	      int maxZ1=pPlotter->binningZ[zIdx.first].size();
+	      int maxZ2=pPlotter->binningZ[zIdx.second].size();
+	      int minMaxZ=maxZ1;
+	      saveToTxt(b,c,p,maxZ1,maxZ2,pPlotter->getNumKtBins(),sepAllKtZHistos);
+	      if(maxZ2<maxZ1)
+		minMaxZ=maxZ2;
+	      if(minMaxZ>5)
 		cnvs2.Divide(3,3);
 	      else
 		cnvs2.Divide(2,3);
-	      for(int iZ=0;iZ<maxZ;iZ++)
+	      cout <<" got maxZ1: "<< maxZ1 << " maxZ2: "<< maxZ2 <<" minMaxZ: "<< minMaxZ <<endl;
+
+
+	      for(int iZ=0;iZ<minMaxZ;iZ++)
 		{
+		  cout <<"iZ: "<< iZ <<endl;
 		  TVirtualPad* pad=cnvs2.cd(iZ+1);
 		  sepKtZHistos_mcInput[iZ]->SetMarkerColor(kRed);
 		  sepKtZHistos_mcInput[iZ]->SetMarkerStyle(21);
@@ -355,7 +369,7 @@ int main(int argc, char** argv)
 		      leg.AddEntry(sepKtZHistos[iZ],"MC Unfolded","lep");
 		    }
 		}
-	      cnvs2.cd(maxZ+1);
+	      cnvs2.cd(minMaxZ+1);
 	      leg.Draw();
 	      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.png",b,p,c);
 	      cnvs2.SaveAs(buffer);
@@ -368,7 +382,6 @@ int main(int argc, char** argv)
       dir->cd();
       smearingFile->Close();
       ///save the returned plots... put them on the same plot etc..
-    
 
       for(int i=0;i<200;i++)
 	{

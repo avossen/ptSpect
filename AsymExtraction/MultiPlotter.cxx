@@ -168,7 +168,7 @@ void MultiPlotter::saveSmearingMatrix()
 
 //convert the convuoluted histogram we get from unfolding into 'regular' plots
 //also put in the binwidth factors that were not used for the unfolding
-//for the z_z binning, just put out the parallel bins for now...
+//for the z_z binning, just put out the diagonal bins for now...
 TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBin, int pidBin, const char* nameAdd)
 {
   char buffer[300];
@@ -230,6 +230,83 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
     }
   return ret;
 }
+
+
+
+//return all z1,z2
+TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int chargeBin, int pidBin, const char* nameAdd)
+{
+  char buffer[300];
+
+  pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
+  int maxZ1Bin = binningZ[zIdx.first].size();
+  int maxZ2Bin = binningZ[zIdx.second].size();
+  int maxZBin=(binningZ[zIdx.first].size()>binningZ[zIdx.second].size()) ? binningZ[zIdx.first].size() : binningZ[zIdx.second].size();
+  
+  //for z1 binning, just take number of z1 bins. For z1/z2 where we do the diagonal, take smaller of the two
+  int locMaxZBin=binningZ[zIdx.first].size();
+  if(binning==0)
+    {
+      locMaxZBin=maxZ1Bin;
+    }
+
+  TH1D*** ret=new TH1D**[maxZ1Bin];
+  //this should be the smaller of the two since we are doing the diagonal bins
+  for(int zBin1=0;zBin1<maxZ1Bin;zBin1++)
+    {
+      ret[zBin1]=new TH1D*[maxZ2Bin];
+      for(int zBin2=0;zBin2<maxZ2Bin;zBin2++)
+	{
+	sprintf(buffer,"un_convert_binning_%d_cBin_%d_pBin_%d_zBin1_%d_zBin2_%d_%s",binning,chargeBin,pidBin,zBin1,zBin2,nameAdd);
+	ret[zBin1][zBin2]=new TH1D(buffer,buffer,numKtBins,0,numKtBins);
+	}
+    }
+
+  
+  Double_t value;
+  //      int recBin=z1Bin1*numKtBins+kTBin1;
+  for(int zBin1=0;zBin1<maxZ1Bin;zBin1++)
+    {
+  for(int zBin2=0;zBin2<maxZ2Bin;zBin2++)
+    {
+
+      for(int kTBin=0;kTBin<binningKt.size();kTBin++)
+	{
+	  float binWidthFactor=1.0;
+	  if(0==kTBin)
+	    {
+	      binWidthFactor=binningKt[0];
+	    }
+	  else
+	    {
+	      binWidthFactor=binningKt[kTBin]-binningKt[kTBin-1];
+	    }
+	  //for the last bin, it doesn't make sense to divide by 1000 or so...
+	  binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+	  binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
+	  //the first one is z2, so the array size is multiplied with the max z1 bns
+	  ///see : 
+	  int combBin=zBin2*binningZ[zIdx.first].size()*numKtBins + zBin1*numKtBins + kTBin;
+	  if(binning==1)//onlyZ
+	    combBin=zBin1*numKtBins+kTBin;
+	  //	  cout<<endl <<"combBin : " << combBin<<endl;
+	  if(combBin>=input->GetNbinsX())
+	    {
+	      cout <<"convert all, zBin " << combBin <<" greater than " << input->GetNbinsX()<<endl;
+	    }
+	  //	  cout <<"convert unfold.. binWidthFactor: " << binWidthFactor<<endl;
+	  value=input->GetBinContent(combBin+1);
+	  //	  cout <<"value first " << value <<endl;
+	  value=input->GetBinContent(combBin+1)/binWidthFactor;
+	  //	  cout <<"now: "<< value<<endl;
+	  ret[zBin1][zBin2]->SetBinContent(kTBin+1,value);
+	}
+    }
+    }
+  return ret;
+}
+
+
 
 //mc_input is what is called xini in the tsvdunfold docu, MC_out is what is called bini
 TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d)
@@ -545,9 +622,9 @@ pair<int,int> MultiPlotter::pidBin2ZBinningIdx(int pidBin)
   pair<int,int> ret;
   ret.first=0;
   ret.second=0;
-  if(pidBin< 0 || pidBin > PP)
+  if(pidBin< 0 || pidBin > UNKNOWN)
     {
-      cout <<"pidbin2zbinninningidx: wrong index" <<endl;
+      cout <<"pidbin2zbinninningidx: wrong index" << pidBin <<endl;
       return ret;
     }
    switch(pidBin)
@@ -806,36 +883,49 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	case PiPi:
 	  this->z1=hp->z1_Pi[i];
 	  this->z2=hp->z2_Pi[i];
+	  if(z1 < zCutPi || z2< zCutPi)
+	    continue;
 	  this->kT=hp->kT_PiPi[i];
 	  weight=hp->p_PiPi[i];
 	  break;
 	case PiK:
 	  this->z1=hp->z1_Pi[i];
 	  this->z2=hp->z2_K[i];
+
+	  if(z1 < zCutPi || z2< zCutPK)
+	    continue;
 	  this->kT=hp->kT_PiK[i];
 	  weight=hp->p_PiK[i];
 	  break;
 	case PiP:
 	  this->z1=hp->z1_Pi[i];
 	  this->z2=hp->z2_P[i];
+	  if(z1 < zCutPi || z2< zCutPK)
+	    continue;
 	  this->kT=hp->kT_PiP[i];
 	  weight=hp->p_PiP[i];
 	  break;
 	case KPi:
 	  this->z1=hp->z1_K[i];
 	  this->z2=hp->z2_Pi[i];
+	  if(z1 < zCutPK || z2< zCutPi)
+	    continue;
 	  this->kT=hp->kT_KPi[i];
 	  weight=hp->p_KPi[i];
 	  break;
 	case KK:
 	  this->z1=hp->z1_K[i];
 	  this->z2=hp->z2_K[i];
+	  if(z1 < zCutPK || z2< zCutPK)
+	    continue;
 	  this->kT=hp->kT_KK[i];
 	  weight=hp->p_KK[i];
 	  break;
 	case KP:
 	  this->z1=hp->z1_K[i];
 	  this->z2=hp->z2_P[i];
+	  if(z1 < zCutPK || z2< zCutPK)
+	    continue;
 	  this->kT=hp->kT_KP[i];
 	  weight=hp->p_KP[i];
 	  break;
@@ -843,12 +933,16 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	case PPi:
 	  this->z1=hp->z1_K[i];
 	  this->z2=hp->z2_Pi[i];
+	  if(z1 < zCutPK || z2< zCutPi)
+	    continue;
 	  this->kT=hp->kT_KPi[i];
 	  weight=hp->p_PPi[i];
 	  break;
 	case PK:
 	  this->z1=hp->z1_K[i];
 	  this->z2=hp->z2_K[i];
+	  if(z1 < zCutPK || z2< zCutPK)
+	    continue;
 	  this->kT=hp->kT_KK[i];
 
 	  weight=hp->p_PK[i];
@@ -857,6 +951,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  this->z1=hp->z1_K[i];
 	  this->z2=hp->z2_P[i];
 	  this->kT=hp->kT_KP[i];
+	  if(z1 < zCutPK || z2< zCutPK)
+	    continue;
 	  weight=hp->p_PP[i];
 	  break;
 
@@ -988,8 +1084,8 @@ void MultiPlotter::setBinningMap()
   for(int pidBin=0;pidBin<NumPIDs;pidBin++)
     {
       pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
-      int maxZ1=zIdx.first;
-      int maxZ2=zIdx.second;
+      int maxZ1=binningZ[zIdx.first].size();
+      int maxZ2=binningZ[zIdx.second].size();
       
       
       for(int bt=binType_labTheta_z; bt<binType_end;bt++)
