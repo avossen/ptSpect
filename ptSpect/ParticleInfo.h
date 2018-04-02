@@ -9,7 +9,9 @@ namespace Belle {
 class ParticleInfo:public ParticleUserInfo
 {
  public:
+  //I don't think that these are actually used..
   double z[5];
+
   Hep3Vector boostedMoms[5];
   //identified as
   int idAs;
@@ -32,8 +34,8 @@ class ParticleInfo:public ParticleUserInfo
   //for mc:
   int motherGenId;
 
-  ParticleInfo(){};
-  ParticleInfo(const ParticleInfo&x ){}
+ ParticleInfo(){};
+ ParticleInfo(const ParticleInfo&x ){}
   ~ParticleInfo(){};
   ParticleInfo* clone() const{return new ParticleInfo(*this);}
   ParticleInfo &operator=(const ParticleInfo& x){}

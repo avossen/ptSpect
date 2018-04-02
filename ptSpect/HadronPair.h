@@ -18,7 +18,7 @@ namespace Belle {
 class HadronPair
 {
  public:
-  HadronPair()
+ HadronPair():secondRun(false),thrustMethod(false)
     {
       hadCharge=AnaDef::NA;
       hadPType=AnaDef::UNKNOWN;
@@ -30,7 +30,8 @@ class HadronPair
       hadPType2=AnaDef::SH_TypeUnknown;
 
     };
-
+  bool secondRun;
+  bool thrustMethod;
   Particle* firstHadron;
   Particle* secondHadron;
   ///for ease of access
@@ -71,6 +72,19 @@ class HadronPair
   double kT_PK;
   double kT_PP;
 
+
+  double qT_PiPi;
+  double qT_PiK;
+  double qT_PiP;
+
+  double qT_KPi;
+  double qT_KK;
+  double qT_KP;
+
+  double qT_PPi;
+  double qT_PK;
+  double qT_PP;
+
   float z1_Pi;
   float z1_K;
   float z1_P;
@@ -94,13 +108,39 @@ class HadronPair
   AnaDef::SingleHadType hadPType2;
 
 
-
   //compute PID weights based on the original classification
   void computePIDWeights()
   {
 
   }
   //everything relative to thrust
+
+
+  //get the QT based on the boosted vectors in the hadron pair. The boost will depend on the hadron type.
+  float getQt(Hep3Vector& v1, Hep3Vector& v2, float z1, float z2)
+  {
+
+
+      HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
+      HepLorentzVector vR1(v1,kinematics::Q*z1*0.5);
+      HepLorentzVector vR2(v2,kinematics::Q*z2*0.5);
+      if(vR1.vect().mag()==0 || vR2.vect().mag() ==0)
+	return 0;
+      HepLorentzVector RSum=vR1+vR2;
+      HepLorentzVector RSumBoosted=RSum;
+
+      HepLorentzVector R1Boosted=vR1;
+      HepLorentzVector R2Boosted=vR2;
+      Hep3Vector rBoost=RSum.boostVector();
+
+      vPhoton.boost(-rBoost);
+      RSumBoosted.boost(-rBoost);
+      R1Boosted.boost(-rBoost);
+      R2Boosted.boost(-rBoost);
+      qT=vPhoton.perp(R1Boosted.vect());
+      return qT;
+  }
+
 
   //set the various values based on the two hadrons
   void compute()
@@ -109,32 +149,88 @@ class HadronPair
     ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
     ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
 
-    p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
-    p_PiK=pinf1.p_Pi*pinf2.p_K;
-    p_PiP=pinf1.p_Pi*pinf2.p_p;
-
-    p_KPi=pinf1.p_K*pinf2.p_Pi;
-    p_KK=pinf1.p_K*pinf2.p_K;
-    p_KP=pinf1.p_K*pinf2.p_p;
-
-    p_PPi=pinf1.p_p*pinf2.p_Pi;
-    p_PK=pinf1.p_p*pinf2.p_K;
-    p_PP=pinf1.p_p*pinf2.p_p;
+    //sub optimal, since the weights are not in arrays one can iterate over...
+    p_PiPi=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[pionIdx])<0))
+      p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
 
 
+    p_PiK=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
+      p_PiK=pinf1.p_Pi*pinf2.p_K;
+    p_PiP=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[protonIdx])<0))
+      p_PiP=pinf1.p_Pi*pinf2.p_p;
+
+    p_KPi=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[kaonIdx].dot(pinf2.boostedMoms[pionIdx])<0))
+      p_KPi=pinf1.p_K*pinf2.p_Pi;
+    p_KK=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[kaonIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
+      p_KK=pinf1.p_K*pinf2.p_K;
+    p_KP=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[kaonIdx].dot(pinf2.boostedMoms[protonIdx])<0))
+      p_KP=pinf1.p_K*pinf2.p_p;
+
+    p_PPi=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[protonIdx].dot(pinf2.boostedMoms[pionIdx])<0))
+      p_PPi=pinf1.p_p*pinf2.p_Pi;
+    p_PK=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[protonIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
+      p_PK=pinf1.p_p*pinf2.p_K;
+    p_PP=0.0;
+    if(thrustMethod || (pinf1.boostedMoms[protonIdx].dot(pinf2.boostedMoms[protonIdx])<0))
+      p_PP=pinf1.p_p*pinf2.p_p;
+
+    //vector<int> v={pionIdx,kaonIdx,protonIdx};
+    //    for(auto& elem:v)
+    //    for(vector<int>::iterator it=v.begin();it!=v.end();it++)
+      {
+
+      }
     //      kT=firstHadron->p3().perp(secondHadron->p3());
-    kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
-    kT_PiK=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[kaonIdx]);
-    kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
+
+////    kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
+////    kT_PiK=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[kaonIdx]);
+////    kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
+////
+////
+////    kT_KPi=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[pionIdx]);
+////    kT_KK=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[kaonIdx]);
+////    kT_KP=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[protonIdx]);
+////
+////    kT_PPi=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[pionIdx]);
+////    kT_PK=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[kaonIdx]);
+////    kT_PP=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[protonIdx]);
+////
+    //charlotte switches the definition
+   kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
+    kT_PiK=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[kaonIdx]);
+    kT_PiP=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[protonIdx]);
 
 
-    kT_KPi=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[pionIdx]);
-    kT_KK=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[kaonIdx]);
-    kT_KP=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[protonIdx]);
+    kT_KPi=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
+    kT_KK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[kaonIdx]);
+    kT_KP=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[protonIdx]);
 
-    kT_PPi=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[pionIdx]);
-    kT_PK=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[kaonIdx]);
-    kT_PP=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[protonIdx]);
+    kT_PPi=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[pionIdx]);
+    kT_PK=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[kaonIdx]);
+    kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
+
+    qT_PiPi=getQt(pinf1.boostedMoms[pionIdx],pinf2.boostedMoms[pionIdx],pinf1.z[pionIdx],pinf2.z[pionIdx]);
+    qT_PiK=getQt(pinf1.boostedMoms[pionIdx],pinf2.boostedMoms[kaonIdx],pinf1.z[pionIdx],pinf2.z[kaonIdx]);
+    qT_PiP=getQt(pinf1.boostedMoms[pionIdx],pinf2.boostedMoms[protonIdx],pinf1.z[pionIdx],pinf2.z[protonIdx]);
+
+
+    qT_KPi=getQt(pinf1.boostedMoms[kaonIdx],pinf2.boostedMoms[pionIdx],pinf1.z[kaonIdx],pinf2.z[pionIdx]);
+    qT_KK=getQt(pinf1.boostedMoms[kaonIdx],pinf2.boostedMoms[kaonIdx],pinf1.z[kaonIdx],pinf2.z[kaonIdx]);
+    qT_KP=getQt(pinf1.boostedMoms[kaonIdx],pinf2.boostedMoms[protonIdx],pinf1.z[kaonIdx],pinf2.z[protonIdx]);
+
+    qT_PPi=getQt(pinf1.boostedMoms[protonIdx],pinf2.boostedMoms[pionIdx],pinf1.z[protonIdx],pinf2.z[pionIdx]);
+    qT_PK=getQt(pinf1.boostedMoms[protonIdx],pinf2.boostedMoms[kaonIdx],pinf1.z[protonIdx],pinf2.z[kaonIdx]);
+    qT_PP=getQt(pinf1.boostedMoms[protonIdx],pinf2.boostedMoms[protonIdx],pinf1.z[protonIdx],pinf2.z[protonIdx]);
+
+
 
 
     ///////---------
@@ -156,6 +252,8 @@ class HadronPair
       R1Boosted.boost(-rBoost);
       R2Boosted.boost(-rBoost);
       qT=vPhoton.perp(R1Boosted.vect());
+
+
 
 
       //      cout <<"rsum boosted: "<< RSumBoosted.vect() << " r1 boosted: "<< R1Boosted.vect() <<" r2: " << R2Boosted.vect() <<endl;
@@ -180,7 +278,8 @@ class HadronPair
       PDiff=firstHadron->p().vect()-secondHadron->p().vect();
       diffPhi=PDiff.phi();
       diffTheta=PDiff.theta();
-      kT=firstHadron->p3().perp(secondHadron->p3());
+      //      kT=firstHadron->p3().perp(secondHadron->p3());
+      kT=secondHadron->p3().perp(firstHadron->p3());
 
       //set charges/particle types...
       hadCharge1=getHadCharge(firstHadron->lund());

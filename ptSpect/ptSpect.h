@@ -54,7 +54,7 @@ public:
   bool recDStarMC();
   bool recD0MC();
   int goodHadronB() const;
-  void setHadronPIDProbs(ParticleInfo* info, float mom);
+  int setHadronPIDProbs(ParticleInfo* info, float mom);
   genhep_vec *getDaughters(const Gen_hepevt &mother);
   // begin_run function
   void begin_run ( BelleEvent*, int* );
@@ -66,6 +66,7 @@ public:
   bool findJetMatch(Hep3Vector& vec, vector<PseudoJet>* const1, vector<PseudoJet>* const2);
   bool recursivePrint(const Gen_hepevt gen_it, string s);
   void findHadronPairs();
+  void findHadronPairsThrust();
 
   void cleanUp();
   void exitEvent();

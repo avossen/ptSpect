@@ -18,8 +18,10 @@ class PlotResults   : public TObject
   float meanKinBin1;
   float meanKinBin2;
 
+  float kTUncertainties[maxKtBins];
   float kTValues[maxKtBins];
   float kTMeans[maxKtBins];
+
 
   int numKtValues;
 
@@ -78,6 +80,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	      kTMeans[i]=1.0/(kTValues[i]+rhs.kTValues[i])*(kTMeans[i]*kTValues[i] + rhs.kTMeans[i]*rhs.kTValues[i]);
 	    }
 	  kTValues[i]+=rhs.kTValues[i];
+	  kTUncertainties[i]=sqrt(kTUncertainties[i]*kTUncertainties[i]+rhs.kTUncertainties[i]*rhs.kTUncertainties[i]);
 	}
       
       if(intCount==0)

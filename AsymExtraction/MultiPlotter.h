@@ -20,7 +20,7 @@ enum plotType{plotType_2D ,plotType_end};
 class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 {
  public:
- MultiPlotter(const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(filenameBase,nameAdd,exNr,onRes,uds,charm,mc),zCutPi(0.05),zCutPK(0.1)
+ MultiPlotter(bool m_useQt,const char* pathBase,const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(pathBase,filenameBase,nameAdd,exNr,onRes,uds,charm,mc),zCutPi(0.05),zCutPK(0.1),useQt(m_useQt)
     {
 
       maxSmearing=new int*[NumPIDs];
@@ -61,6 +61,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	      maxSmearing[p][0]=numKtBins*binningZ[zIdx.first].size()*binningZ[zIdx.second].size();
 	      maxSmearing[p][1]=numKtBins*binningZ[zIdx.first].size();
 
+	      cout <<" zidx.first: "<< zIdx.first <<" second; " <<  zIdx.second <<" num zbins1: " << binningZ[zIdx.first].size() <<" sedond: " << binningZ[zIdx.second].size() <<" numKt: "<< numKtBins <<endl;
+
 	      kinematicSmearingMatrix[b][p]=new TH2D*[NumCharges];
 	      xini[b][p]=new TH1D*[NumCharges];
 	      bini[b][p]=new TH1D*[NumCharges];
@@ -68,6 +70,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 		{
 		  sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		  kinematicSmearingMatrix[b][p][c]=new TH2D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b],maxSmearing[p][b],0,maxSmearing[p][b]);
+		  cout <<"dimensions of smearing for pid: "<< p <<" "<< maxSmearing[p][b] << " binning " << b <<endl;
 		  sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		  xini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b]);
 		  sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
@@ -117,12 +120,13 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 
       cout <<"allocating " << numKinematicBinning <<" * " << NumCharge << " * " << maxKinBins <<" * " << maxKinBins <<" * " <<numKtBins <<" * " <<numKtBins<<endl;
       counts=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
+      uncertainties=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
       meanValues_kin1=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins);
       meanValues_kin2=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins);
       meanValues_kT=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
 
     };
-
+  bool useQt;
     //
     //    void setFitReuslt();
   unsigned int getNumKtBins(){return numKtBins;};
@@ -226,6 +230,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     unsigned int numKtBins;
     unsigned int maxKinBins;
     double****** counts;
+    double****** uncertainties;
 
     double***** meanValues_kin1;
     double***** meanValues_kin2;

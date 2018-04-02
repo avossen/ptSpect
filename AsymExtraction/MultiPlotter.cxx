@@ -24,6 +24,12 @@ void MultiPlotter::doPlots()
 			{
 			  locCount+=counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].kTValues[ktBin]=counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  plotResults[resIdx].kTUncertainties[ktBin]=sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]);
+			  cout <<"using counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  cout <<", uncertainties: " << uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  cout <<", sqrt: "<< sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin])<<endl;
+
+
 			  plotResults[resIdx].kTMeans[ktBin]=meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  if(bt==binType_labTheta_z && chargeBin==0)
 			    {
@@ -32,6 +38,8 @@ void MultiPlotter::doPlots()
 			}
 		      plotResults[resIdx].meanKinBin1=meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
 		      plotResults[resIdx].meanKinBin1=meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
+
+
 		      plotResults[resIdx].firstKinBin=firstBin;
 		      plotResults[resIdx].secondKinBin=secondBin;
 		      if(bt==binType_labTheta_z && chargeBin==0)
@@ -66,41 +74,60 @@ void MultiPlotter::loadBinnings()
 
   //pions
   binningZ[0].push_back(0.1);
+  binningZ[0].push_back(0.125);
   binningZ[0].push_back(0.15);
+  binningZ[0].push_back(0.175);
   binningZ[0].push_back(0.2);
   binningZ[0].push_back(0.3);
   ////  binningZ.push_back(0.7);
   binningZ[0].push_back(0.4); //// 
   //  binningZ.push_back(0.5);
   //  binningZ.push_back(0.6);
-  binningZ[0].push_back(2.6);
+  binningZ[0].push_back(1.11);
 
   //the rest
   for(int i=1;i<6;i++)
     {
       binningZ[i].push_back(0.2);
+      binningZ[i].push_back(0.25);
       binningZ[i].push_back(0.3);
       binningZ[i].push_back(0.4);
       ////  binningZ.push_back(0.7);
       binningZ[i].push_back(0.5); //// 
   //  binningZ.push_back(0.5);
   //  binningZ.push_back(0.6);
-      binningZ[i].push_back(2.6);
-
-
+      binningZ[i].push_back(1.11);
     }
 
 
-  binningKt.push_back(0.15);
-  binningKt.push_back(0.3);
-  binningKt.push_back(0.45);
-   binningKt.push_back(0.6);
-  binningKt.push_back(0.75);
-    binningKt.push_back(0.9);
-  binningKt.push_back(1.05);
-  //  binningKt.push_back(1.5);
-  binningKt.push_back(2.0);
-  binningKt.push_back(10000);
+
+  if(useQt)
+    {
+      binningKt.push_back(0.5);
+      binningKt.push_back(1.5);
+      binningKt.push_back(2.0);
+      binningKt.push_back(2.5);
+      binningKt.push_back(3.0);
+      binningKt.push_back(3.5);
+      binningKt.push_back(4.0);
+      binningKt.push_back(5.0);
+      binningKt.push_back(6.0);
+      //  binningKt.push_back(1.5);
+      binningKt.push_back(50.3);
+
+    }
+  else
+    {
+      binningKt.push_back(0.23);
+      binningKt.push_back(0.35);
+      binningKt.push_back(0.45);
+      binningKt.push_back(0.55);
+      binningKt.push_back(0.65);
+      binningKt.push_back(0.78);
+      binningKt.push_back(0.96);
+      //  binningKt.push_back(1.5);
+      binningKt.push_back(5.3);
+    }
 
   //    binningLabTheta.push_back(0.9);
   //  binningLabTheta.push_back(1.1);
@@ -169,9 +196,18 @@ void MultiPlotter::saveSmearingMatrix()
 //convert the convuoluted histogram we get from unfolding into 'regular' plots
 //also put in the binwidth factors that were not used for the unfolding
 //for the z_z binning, just put out the diagonal bins for now...
+//
 TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBin, int pidBin, const char* nameAdd)
 {
   char buffer[300];
+  float binWidthFactorZ1=1.0;
+  float binWidthFactorZ2=1.0;
+  float lowerZ1Cut=0.1;
+  float lowerZ2Cut=0.1;
+  if(pidBin==PiPi || pidBin== PiK || pidBin== PiP)
+    lowerZ1Cut=0.05;
+  if(pidBin==PiPi || pidBin== KPi || pidBin== PPi)
+    lowerZ2Cut=0.05;
 
   pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
   int maxZBin=(binningZ[zIdx.first].size()>binningZ[zIdx.second].size()) ? binningZ[zIdx.first].size() : binningZ[zIdx.second].size();
@@ -192,10 +228,34 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
       ret[zBin]=new TH1D(buffer,buffer,numKtBins,0,numKtBins);
     }
 
-  Double_t value;
+  Double_t value=0.0;
+  Double_t valueUncertainty=0.0;
   //      int recBin=z1Bin1*numKtBins+kTBin1;
   for(int zBin=0;zBin<locMaxZBin;zBin++)
     {
+	  if(1==binning)
+	    {
+	      //.first is only one bin, so 
+	      binWidthFactorZ2=1.0-lowerZ2Cut;
+      
+	      //for the single z bin, the second counter is the z1 for some reason
+	      if(zBin==0)
+		binWidthFactorZ1=binningZ[zIdx.first][0]-lowerZ1Cut;
+	      else
+		binWidthFactorZ1=binningZ[zIdx.first][zBin]-binningZ[zIdx.first][zBin-1];
+	    }
+	  else
+	    {
+	      if(zBin==0)
+		binWidthFactorZ1=binningZ[zIdx.first][0]-lowerZ1Cut;
+	      else
+		binWidthFactorZ1=binningZ[zIdx.first][zBin]-binningZ[zIdx.first][zBin-1];
+	      if(zBin==0)
+		binWidthFactorZ2=binningZ[zIdx.second][0]-lowerZ2Cut;
+	      else
+		binWidthFactorZ2=binningZ[zIdx.second][zBin]-binningZ[zIdx.second][zBin-1];
+	    }
+
       for(int kTBin=0;kTBin<binningKt.size();kTBin++)
 	{
 	  float binWidthFactor=1.0;
@@ -208,7 +268,8 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
 	      binWidthFactor=binningKt[kTBin]-binningKt[kTBin-1];
 	    }
 	  //for the last bin, it doesn't make sense to divide by 1000 or so...
-	  binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+	  binWidthFactor*=binWidthFactorZ1*binWidthFactorZ2;
+	  binWidthFactor > 100.0 ?  (binWidthFactor=1.0) : true ;
 	  binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 	  //the first one is z2, so the array size is multiplied with the max z1 bns
 	  ///see : 
@@ -222,10 +283,13 @@ TH1D** MultiPlotter::convertUnfold2Plots(TH1D* input, int binning,  int chargeBi
 	    }
 	  //	  cout <<"convert unfold.. binWidthFactor: " << binWidthFactor<<endl;
 	  value=input->GetBinContent(combBin+1);
+	  valueUncertainty=input->GetBinError(combBin+1);
 	  //	  cout <<"value first " << value <<endl;
 	  value=input->GetBinContent(combBin+1)/binWidthFactor;
+	  valueUncertainty=input->GetBinError(combBin+1)/binWidthFactor;
 	  //	  cout <<"now: "<< value<<endl;
 	  ret[zBin]->SetBinContent(kTBin+1,value);
+	  ret[zBin]->SetBinError(kTBin+1,valueUncertainty);
 	}
     }
   return ret;
@@ -243,12 +307,18 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
   int maxZ2Bin = binningZ[zIdx.second].size();
   int maxZBin=(binningZ[zIdx.first].size()>binningZ[zIdx.second].size()) ? binningZ[zIdx.first].size() : binningZ[zIdx.second].size();
   
-  //for z1 binning, just take number of z1 bins. For z1/z2 where we do the diagonal, take smaller of the two
-  int locMaxZBin=binningZ[zIdx.first].size();
-  if(binning==0)
-    {
-      locMaxZBin=maxZ1Bin;
-    }
+
+  float binWidthFactorZ1=1.0;
+  float binWidthFactorZ2=1.0;
+  float lowerZ1Cut=0.1;
+  float lowerZ2Cut=0.1;
+  if(pidBin==PiPi || pidBin== PiK || pidBin== PiP)
+    lowerZ1Cut=0.05;
+  if(pidBin==PiPi || pidBin== KPi || pidBin== PPi)
+    lowerZ2Cut=0.05;
+
+
+
 
   TH1D*** ret=new TH1D**[maxZ1Bin];
   //this should be the smaller of the two since we are doing the diagonal bins
@@ -257,33 +327,58 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
       ret[zBin1]=new TH1D*[maxZ2Bin];
       for(int zBin2=0;zBin2<maxZ2Bin;zBin2++)
 	{
-	sprintf(buffer,"un_convert_binning_%d_cBin_%d_pBin_%d_zBin1_%d_zBin2_%d_%s",binning,chargeBin,pidBin,zBin1,zBin2,nameAdd);
-	ret[zBin1][zBin2]=new TH1D(buffer,buffer,numKtBins,0,numKtBins);
+	  sprintf(buffer,"un_convert_binning_%d_cBin_%d_pBin_%d_zBin1_%d_zBin2_%d_%s",binning,chargeBin,pidBin,zBin1,zBin2,nameAdd);
+	  ret[zBin1][zBin2]=new TH1D(buffer,buffer,numKtBins,0,numKtBins);
 	}
     }
 
   
-  Double_t value;
+  Double_t value=0.0;
+  Double_t valueUncert=0.0;
   //      int recBin=z1Bin1*numKtBins+kTBin1;
   for(int zBin1=0;zBin1<maxZ1Bin;zBin1++)
     {
-  for(int zBin2=0;zBin2<maxZ2Bin;zBin2++)
-    {
-
-      for(int kTBin=0;kTBin<binningKt.size();kTBin++)
+      for(int zBin2=0;zBin2<maxZ2Bin;zBin2++)
 	{
-	  float binWidthFactor=1.0;
-	  if(0==kTBin)
+	  if(1==binning)
 	    {
-	      binWidthFactor=binningKt[0];
+	      //.first is only one bin, so 
+	      binWidthFactorZ2=1.0-lowerZ2Cut;
+      
+	      //for the single z bin, the second counter is the z1 for some reason
+	      if(zBin2==0)
+		binWidthFactorZ1=binningZ[zIdx.first][0]-lowerZ1Cut;
+	      else
+		binWidthFactorZ1=binningZ[zIdx.first][zBin2]-binningZ[zIdx.first][zBin2-1];
 	    }
 	  else
 	    {
-	      binWidthFactor=binningKt[kTBin]-binningKt[kTBin-1];
+	      if(zBin1==0)
+		binWidthFactorZ1=binningZ[zIdx.first][0]-lowerZ1Cut;
+	      else
+		binWidthFactorZ1=binningZ[zIdx.first][zBin1]-binningZ[zIdx.first][zBin1-1];
+	      if(zBin2==0)
+		binWidthFactorZ2=binningZ[zIdx.second][0]-lowerZ2Cut;
+	      else
+		binWidthFactorZ2=binningZ[zIdx.second][zBin2]-binningZ[zIdx.second][zBin2-1];
 	    }
+
+
+	  for(int kTBin=0;kTBin<binningKt.size();kTBin++)
+	    {
+	      float binWidthFactor=1.0;
+	      if(0==kTBin)
+		{
+		  binWidthFactor=binningKt[0];
+		}
+	      else
+		{
+		  binWidthFactor=binningKt[kTBin]-binningKt[kTBin-1];
+		}
 	  //for the last bin, it doesn't make sense to divide by 1000 or so...
-	  binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+	  binWidthFactor > 100.0 ?  (binWidthFactor=1.0) : true ;
 	  binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
+	  binWidthFactor*=binWidthFactorZ1*binWidthFactorZ2;
 	  //the first one is z2, so the array size is multiplied with the max z1 bns
 	  ///see : 
 	  int combBin=zBin2*binningZ[zIdx.first].size()*numKtBins + zBin1*numKtBins + kTBin;
@@ -296,10 +391,13 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 	    }
 	  //	  cout <<"convert unfold.. binWidthFactor: " << binWidthFactor<<endl;
 	  value=input->GetBinContent(combBin+1);
+	  valueUncert=input->GetBinError(combBin+1);
 	  //	  cout <<"value first " << value <<endl;
 	  value=input->GetBinContent(combBin+1)/binWidthFactor;
+	  valueUncert=input->GetBinError(combBin+1)/binWidthFactor;
 	  //	  cout <<"now: "<< value<<endl;
 	  ret[zBin1][zBin2]->SetBinContent(kTBin+1,value);
+	  ret[zBin1][zBin2]->SetBinError(kTBin+1,valueUncert);
 	}
     }
     }
@@ -422,10 +520,51 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
       //      for(int j=0;j<maxKinMap[binningType].second;j++)
       for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
 	{
+
+	  pair<int,int> zIdx=pidBin2ZBinningIdx(pidType);
+	  int maxZ1=binningZ[zIdx.first].size();
+	  int maxZ2=binningZ[zIdx.second].size();
+
 	  double normFactor=1.0;
 	  double maxVal=-1.0;
 	  double maxValNorm=-1.0;
 	  int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
+
+	  float binWidthFactorZ1=1.0;
+	  float binWidthFactorZ2=1.0;
+	  float lowerZ1Cut=0.1;
+	  float lowerZ2Cut=0.1;
+	  if(pidType==PiPi || pidType== PiK || pidType== PiP)
+	    lowerZ1Cut=0.05;
+	  if(pidType==PiPi || pidType== KPi || pidType== PPi)
+	    lowerZ2Cut=0.05;
+	      
+	  if(1==binning)
+	    {
+	      //.first is only one bin, so the other factor is the whole range minus the cutoff
+		binWidthFactorZ2=1.0-lowerZ2Cut;
+
+
+	      //for the single z bin, the second counter is the z1 for some reason
+	      if(j==0)
+		binWidthFactorZ1=binningZ[zIdx.first][0]-lowerZ1Cut;
+	      else
+		binWidthFactorZ1=binningZ[zIdx.first][j]-binningZ[zIdx.first][j-1];
+	    }
+	  else
+	    {
+	      if(i==0)
+		binWidthFactorZ1=binningZ[zIdx.first][0]-lowerZ1Cut;
+	      else
+		binWidthFactorZ1=binningZ[zIdx.first][i]-binningZ[zIdx.first][i-1];
+	      if(j==0)
+		binWidthFactorZ2=binningZ[zIdx.second][0]-lowerZ2Cut;
+	      else
+		binWidthFactorZ2=binningZ[zIdx.second][j]-binningZ[zIdx.second][j-1];
+
+	    }
+
+
 	  for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
 	    {
 	      float binWidthFactor=1.0;
@@ -437,7 +576,7 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
 		{
 		  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
 		}
-	      /////	      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+	      /////	      binWidthFactor > 100.0 ?  (binWidthFactor=1.0) : true ;
 	      ////	      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 
 	      binWidthFactor=1.0;
@@ -465,8 +604,12 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
 		{
 		  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
 		}
+	      binWidthFactor*=(binWidthFactorZ1*binWidthFactorZ2);
+	      //and the z binning
+
+
 	      //for the last bin, it doesn't make sense to divide by 1000 or so...
-	      ////	      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+	      ////	      binWidthFactor > 100.0 ?  (binWidthFactor=1.0) : true ;
 	      ////	      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 
 	      binWidthFactor=1.0;
@@ -484,11 +627,18 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
 	      mXErr[iKtBin]=0.0;
 	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
+	      Double_t binUncertainty=m_plotResults[resIdx].kTUncertainties[iKtBin]*normFactor/binWidthFactor;
 	      //have to add one due to histos counting from 1
 	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
-		ret->SetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1,binContent);
+		{
+		  ret->SetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1,binContent);
+		  ret->SetBinError(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1,binUncertainty);
+		}
 	      else
-		ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
+		{
+		  ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
+		  ret->SetBinError(j*numKtBins+iKtBin+1,binUncertainty);
+		}
 	      //	      cout <<" getH, bin number: j: "<< j << " iKtBin  "<<iKtBin <<" bin number: " << j*numKtBins+iKtBin << " content: " << binContent <<endl;
 	      mYErr[iKtBin]=sqrt(m_plotResults[resIdx].kTValues[iKtBin])*normFactor/binWidthFactor;
 	      //	      cout <<"mY["<<iKtBin <<"] " << mY[iKtBin]<<endl;
@@ -551,7 +701,7 @@ void MultiPlotter::savePlots( plotType mPlotType)
 			{
 			  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
 			}
-		      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+		      binWidthFactor > 100.0 ?  (binWidthFactor=1.0) : true ;
 		      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 		      //normalize so that the final points have the same maximum
 		      if(maxValNorm< m_plotResults[resIdx].kTValues[iKtBin]/binWidthFactor)
@@ -563,8 +713,8 @@ void MultiPlotter::savePlots( plotType mPlotType)
 		    }
 		  loc_plotResults=&m_plotResults[resIdx];
 		  tree->Fill();
-		  normFactor=1.0/maxValNorm;
-	  
+		  //		  normFactor=1.0/maxValNorm;
+		  normFactor=1.0;
 
 		  for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
 		    {
@@ -578,7 +728,7 @@ void MultiPlotter::savePlots( plotType mPlotType)
 			  binWidthFactor=binningKt[iKtBin]-binningKt[iKtBin-1];
 			}
 		      //for the last bin, it doesn't make sense to divide by 1000 or so...
-		      binWidthFactor > 1.0 ?  (binWidthFactor=1.0) : true ;
+		      binWidthFactor > 100.0 ?  (binWidthFactor=1.0) : true ;
 		      binWidthFactor<=0 ?   (binWidthFactor=1.0) : true;
 		      int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
 		      //	      cout <<"looking at index:" << resIdx<<endl;
@@ -602,8 +752,15 @@ void MultiPlotter::savePlots( plotType mPlotType)
 		  sprintf(buffer1,"%s_ptSpect_%s_bin%d_%d",nameAddition.c_str(),buffer,i,j);
 		  graph.SetName(buffer1);
 		  graph.SetTitle(buffer1);
-		  graph.GetYaxis()->SetTitle("normalized counts [arb. units]");
-		  graph.GetXaxis()->SetTitle("kT [GeV]");
+		  //		  graph.GetYaxis()->SetTitle("normalized counts [arb. units]");
+
+		  graph.GetYaxis()->SetTitle("counts / [GeV]");
+
+		  if(useQt)
+		    graph.GetXaxis()->SetTitle("q_{T} [GeV]");
+		  else
+		    graph.GetXaxis()->SetTitle("k_{T} [GeV]");
+
 		  cout <<"saved as " << buffer1 <<endl;
 		  graph.Write();
 
@@ -896,6 +1053,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	    continue;
 	  this->kT=hp->kT_PiK[i];
 	  weight=hp->p_PiK[i];
+	  //	  cout <<"adding weight: " << weight <<endl;
 	  break;
 	case PiP:
 	  this->z1=hp->z1_Pi[i];
@@ -1016,6 +1174,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	    }
 	  //	    cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
+	  uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*weight);
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);
 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*secondKin);
 	  meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*kT);
@@ -1307,6 +1466,7 @@ void MultiPlotter::reorder(float* mX, float* mY, float* mYErr, int numBins)
     {
       //wrap around
       int counter=i%numBins;
+
 
       mX[i-firstXBin]=tmpX[counter];
       mY[i-firstXBin]=tmpY[counter];

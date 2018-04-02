@@ -154,7 +154,7 @@ namespace Belle {
       //      cout <<" w/o acceptance " << endl;
       //      cout <<"we have " << v_allParticles.size() <<" particles " <<endl;
       setParticleProperties(v_allParticles, cmThrust,v_firstHemi, v_secondHemi);
-      findHadronPairs(v_firstHemi,v_secondHemi, v_hadronPairs);
+      findHadronPairs(v_firstHemi,v_secondHemi, v_hadronPairs);   
       fillWPairData(v_hadronPairs);
       //      cout <<"push back event data.. " <<endl; 
       int numF=num_fA_data;
@@ -448,7 +448,6 @@ namespace Belle {
     //unfortunately just a copy of the ptSpect functions
     void getHadronLists(vector<Particle*>& v_allParticles)
     {
-
       int motherGenId=0;
       Gen_hepevt_Manager& gen_hep_Mgr=Gen_hepevt_Manager::get_manager();
       //      cout <<"iterating" <<endl;
@@ -462,7 +461,8 @@ namespace Belle {
 	    }
 	  //in principle also take leptons... but fine for now. Assume that e id and mu_id is pretty good
 	  //pi0 should not be stable...
-	  if(!(geantID==lc_pi0 || geantID==lc_piPlus || geantID==lc_kPlus || geantID==lc_pPlus))
+	  //	  if(!(geantID==lc_pi0 || geantID==lc_piPlus || geantID==lc_kPlus || geantID==lc_pPlus))
+	  if(!(geantID==lc_piPlus || geantID==lc_kPlus || geantID==lc_pPlus))
 	    continue;
 
 	  //	   cout <<"valid " <<endl;
@@ -476,7 +476,9 @@ namespace Belle {
 	  ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(np->userInfo());
 	  float m_z=2*boostedVec.t()/kinematics::Q;
 	  pinf.motherGenId=motherGenId;
-	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
+	  //I don't think these fields are used, let's just use [0] and disentangle later with particleId
+	  //	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
+	  pinf.z[0]=m_z;
 	  //theta should be the one in the lab system as before...
 	  pinf.labTheta=labTheta;
 	  pinf.labPhi=labPhi;
@@ -507,21 +509,7 @@ namespace Belle {
 	  float theta=AuxFunc::getTheta(axis,**it);
 	  pinf.phi=phi;
 	  //	  pinf.theta=theta;
-	  //roughly cuts as for the analys, for wulfrim
-	  if(pinf.z[0] > 0.1)
-	    {
-	      if(!(cos(cmTheta)<cuts::minCosTheta||cos(cmTheta)>cuts::maxCosTheta))
-		{
-		  if(((*it)->pType()==cPiPlus)||((*it)->pType()==cPiNeg))
-		    {
-		      //		      m_histos->hEFlowMC->Fill(theta,pinf.z);
-		    }
-		}
-	    }
-	  else
-	    {
-	      continue;
-	    }
+
 	  pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());	  
 
 	  if(fabs(pinf.thrustProj)<cuts::minThrustProj)
@@ -555,9 +543,10 @@ namespace Belle {
 		{
 		  //continue;
 		}
+	      //this doesn't work for non pion pairs
 	      if(pinf.z[0]+pinf2.z[0] < 0.001)
 		{
-		  continue;
+		  //	  continue;
 		}
 	      //now unknowns...
 	      HadronPair* hp=new HadronPair();

@@ -1,5 +1,4 @@
 
-# `.brofile' is my equivalent to `.bashrc'
 echo Zuhause: $HOME
 #source $HOME/.bashrc
 
@@ -11,11 +10,6 @@ echo Zuhause: $HOME
 
 source $HOME/.bashrc
 source /sw/belle/local/etc/bashrc_general
-
-
-# This is necessary to get code that fills HBOOK ntuples running comfortably
-# on Olympus
-shopt -s expand_aliases
 
 echo ANSELM_BASF_START `date`
 export USE_GRAND_REPROCESS_DATA=1

@@ -2,7 +2,7 @@
 #define HADRON_PAIR_ARRAY_H
 #include "ReaderBase.h"
 #include "TMath.h"
-
+#define USE_QT
 //300 is also the number in the Treesaver, so cannot be larger...
 #define Max_ArrSize 300
 
@@ -10,6 +10,7 @@ struct HadronPairArray:public ReaderBase
 {
   //cuts:
 
+  float kTCut;
   const float zCut;
   const float zUpperCut;
   const float secondZCut;
@@ -40,13 +41,27 @@ struct HadronPairArray:public ReaderBase
 
 
   float kT_PiP[Max_ArrSize];
-  float kT_KPi[Max_ArrSize]
-;
+  float kT_KPi[Max_ArrSize];
+
   float kT_KK[Max_ArrSize];
   float kT_KP[Max_ArrSize];
   float kT_PPi[Max_ArrSize];
   float kT_PK[Max_ArrSize];
   float kT_PP[Max_ArrSize];
+
+
+  float qT_PiPi[Max_ArrSize];
+  float qT_PiK[Max_ArrSize];
+  float qT_PiP[Max_ArrSize];
+
+  float qT_KPi[Max_ArrSize];
+  float qT_KK[Max_ArrSize];
+  float qT_KP[Max_ArrSize];
+  float qT_PPi[Max_ArrSize];
+  float qT_PK[Max_ArrSize];
+  float qT_PP[Max_ArrSize];
+
+
 
 
   float z1_Pi[Max_ArrSize];
@@ -102,8 +117,15 @@ struct HadronPairArray:public ReaderBase
 
   // pid dependent z cut is then in MultiPlotter because it has to be applied in each event for each weight differently
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.4), secondZCut(0.05), hadronTagFiducialCut(3.2), asymmetryFlag(false)
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.1), secondZCut(0.05), hadronTagFiducialCut(7.2), asymmetryFlag(false),kTCut(5.26)
   {
+
+#ifdef USE_QT
+    //qT can have up to sqrt(s), and it can be even bigger if we assume the wrong particles...
+    kTCut=35.52;
+#endif
+
+
     //no chain implies standalone. Cannot branch on the same field twice, this would override
     //    cout <<" do we have a chain? " << chain<<endl;
     if(chain)
@@ -123,7 +145,6 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(z2_Pi);
 	    branchPointers.push_back(z2_K);
 	    branchPointers.push_back(z2_P);
-	    
 	    
 	    branchPointers.push_back(p_PiPi);
 	    branchPointers.push_back(p_PiK);
@@ -148,6 +169,25 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(kT_PPi);
 	    branchPointers.push_back(kT_PK);
 	    branchPointers.push_back(kT_PP);
+
+
+
+	    //different solution: replace kT with qT ifdef USE_QT
+//
+//	    branchPointers.push_back(qT_PiPi);
+//	    branchPointers.push_back(qT_PiK);
+//	    branchPointers.push_back(qT_PiP);
+//	    
+//	    branchPointers.push_back(qT_KPi);
+//	    branchPointers.push_back(qT_KK);
+//	    branchPointers.push_back(qT_KP);
+//
+//	    branchPointers.push_back(qT_PPi);
+//	    branchPointers.push_back(qT_PK);
+//	    branchPointers.push_back(qT_PP);
+//
+//
+
 	  }
 
 
@@ -166,8 +206,13 @@ struct HadronPairArray:public ReaderBase
 	branchPointers.push_back(thrustProj1);
 	branchPointers.push_back(thrustProj2);
 
+	//if use qt instead of kt, switch them so that the following kt code works on qt instead
+
+
+
 	branchPointers.push_back(kT);
 	//only for mc...
+
 	branchPointers.push_back(qT);
 
 
@@ -216,7 +261,21 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("p_PPi");
 	    branchNames.push_back("p_PK");
 	    branchNames.push_back("p_PP");
-	    	    
+
+#ifdef USE_QT
+	    branchNames.push_back("qT_PiPi");
+	    branchNames.push_back("qT_PiK");
+	    branchNames.push_back("qT_PiP");
+	    
+	    branchNames.push_back("qT_KPi");
+	    branchNames.push_back("qT_KK");
+	    branchNames.push_back("qT_KP");
+	    
+	    branchNames.push_back("qT_PPi");
+	    branchNames.push_back("qT_PK");
+	    branchNames.push_back("qT_PP");
+
+#else	    	    
 	    branchNames.push_back("kT_PiPi");
 	    branchNames.push_back("kT_PiK");
 	    branchNames.push_back("kT_PiP");
@@ -228,6 +287,7 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("kT_PPi");
 	    branchNames.push_back("kT_PK");
 	    branchNames.push_back("kT_PP");
+#endif
 	    
 	  }
 
@@ -245,16 +305,24 @@ struct HadronPairArray:public ReaderBase
 	branchNames.push_back("thrustProj1"+addendum);
 	branchNames.push_back("thrustProj2"+addendum);
 
+
+#ifdef USE_QT
+	  branchNames.push_back("qT"+addendum);
+#endif
 	if(mMCFlag!=mcFlagWoA)
 	  branchNames.push_back("kT"+addendum);
 	else//woa has not mcWoA ending for kt
 	  branchNames.push_back("kT");
 	//only for non mc...and woa (so no addendum in the other cases..)
+	///-->should be changed now, since we added qT_mc
+	//	if(mMCFlag==mcFlagWoA)
 
-	if(mMCFlag==mcFlagWoA)
+#ifndef USE_QT
 	  branchNames.push_back("qT"+addendum);
-	else
-	  branchNames.push_back("qT");
+#endif
+
+	  //	else
+	  //	  branchNames.push_back("qT");
 
 
 	branchNames.push_back("HadDiffTheta"+addendum);
@@ -300,6 +368,15 @@ struct HadronPairArray:public ReaderBase
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {
+	    cut[i]=1;
+	  }
+	if(kT_PiPi[i]>kTCut || kT_PiK[i]>kTCut || kT_PiP[i]>kTCut || kT_KPi[i]>kTCut || kT_KK[i]>kTCut || kT_KP[i]>kTCut || kT_PPi[i]>kTCut || kT_PK[i]>kTCut || kT_PPi[i]>kTCut)
+	  {
+#ifdef USE_QT
+	    cout <<"qt defined " <<endl;
+#endif
+	     cout <<"kt cut, : "<< kT_PiPi[i] <<" pik: "<< kT_PiK[i] <<" kpi: "<< kT_KPi[i] << " KK: " << kT_KK[i] <<" PiP: " << kT_PiP[i] << " KP: "<< kT_KP[i] <<" PPi: "<< kT_PPi[i];
+	    cout <<" PK: " << kT_PK[i] << " PP: " << kT_PP[i] <<endl;
 	    cut[i]=1;
 	  }
 
@@ -355,19 +432,106 @@ struct HadronPairArray:public ReaderBase
 		//		cout <<"hadron comes from uds..." <<endl;
 	      }
 	  }
-	//it seems that the WoA has the evtGen codes. So parents don't seem to be quarks but the virutal photon...
-	//nope, not true...
-	if(mMCFlag==mcFlagWoA)
+
+
+	//in the woa we do not split up into the different combinations and weights, since we know the truth, so do this here with weights 1 and 0
+	if(mMCFlag==mcFlagWoA || mMCFlag==mcFlagMC)
 	  {
-	    //	    if(!(motherGenId1[i]==10022 && motherGenId2[i] == 10022))
+	    //qt <--> kt flip shold have been done already
+
+	    p_PiPi[i]=0.0;
+	    p_PiK[i]=0.0;
+	    p_PiP[i]=0.0;
+	    p_KPi[i]=0.0;
+	    p_KK[i]=0.0;
+	    p_KP[i]=0.0;
+	    p_PPi[i]=0.0;
+	    p_PK[i]=0.0;
+	    p_PP[i]=0.0;
+
+	    
+	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;
+	    if(particleType[i]<0)
 	      {
-		//		cout <<"mother gen id not uds : " << motherGenId1[i] <<" and " << motherGenId2[i] <<endl;
-		//				cut[i]=1;
+		cut[i]=1;
+		continue;
 	      }
-	      //	    else
+	    switch(particleType[i])
 	      {
-		//		cout <<"hadron comes from uds..." <<endl;
+	      case PiPi:
+		p_PiPi[i]=1.0;
+		kT_PiPi[i]=kT[i];
+		z1_Pi[i]=z1[i];
+		z2_Pi[i]=z2[i];
+		break;
+	      case PiK:
+		p_PiK[i]=1.0;
+		kT_PiK[i]=kT[i];
+		z1_Pi[i]=z1[i];
+		z2_K[i]=z2[i];
+
+		break;
+	      case PiP:
+		p_PiP[i]=1.0;
+		kT_PiP[i]=kT[i];
+		z1_Pi[i]=z1[i];
+		z2_P[i]=z2[i];
+
+		break;
+
+	      case KPi:
+		p_KPi[i]=1.0;
+		kT_KPi[i]=kT[i];
+		z1_K[i]=z1[i];
+		z2_Pi[i]=z2[i];
+
+		break;
+	      case KK:
+		p_KK[i]=1.0;
+		kT_KK[i]=kT[i];
+		z1_K[i]=z1[i];
+		z2_K[i]=z2[i];
+
+		break;
+	      case KP:
+		p_KP[i]=1.0;
+		kT_KP[i]=kT[i];
+		z1_K[i]=z1[i];
+		z2_P[i]=z2[i];
+
+		break;
+	      case PPi:
+		p_PPi[i]=1.0;
+		kT_PPi[i]=kT[i];
+		z1_P[i]=z1[i];
+		z2_Pi[i]=z2[i];
+
+		break;
+	      case PK:
+		p_PK[i]=1.0;
+		kT_PK[i]=kT[i];
+		z1_P[i]=z1[i];
+		z2_K[i]=z2[i];
+
+		break;
+	      case PP:
+		p_PP[i]=1.0;
+		kT_PP[i]=kT[i];
+		z1_P[i]=z1[i];
+		z2_P[i]=z2[i];
+
+		break;
+	      case UNKNOWN:
+		cut[i]=1;
+		continue;
+		break;
+
+	      default:
+		cout <<"wrong pid in after fill : " << particleType[i] <<" particle type " << particleType[i]<<"charge type : "<< chargeType[i]<<endl;
+		cout <<"p_PiPi: " << p_PiPi[i] << " kt_pip : "<< kT_PiPi[i] <<endl;
 	      }
+
+
 	  }
 
 	///------------------
@@ -401,8 +565,17 @@ struct HadronPairArray:public ReaderBase
 	   //	   cout <<"nan!" <<endl;
 	  }
 
-
+	if(mMCFlag==mcFlagWoA && cut[i]==0)
+	  {
+	    //	    cout <<"accepted woa event with kt: "<< kT[i] << " z1: " << z1[i] << " z2: "<< z2[i] <<endl;
+	  }
+	
       }
+
+
+
+
+
   }
 
 

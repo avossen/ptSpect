@@ -20,23 +20,27 @@ void saveToTxt(int b,int c,int p,int maxZ1,int maxZ2,int numKtBins,TH1D*** sepKt
   sprintf(buffer,"out_binning_%d_charge_%d_pid_%d.txt",b,c,p);
   f.open(buffer);
   f <<" " << p <<" " << c << " " <<b <<" " << maxZ1 <<" " << maxZ2 <<" " << numKtBins<<endl;
+  cout <<"running maxZ1: "<< maxZ1 <<  " maxZ2: "<< maxZ2 <<endl;
   for(int iZ1=0;iZ1<maxZ1;iZ1++)
     {
       for(int iZ2=0;iZ2<maxZ2;iZ2++)
 	{
+	  cout <<" doing iZ1: "<< iZ1 << " iZ2: "<< iZ2 <<endl;
 	   for(int iKt=0;iKt<numKtBins;iKt++) 
 	     {
 	       f<<sepKtZHistos[iZ1][iZ2]->GetBinContent(iKt+1) << " ";
 	     }
-	   cout <<endl;
+	   f<<endl;
 	   //error bars not so clear...
 	   for(int iKt=0;iKt<numKtBins;iKt++) 
 	     {
-	       f<<sqrt(sepKtZHistos[iZ1][iZ2]->GetBinContent(iKt+1)) << " ";
+	       f<<sepKtZHistos[iZ1][iZ2]->GetBinError(iKt+1) << " ";
 	     }
-	   cout <<endl;
+	  f <<endl;
 	}
     }
+
+  f.close();
 
 
 

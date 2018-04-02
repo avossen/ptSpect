@@ -12,7 +12,7 @@
 class NamedExp
 {
  public:
-  NamedExp(const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):rFile((string(filenameBase)+nameAdd+".root").c_str(),"recreate")
+ NamedExp(const char* pathBase, const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):rFile((string(pathBase)+string("/")+string(filenameBase)+nameAdd+".root").c_str(),"recreate")
     {
       m_filenameBase=string(filenameBase);
       m_expNr=exNr;

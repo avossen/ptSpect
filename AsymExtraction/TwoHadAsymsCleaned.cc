@@ -26,11 +26,12 @@ int main(int argc, char** argv)
   //  kMCFlags isMC=mcFlagNone;
   //  kMCFlags isMC=mcFlagWoA;
   char* rootPath=argv[1];
-  char* argMCFlag=argv[2];
+  char* basePath=argv[2];
+  char* argMCFlag=argv[3];
   kMCFlags isMC=mcFlagNone;
 
 
-  if(argc==3 && string(argMCFlag).find("mc")!=string::npos)
+  if(argc==4 && string(argMCFlag).find("mc")!=string::npos)
     {
       cout <<"using mc info" <<endl;
       isMC=mcAsData;
@@ -38,6 +39,7 @@ int main(int argc, char** argv)
 
   srand(time(NULL));
   cout <<"Root path is: " << rootPath <<endl;
+  cout <<"base path is: "<< basePath <<endl;
   string sRootPath(rootPath);
   if(sRootPath.find_last_of('/')==sRootPath.length()-1)
     {
@@ -145,7 +147,9 @@ int main(int argc, char** argv)
       hadMCFlag=mcFlagMC;
     }
 
-  HadronPairArray hadPairMC(chAll,hadMCFlag);
+  HadronPairArray* hadPairMC;
+  if(isMC!=mcFlagNone)
+    hadPairMC=new HadronPairArray(chAll,hadMCFlag);
 
   cout <<"done with had pairs....." <<endl;
   kMCFlags mEventDataMCFlag=dataMCFlag;
@@ -181,13 +185,24 @@ int main(int argc, char** argv)
   else 
     ss<<"_data_";
 
+  bool m_useQt=false;
+#ifdef USE_QT
+  m_useQt=true;
+#endif
 
-  MultiPlotter smearingPlotter(const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
-  MultiPlotter plotter(const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+
+  MultiPlotter smearingPlotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
+  MultiPlotter plotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter plotterMC(const_cast<char*>("NormalMC"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
-  MultiPlotter plotterWoA(const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+  MultiPlotter plotterWoA(m_useQt,const_cast<char*>(basePath),const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter fitPi0SigMinusMix(const_cast<char*>("fitPi0SigMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
   //  MultiPlotter fitPi0BgMinusMix(const_cast<char*>("fitPi0BgMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
+
+#ifdef USE_QT
+  smearingPlotter.useQt=true;
+  plotter.useQt=true;
+  plotterWoA.useQt=true;
+#endif
 
   plotter.setName("Normal");
   //  plotterMC.setName("NormalMC");
@@ -212,7 +227,8 @@ int main(int argc, char** argv)
       //           cout<<" data after fill " <<endl;
       hadPair.afterFill();
       //      cout <<"mc after fill " <<endl;
-      hadPairMC.afterFill();
+      if(isMC!=mcFlagNone)
+	hadPairMC->afterFill();
  
       for(int i=0;i<hadPair.numPairs;i++)
 	{
@@ -221,10 +237,13 @@ int main(int argc, char** argv)
 	}
 
       plotter.addHadPairArray(&hadPair, myEvent);
-      smearingPlotter.addSmearingEntry(&hadPair,&hadPairMC);
+      if(isMC!=mcFlagNone)
+	{
+	  smearingPlotter.addSmearingEntry(&hadPair,hadPairMC);
+	}
     }
-
-  smearingPlotter.saveSmearingMatrix();
+  if(isMC!=mcFlagNone)
+    smearingPlotter.saveSmearingMatrix();
   if(chWoA)
     {
       Int_t neventsWoA=chWoA->GetEntries();

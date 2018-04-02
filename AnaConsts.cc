@@ -72,8 +72,12 @@ namespace cuts
     float min2H_Z=0.2;
   //float min2H_Z=0.0;
   //    float minCosTheta=-0.6; //barrell region?
-  float minCosTheta=-1000; //take all
-  float maxCosTheta=100000; //take all
+  //  float minCosTheta=-1000; //take all
+  //  float maxCosTheta=100000; //take all
+  float minCosTheta=-0.511; //cuts for Martin's PID
+  float maxCosTheta=0.842; //cuts for Martin's PID
+
+  float minPLab=0.5; //for Martin's PID
 
   //these angles correspond to eta of -1.32 to 1.9 in the lab system. Since eta is linear under boosts we can use that to have reasonable cuts on the thrust theta
   //if we assume a jet cone of 2*0.3 (very generous, half of that should be sufficient): 23 deg / 140 deg

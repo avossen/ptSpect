@@ -20,6 +20,9 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+
+  bool m_useQt=true;
+
   vector<string> flavor;
 
   //  flavor.push_back("_uds");
@@ -121,7 +124,8 @@ int main(int argc, char** argv)
       Int_t nevents=chAll->GetEntries();
       cout <<"Plotter Name: " << *it<<endl;
       string fullName=(*it)+string(dataMcNameAdd)+(*itFlav);
-      MultiPlotter* pPlotter=new MultiPlotter(fullName.c_str(),string(""),0,false,false,false,false);
+      //I guess this doesn't need an output path
+      MultiPlotter* pPlotter=new MultiPlotter(m_useQt,const_cast<char*>(""),fullName.c_str(),string(""),0,false,false,false,false);
 
       cout <<" setting plotter name to:" << fullName <<endl;
       pPlotter->setName(fullName);
@@ -230,7 +234,7 @@ int main(int argc, char** argv)
 	      cout <<"kt bins before : ";
 	      for(int i=0;i<10;i++)
 		{
-		  cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
+		  cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" uncertainties: "<< pPlotter->plotResults[plotResults->resultIndex].kTUncertainties[i]<<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
 		  cout <<"  rhs mean: " << plotResults->kTMeans[i] <<" ";
 		}
 	    }
@@ -241,7 +245,7 @@ int main(int argc, char** argv)
 	      //	      cout <<"and then...  ";
 	      for(int i=0;i<10;i++)
 		{
-		  cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
+		  cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" uncertainties "<< pPlotter->plotResults[plotResults->resultIndex].kTUncertainties[i] <<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
 	    }
 	      cout <<endl;
 	    }
@@ -254,13 +258,16 @@ int main(int argc, char** argv)
       //      for(int c=0;c<MultiPlotter::NumCharges;c++)
       TCanvas cnvs;
       //z1_z2 binning (b==0) and onlyZ
-      for(int b=0;b<2;b++)
+      //      for(int b=0;b<2;b++)
+       for(int b=0;b<1;b++)
 	{
 
       for(int c=0;c<2;c++)
 	{
-	  for(int p=0;p<9;p++)
-	  //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
+	  //just do the pik
+	  //	  for(int p=0;p<9;p++)
+	  for(int p=1;p<2;p++)
+	    //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
 	    {
 	      char buffer[500];
 	      sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
@@ -293,19 +300,18 @@ int main(int argc, char** argv)
 	      cnvs.SaveAs(buffer);
 	      TH1D** d=new (TH1D*);
 
-	      //	       TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+	      //no unfolding for now
+	      TH1D* output=(TH1D*)combinedHisto->Clone("sth");
+	      //TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
 	      //for closure test, bini is output....
 	      //	      for(int t=0;t<combinedHisto->GetNbinsX();t++)
 	      //		{
 	      //		  combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1)+1);
 	      //		}
-	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,bini,d);
+	      //	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,bini,d);
 	      output->Draw();
 	      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 	      cnvs.SaveAs(buffer);
-
-
-
 
 	      //	      (*d)->Draw();
 	      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
@@ -316,7 +322,8 @@ int main(int argc, char** argv)
 	      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,b,c,p,"mcOut");
 	      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,b,c,p,"dataUnfold");
 	      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,b,c,p,"dataInput");
-	      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(output,b,c,p,"dataInput");
+	      //    TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(output,b,c,p,"allDataInput");
+	      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"allDataInput");
 
 
 
@@ -349,9 +356,14 @@ int main(int argc, char** argv)
 		  sepKtZHistosDataInput[iZ]->SetMarkerColor(kBlack);
 		  sepKtZHistos[iZ]->SetMarkerColor(kBlue);
 		  sepKtZHistos[iZ]->SetMarkerStyle(23);
+
+
+		  //		  		  sepKtZHistos[iZ]->Draw("A P  E1");
+		  //		  		  sepKtZHistos_mcInput[iZ]->Draw("SAME P E1");
+		  sepKtZHistos[iZ]->Draw("SAME P  E1");
 		  sepKtZHistos_mcInput[iZ]->Draw("A P E1");
 		  sepKtZHistos_mcOutput[iZ]->Draw("SAME P E1");		  
-		  sepKtZHistos[iZ]->Draw("SAME P  E1");
+
 		  sepKtZHistosDataInput[iZ]->Draw("SAME P  E1");
 		  pad->Update();
 		  Double_t x1,x2,y1,y2;

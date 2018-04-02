@@ -40,7 +40,7 @@ saving to root trees
 //#define NUM_F_FIELDS 22 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //#define NUM_F_FIELDS 25 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 ////-->with the jet stuff, subtract 8
-#define NUM_F_FIELDS 15 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
+#define NUM_F_FIELDS 16 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //6-->10 with the genIds..
 #define NUM_I_FIELDS 6
 
@@ -82,8 +82,10 @@ public:
   void fillWPairData(vector<HadronPair*>& vecHadronPairs,EventInfo& evtInfo)
     {
 #ifdef MC
+
       //      cout <<" gi.fillInf" <<endl;
-      gi.fillInf();
+      //do this now in ptSpect.cc for every event, if we save it here or not
+      //      gi.fillInf();
       //      cout <<" gi done " <<endl;
       //      if(sgn(gi.cmThrust.z())!=sgn(kinematics::thrustDirCM.z()))
 
@@ -477,6 +479,23 @@ public:
 	      dataF.push_back(pair->kT_PPi);
 	      dataF.push_back(pair->kT_PK);	  
 	      dataF.push_back(pair->kT_PP);
+
+
+	      dataF.push_back(pair->qT_PiPi);
+	      dataF.push_back(pair->qT_PiK);	  
+	      dataF.push_back(pair->qT_PiP);
+
+
+	      dataF.push_back(pair->qT_KPi);
+	      dataF.push_back(pair->qT_KK);	  
+	      dataF.push_back(pair->qT_KP);
+	      
+	      
+	      dataF.push_back(pair->qT_PPi);
+	      dataF.push_back(pair->qT_PK);	  
+	      dataF.push_back(pair->qT_PP);
+
+
 	      
 	      
 	      dataF.push_back(pair->z1_Pi);
@@ -536,8 +555,10 @@ public:
 			  
 			 	  
 	  //haven't added qT_mc yet, so don't include if mcPart
-	  if(!mcPart)
+	  //	  if(!mcPart)// added now
 	    dataF.push_back(pair->qT);
+
+
 	  //	  cout <<"charge: " << vecHQ->hadCharge <<endl;
 
 
@@ -638,6 +659,15 @@ public:
 
     }
 
+
+  void saveGenInfo()
+  {
+#ifdef MC
+    gi.fillInf();
+    gi.doAll();
+#endif
+  }
+
   //my guess as to what is going on here:
   //  dataF, dataI is the event only data (these arrays where deleted before handed to the event-fill function), offset is where the single fields start
   void saveData(vector<float>& dataF, vector<int>& dataI, int offset)
@@ -685,7 +715,9 @@ public:
     //    cout <<"before mc" <<endl;
 #ifdef MC
     //    cout <<"doAll" <<endl;
-    gi.doAll();
+    //maybe this should be done independently from the question if we save an event within the acceptance or not
+    //now extra function save gen info, so it is done independently
+    //        gi.doAll();
 #else
 
 #endif 

@@ -64,6 +64,11 @@ using namespace std;
 #define D0Lower  D0Mass-D0Width
 #define D0Upper  D0Mass+D0Width
 
+
+#define ThrustMethod
+//#define noPID
+//#define dataOnlyPID
+
 #include <cmath>
 //for thrust etc.
 //strange: including this file in front of toolbox: thrust is not found anymore... (maybe "using belle namespace" a problem??)
@@ -190,11 +195,11 @@ namespace Belle {
 		pidMatrixNegative[i][j][k]=new float[numPIDs];
 		for(int l=0;l<numPIDs;l++)
 		  {
-		    //here we should load Martin's matrices
+		    //this will be overwritten by Martin's matrices. So set this to zero so we realize that we loaded incorrect values..
 		    if(k==l)
 		      {
-			pidMatrixPositive[i][j][k][l]=1.0;
-			pidMatrixNegative[i][j][k][l]=1.0;
+			pidMatrixPositive[i][j][k][l]=0.0;
+			pidMatrixNegative[i][j][k][l]=0.0;
 		      }
 		  }
 	      }
@@ -323,14 +328,43 @@ namespace Belle {
     pTreeSaver->addArrayF("kT_PK");
     pTreeSaver->addArrayF("kT_PP");
 
+    pTreeSaver->addArrayF("qT_PiPi");
+    pTreeSaver->addArrayF("qT_PiK");
+    pTreeSaver->addArrayF("qT_PiP");
 
-    pTreeSaver->addArrayF("z1_Pi");
-    pTreeSaver->addArrayF("z1_K");
-    pTreeSaver->addArrayF("z1_P");
+    pTreeSaver->addArrayF("qT_KPi");
+    pTreeSaver->addArrayF("qT_KK");
+    pTreeSaver->addArrayF("qT_KP");
 
-    pTreeSaver->addArrayF("z2_Pi");
-    pTreeSaver->addArrayF("z2_K");
-    pTreeSaver->addArrayF("z2_P");
+
+    pTreeSaver->addArrayF("qT_PPi");
+    pTreeSaver->addArrayF("qT_PK");
+    pTreeSaver->addArrayF("qT_PP");
+
+
+
+
+
+
+    pTreeSaver->addArrayF("z1_PiPi");
+    pTreeSaver->addArrayF("z1_PiK");
+    pTreeSaver->addArrayF("z1_PiP");
+    pTreeSaver->addArrayF("z1_KPi");
+    pTreeSaver->addArrayF("z1_KK");
+    pTreeSaver->addArrayF("z1_KP");
+    pTreeSaver->addArrayF("z1_PPi");
+    pTreeSaver->addArrayF("z1_PK");
+    pTreeSaver->addArrayF("z1_PP");
+
+    pTreeSaver->addArrayF("z2_PiPi");
+    pTreeSaver->addArrayF("z2_PiK");
+    pTreeSaver->addArrayF("z2_PiP");
+    pTreeSaver->addArrayF("z2_KPi");
+    pTreeSaver->addArrayF("z2_KK");
+    pTreeSaver->addArrayF("z2_KP");
+    pTreeSaver->addArrayF("z2_PPi");
+    pTreeSaver->addArrayF("z2_PK");
+    pTreeSaver->addArrayF("z2_PP");
 
 
 
@@ -359,6 +393,7 @@ namespace Belle {
     pTreeSaver->addArrayF("qT");
 
 
+
     //important that first all arrays are defined, F, than I 
 #ifdef MC
     pTreeSaver->addArrayF("z1_mc");
@@ -380,6 +415,7 @@ namespace Belle {
     pTreeSaver->addArrayF("kT_mc");
     pTreeSaver->addArrayF("HadDiffTheta_mc");
     pTreeSaver->addArrayF("HadDiffPhi_mc");
+    pTreeSaver->addArrayF("qT_mc");
 
 #endif
     //!!!! this charge type is in principle worthless, look at the charges of the hadrons!!-->change this to likesign and unlikesign
@@ -491,7 +527,7 @@ namespace Belle {
     kinematics::runNr=runNr;
     kinematics::evtNr=evtNr;
 
-    //    cout <<"--> run = " << runNr <<" evtNr = "  <<evtNr <<endl;
+    //    cout <<endl<<"--> run = " << runNr <<" evtNr = "  <<evtNr <<endl;
     //    cout <<" --> exp = " << " run = " << runNr << " event = " << evtNr <<endl;
     if(!IpProfile::usable())
       return;
@@ -555,6 +591,13 @@ namespace Belle {
     //   cout <<"chargedTracks: " << mdst_chr_Mgr.size() <<" num Trk: " << mdst_trk_Mgr.size() <<" klong: " << mdst_klong_Mgr.size() <<endl;
 
     //    cout <<"there are " << mdst_chr_Mgr.size() << " charge tracks in mdst_chr " <<endl;
+
+
+    //
+    //saves generator level pairs in MC (doesn't do anything for no MC)
+    pTreeSaver->saveGenInfo();
+
+
     for(Mdst_charged_Manager::iterator chr_it=mdst_chr_Mgr.begin();chr_it!=mdst_chr_Mgr.end();chr_it++)
       {
 	if(!enoughSVDHits(chr_it))
@@ -564,7 +607,7 @@ namespace Belle {
 	double m_theta=0;
 	double m_phi=0;
 	double m_qt=0;
-	double m_z[5]={0,0,0,0,0};
+	double m_z[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	double charge=(*chr_it).charge();
 	///we take all (and the name doesn't really matter, so make this pion default)
 	//	strcpy(ptypName,"unknown");
@@ -594,12 +637,9 @@ namespace Belle {
 	  {
 	    //	    cout <<"pid kpi: " << atcKPiAlt <<" pid KP: " << atcKPAlt << " e_id: " << e_id << " mu_id: " << mu_id <<endl;
 	  }
-
-
 	bool isLepton=false;
 	bool isPionKaon=false;
 	bool isProton=false;
-      
 	//	cout <<"e id: "<< e_id <<" mu id: "<< mu_id << endl;
 	if(e_id>e_cut&& mu_id<0.9)
 	  {
@@ -738,7 +778,10 @@ namespace Belle {
 	getDrDz(chr_it, massHyp,dr,dz, refitPx, refitPy, refitPz);
 	v_vertexR.push_back(dr);
 	v_vertexZ.push_back(dz);
-
+	Hep3Vector h3Vect(refitPx,refitPy,refitPz);
+	////
+	float labMom=h3Vect.mag();
+	//	cout <<"track with " << labMom << " momentum " <<endl;
 	///
 	//      cout <<"looking at " <<(*chr_it).p(0) <<" " << (*chr_it).p(1) <<" " << (*chr_it).p(2) <<endl;
 	if ( fabs(dr) > cuts::vertexR )//slides from kibayashi 
@@ -752,6 +795,7 @@ namespace Belle {
 	  }
 	if ( fabs(dz) > cuts::vertexZ ) 
 	  {
+
 	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	      {
 		//cout <<"dz cut: " << fabs(dz) <<endl;
@@ -767,16 +811,13 @@ namespace Belle {
 	//		cout <<" to: "<< refitPx << " " << refitPy <<" " << refitPz <<endl;
 	
 	//		Hep3Vector h3Vect((*chr_it).p(0),(*chr_it).p(1),(*chr_it).p(2));
-		Hep3Vector h3Vect(refitPx,refitPy,refitPz);
-	////
-		float labMom=h3Vect.mag();
-		double E[5];
-		for(int i=0;i<5;i++)
-		  {
-		    E[i]=sqrt(masses[i]*masses[i]+h3Vect.mag2());
+	double E[5];
+	for(int i=0;i<5;i++)
+	  {
+	    E[i]=sqrt(masses[i]*masses[i]+h3Vect.mag2());
 		  }
-		HepLorentzVector nonBoostedVec[5];
-		HepLorentzVector boostedVec[5];
+	HepLorentzVector nonBoostedVec[5];
+	HepLorentzVector boostedVec[5];
 	for(int i=0;i<5;i++)
 	  {
 	    nonBoostedVec[i]=HepLorentzVector(h3Vect,E[i]);
@@ -790,6 +831,7 @@ namespace Belle {
 
 	if(h3Vect.perp()<cuts::minPtThrust)
 	  {
+
 	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	      {
 		//	      cout <<"removing pt=: " << h3Vect.perp() <<endl;
@@ -809,7 +851,10 @@ namespace Belle {
 
 
 	if(m_z[massHyp]<cuts::minZThrust)
-	  continue;
+	  {
+
+	    continue;
+	  }
 	if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	  {
 	    //	  cout <<"adding charged track: " << boostedVec.x() <<" y: " << boostedVec.y() << " z: " << boostedVec.z() << " e: " << boostedVec.e() <<endl;
@@ -860,15 +905,19 @@ namespace Belle {
 	////// To use the PID unfolding we also have to save leptons and protons
 	/////
 
-
-
 	if(m_z[massHyp]<cuts::minZ)
 	  {
 	    //	    cout <<"didn't pass min z...: "<< m_z <<", energy: " << boostedVec.e()<<endl;
 	    continue;
 	  }
+	if(labMom<cuts::minPLab)
+	  {
+
+	    continue;
+	  }
 	if(cos(h3Vect.theta())<cuts::minCosTheta||cos(h3Vect.theta())>cuts::maxCosTheta)
 	  {
+
 	    if(DEBUG_EVENT==evtNr)
 	      {
 		//		cout << "CUT cos theta: " << cos(h3Vect.theta()) <<"charge: " << charge <<endl;
@@ -897,7 +946,11 @@ namespace Belle {
 	////need to set the PID matrices
 	pinf.labTheta=h3Vect.theta();
 
-	setHadronPIDProbs(&pinf, labMom);
+	if(setHadronPIDProbs(&pinf, labMom)<0)
+	  {
+	    exitEvent();
+	    return;
+	  }
 
 	pinf.cmsTheta=boostedVec[massHyp].theta();
 	//	cout <<"theta lab:" << h3Vect.theta() <<"cms: "<< boostedVec.theta()<<endl;
@@ -1214,13 +1267,6 @@ namespace Belle {
 //      }
 //
 
-
-
-
-
-
-
-
     Thrust t=thrustall(allParticlesBoosted.begin(),allParticlesBoosted.end(),retSelf);
     Thrust labThrust=thrustall(allParticlesNonBoosted.begin(),allParticlesNonBoosted.end(),retSelf);
     ///jet computations:
@@ -1432,7 +1478,11 @@ namespace Belle {
     //////////
 
     setParticleProperties();
+#ifdef ThrustMethod
+    findHadronPairsThrust();
+#else
     findHadronPairs();
+#endif
 
 #ifdef SAVE_HISTOS
     saveHistos(allParticlesBoosted, allParticlesNonBoosted);
@@ -1696,7 +1746,7 @@ namespace Belle {
 	      }
 
 	  }
-	else//particle is in the other hemisphere
+	else//particle is in the other hemisphee
 	  {
 	    if((*it)->pType().charge()!=0)
 	      {
@@ -1709,7 +1759,151 @@ namespace Belle {
       }
   }
 
+  //don't use thrust to make the pairs
+  //we have the hadrons in two sets (first hemi, second hemi) which are meaningless for this application
+  // so we can either put them in the same and then do all combinations 
+  //it should be the same to do all combinations of the first with the second and then the first with the first and the second with the second
+  //probably (hopefully)  get teh similar result by just running over v_allParticles
   void ptSpect::findHadronPairs()
+  {
+  for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
+      {
+ 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
+	for(vector<Particle*>::const_iterator it2=v_secondHemi.begin();it2!=v_secondHemi.end();it2++)
+	  {
+	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
+	    //not back to back according to thrustless definition (note that being in first and second hemisphere is not necessarily enough
+	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+	    bool acceptPair=false;
+	      for(int i=0;i<5;i++)
+		{
+		  for(int j=0;j<5;j++)
+		    {
+		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+			acceptPair=true;
+		    }
+		}
+
+	      if(!acceptPair)
+		continue;
+	    //now unknowns...
+	    HadronPair* hp=new HadronPair();
+	    HadronPair* hp2=new HadronPair();
+	    hp2->secondRun=true;
+	    hp->firstHadron=*it;
+	    hp->secondHadron=*it2;
+
+	    hp2->firstHadron=*it2;
+	    hp2->secondHadron=*it;
+	    
+		//	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+	    hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
+	    //	  cout <<"R1: " << hp->phiR<<endl;
+	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
+	    hp->compute();
+	    hp2->compute();
+	    v_hadronPairs.push_back(hp);
+	    v_hadronPairs.push_back(hp2);
+	  }
+      }  
+  //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
+  for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
+      {
+ 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
+	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
+	  {
+	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
+
+	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+	    bool acceptPair=false;
+	      for(int i=0;i<5;i++)
+		{
+		  for(int j=0;j<5;j++)
+		    {
+		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+			acceptPair=true;
+		    }
+		}
+
+	      if(!acceptPair)
+		continue;
+	      //at least one mass hypothesis is fine
+	    //now unknowns...
+		HadronPair* hp=new HadronPair();
+		HadronPair* hp2=new HadronPair();
+		hp2->secondRun=true;
+
+		hp->firstHadron=*it;
+		hp->secondHadron=*it2;
+
+		hp2->firstHadron=*it2;
+		hp2->secondHadron=*it;
+		
+		//	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+		hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
+	    //	  cout <<"R1: " << hp->phiR<<endl;
+	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
+		hp->compute();
+		hp2->compute();
+		v_hadronPairs.push_back(hp);
+		v_hadronPairs.push_back(hp2);
+	  }
+      }  
+  //  cout <<v_hadronPairs.size() <<" pairs after first with first" <<endl;
+  for(vector<Particle*>::const_iterator it=v_secondHemi.begin();it!=v_secondHemi.end();it++)
+      {
+ 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
+	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_secondHemi.end();it2++)
+	  {
+	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
+
+	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+	    bool acceptPair=false;
+	      for(int i=0;i<5;i++)
+		{
+		  for(int j=0;j<5;j++)
+		    {
+		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+			acceptPair=true;
+		    }
+		}
+
+	      if(!acceptPair)
+		continue;
+
+	    //now unknowns...
+		HadronPair* hp=new HadronPair();
+		HadronPair* hp2=new HadronPair();
+		hp2->secondRun=true;
+
+		hp->firstHadron=*it;
+		hp->secondHadron=*it2;
+
+		hp2->firstHadron=*it2;
+		hp2->secondHadron=*it;
+		
+		//	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+		hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
+	    //	  cout <<"R1: " << hp->phiR<<endl;
+	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
+		hp->compute();
+		hp2->compute();
+
+		v_hadronPairs.push_back(hp);
+		v_hadronPairs.push_back(hp2);
+	  }
+      }  
+  //  cout <<v_hadronPairs.size() <<" pairs after second with second" <<endl;
+
+  }
+
+  void ptSpect::findHadronPairsThrust()
   {
     int  evtNr=Belle_event_Manager::get_manager().begin()->EvtNo();
 
@@ -1731,16 +1925,26 @@ namespace Belle {
 
 	    //now unknowns...
 	    HadronPair* hp=new HadronPair();
+	    HadronPair* hp2=new HadronPair();
+	    hp->thrustMethod=true;
+	    hp2->thrustMethod=true;
 	    hp->firstHadron=*it;
 	    hp->secondHadron=*it2;
 
+	    hp2->firstHadron=*it2;
+	    hp2->secondHadron=*it;
+
+
 	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
 	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+	    hp2->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
 	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
 	    //	  cout <<"R1: " << hp->phiR<<endl;
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
 	    hp->compute();
+	    hp2->compute();
 	    v_hadronPairs.push_back(hp);
+	    v_hadronPairs.push_back(hp2);
 	  }
       }
 
@@ -2907,18 +3111,23 @@ namespace Belle {
 	  }
 
       }
-
     return false;
   }
-  void ptSpect::setHadronPIDProbs(ParticleInfo* info, float mom)
+
+  int ptSpect::setHadronPIDProbs(ParticleInfo* info, float mom)
   {
     //    cout <<"pb+1 " << pb+1 <<" phb+1: "<< thb+1 <<endl;
     //    cout <<"getting mombin for mom: " << mom <<endl;
     int momBin=getBin(plabb,pb+1,mom);
     //    cout <<"getting mombin for theta: " << info->labTheta <<endl;
-    int thetaBin=getBin(costhetab,thb+1,info->labTheta);
-    //probability for each mass hyposthesis
+    int thetaBin=getBin(costhetab,thb+1,cos(info->labTheta));
 
+    //lowest bin is the border..
+    thetaBin--;
+    momBin--;
+    //    cout <<" plab: " << mom<<" bin: " << momBin <<" cosTheta: "<< cos(info->labTheta) <<"/bin " << thetaBin << " charge: " << info->charge <<endl;
+    //probability for each mass hyposthesis
+    //    cout <<"mom: " << mom << " bin: " << momBin <<" that: " << info->labTheta <<" bin: "<< thetaBin <<endl;
     int idAs=info->idAs;
     //    cout <<" set hadron pid probs idAs: " << idAs <<" thetaBin: "<< thetaBin << " momBin: "<< momBin <<endl;
     for(int hypo=0;hypo<5;hypo++)
@@ -2927,14 +3136,22 @@ namespace Belle {
 	if(info->charge > 0)
 	  {
 	    //we don't have matrices for everything
-	    if(thetaBin>=0 && momBin>=0){
+	    if((thetaBin>=0 && momBin>=0) && mom >0.5){
+
 	      info->pidProbabilities[hypo]=pidMatrixPositive[momBin][thetaBin][hypo][idAs];
+	      //	           cout <<"hypothesis: " << hypo <<" weight: "<< info->pidProbabilities[hypo] <<endl;
+	      if(fabs(info->pidProbabilities[hypo])>10000)
+		{
+		  return -1;
+		  //info->pidProbabilities[
+		  //		return -1;
+		}
 	      //	      cout <<"pid probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
 	    }
 	    else
 	      {
 		if(idAs==hypo)
-		  info->pidProbabilities[hypo]=1.0;
+		  info->pidProbabilities[hypo]=0.0;
 		else
 		  info->pidProbabilities[hypo]=0.0;
 	      }
@@ -2942,20 +3159,20 @@ namespace Belle {
 	  }
 	else
 	  {
-	    if(thetaBin>=0 && momBin>=0){
+	    if((thetaBin>=0 && momBin>=0) && mom >0.5){
 	      //	      cout <<"pid neg probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
-	      info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	    
+	      info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	
+	      //	      cout <<"hypothesis: " << hypo <<" weight: "<< info->pidProbabilities[hypo] <<endl;    
+	      if(fabs(info->pidProbabilities[hypo])>10000)
+		return -1;
 	    }
 	   else
 	      {
 		if(idAs==hypo)
-		  info->pidProbabilities[hypo]=1.0;
+		  info->pidProbabilities[hypo]=0.0;
 		else
 		  info->pidProbabilities[hypo]=0.0;
 	      }
-
-
-
 	  }
       }
     info->p_Pi=info->pidProbabilities[pionIdx];
@@ -2965,6 +3182,7 @@ namespace Belle {
 
     info->p_e=info->pidProbabilities[electronIdx];
     info->p_mu=info->pidProbabilities[muonIdx];
+    return 1;
     //    cout <<"p_Pi " << info->p_Pi <<" p_K: " << info->p_K <<" p_p: "<< info->p_p << " p_e " << info->p_e <<" p_mu : " << info->p_mu <<endl;
   }
 
@@ -2974,8 +3192,15 @@ namespace Belle {
 
 
     //   TFile* fpid = new TFile("newpid.root","read");
-   TFile* fpid = new TFile("invertedpidmatrices_setb061810I_inv1_MConlyatlooseends.root","read");
+#ifdef dataOnlyPID
+             TFile* fpid = new TFile("~vossen/myProjects/ptSpect/invertedpidmatrices_setb061810I_inv2_realdataalways.root","read");
+#else
+           TFile* fpid = new TFile("~vossen/myProjects/ptSpect/invertedpidmatrices_setb061810I_inv1_MConlyatlooseends.root","read");
+#endif
+
    char matrix_name[300];
+   char uncert_minus_name[300];
+   char uncert_plus_name[300];
    if (fpid->IsZombie()) {
      printf("File code.root does not exist.\n");
      return;
@@ -2987,6 +3212,8 @@ namespace Belle {
      for (Int_t w = 0; w < 2; w++){
        //w is charge ( 0  negative, 1 positive);
       sprintf(matrix_name,"invanalyticmatrix_u%d_v%d_w%d",u,v,w); // invanalyticmatrix_u16_v0_w0 does not exists!!! 
+      sprintf(uncert_plus_name,"invuncertrejplmatrix_u%d_v%d_w%d",u,v,w); 
+      sprintf(uncert_minus_name,"invuncertrejmimatrix_u%d_v%d_w%d",u,v,w); 
                                                                 //u16 starts from v3 (invanalyticmatrix_u16_v3_w0)
                                                                   // corresponds to z > 1 (smearing?) additional uncertainties would be 1-2
     // up to 9 July 2015! int k= u*8*2+v*2+w; using 8 instead of 9!
@@ -2994,16 +3221,33 @@ namespace Belle {
      if(u<16 || v>2 ){
        //       cout <<" u:  " << u << " v: " << v << " w: " << w <<endl;
        TMatrixD mat = *(TMatrixD*)fpid->Get(matrix_name);
+       TMatrixD matUncertPos = *(TMatrixD*)fpid->Get(uncert_plus_name);
+       TMatrixD matUncertNeg = *(TMatrixD*)fpid->Get(uncert_minus_name);
        for (Int_t i = 0; i <= 4; i++)
          for (Int_t j = 0; j <= 4; j++){
+	   //	   cout <<"pos uncert: " << matUncertPos(i,j) <<" neg: "<< matUncertNeg(i,j) <<endl;
 	   if(w==1)
 	     {
-	       pidMatrixPositive[u][v][i][j]=mat(i,j);
+#ifdef noPID
+	       	       if(i==j)
+	       		 pidMatrixPositive[u][v][i][j]=1;
+	       	       else
+	       		 pidMatrixPositive[u][v][i][j]=0;
+#else
+	                    pidMatrixPositive[u][v][i][j]=mat(i,j);
+#endif
 	     //	     cout <<"loading positive "<< i <<", " << j << " "  << mat(i,j) <<endl;
 	     }
 	   else
 	     {
+#ifdef noPID
+	       if(i==j)
+		 pidMatrixNegative[u][v][i][j]=1;
+	       else
+		 pidMatrixNegative[u][v][i][j]=0;
+#else
 	       pidMatrixNegative[u][v][i][j]=mat(i,j);
+#endif
 	     //	     cout <<"loading negative " << i << ", " << j << " "  << mat(i,j) <<endl;
 	     }
 
