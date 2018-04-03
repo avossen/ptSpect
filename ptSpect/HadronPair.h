@@ -85,13 +85,32 @@ class HadronPair
   double qT_PK;
   double qT_PP;
 
-  float z1_Pi;
-  float z1_K;
-  float z1_P;
+  float z1_PiPi;
+  float z1_PiK;
+  float z1_PiP;
 
-  float z2_Pi;
-  float z2_K;
-  float z2_P;
+  float z1_KPi;
+  float z1_KK;
+  float z1_KP;
+
+  float z1_PPi;
+  float z1_PK;
+  float z1_PP;
+
+  float z2_PiPi;
+  float z2_PiK;
+  float z2_PiP;
+
+  float z2_KPi;
+  float z2_KK;
+  float z2_KP;
+
+
+  float z2_PPi;
+  float z2_PK;
+  float z2_PPi;
+
+
 
 
   //only for mc
@@ -259,15 +278,34 @@ class HadronPair
       //      cout <<"rsum boosted: "<< RSumBoosted.vect() << " r1 boosted: "<< R1Boosted.vect() <<" r2: " << R2Boosted.vect() <<endl;
       //      ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
       //      ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
-      z1=pinf1.z[0];
-      z2=pinf2.z[0];
+      z1=pinf1.z[pionIdx];
+      z2=pinf2.z[pionIdx];
 
-      z1_Pi=pinf1.z[0];
-      z2_Pi=pinf2.z[0];
-      z1_K=pinf1.z[1];
-      z2_K=pinf2.z[1];
-      z1_P=pinf1.z[2];
-      z2_P=pinf2.z[2];
+      ;
+      //  float getZ(ParticleInfo& pinf1, int massIndex1, ParticleInfo& pinf2, int massIndex2,Hep3Vector& q)
+      z1_PiPi=getZ(pinf1,pionIdx,pinf2,pionIdx,vPhoton.vect());
+      z1_PiK=getZ(pinf1,pionIdx,pinf2,kaonIdx,vPhoton.vect());
+      z1_PiP=getZ(pinf1,pionIdx,pinf2,protonIdx,vPhoton.vect());
+
+      z2_PiPi=getZ(pinf2,pionIdx,pinf1,pionIdx,vPhoton.vect());
+      z2_PiK=getZ(pinf2,pionIdx,pinf1,kaonIdx,vPhoton.vect());
+      z2_PiP=getZ(pinf2,pionIdx,pinf1,protonIdx,vPhoton.vect());
+
+      z1_KPi=getZ(pinf1,kaonIdx,pinf2,pionIdx,vPhoton.vect());
+      z1_KK=getZ(pinf1,kaonIdx,pinf2,kaonIdx,vPhoton.vect());
+      z1_KP=getZ(pinf1,kaonIdx,pinf2,protonIdx,vPhoton.vect());
+
+      z2_KPi=getZ(pinf2,kaonIdx,pinf1,pionIdx,vPhoton.vect());
+      z2_KK=getZ(pinf2,kaonIdx,pinf1,kaonIdx,vPhoton.vect());
+      z2_KP=getZ(pinf2,kaonIdx,pinf1,protonIdx,vPhoton.vect());
+
+      z1_PPi=getZ(pinf1,protonIdx,pinf2,pionIdx,vPhoton.vect());
+      z1_PK=getZ(pinf1,protonIdx,pinf2,kaonIdx,vPhoton.vect());
+      z1_PP=getZ(pinf1,protonIdx,pinf2,protonIdx,vPhoton.vect());
+
+      z2_PPi=getZ(pinf2,protonIdx,pinf1,pionIdx,vPhoton.vect());
+      z2_PK=getZ(pinf2,protonIdx,pinf1,kaonIdx,vPhoton.vect());
+      z2_PP=getZ(pinf2,protonIdx,pinf1,protonIdx,vPhoton.vect());
 
       z=z1+z2;
       double E1,E2;
@@ -292,6 +330,17 @@ class HadronPair
       hadPType=getTwoHadType(hadPType1,hadPType2);
       //        cout <<"and now we set the type to : " << hadPType <<endl;
       computePIDWeights();
+
+  }
+
+  //get z according to new definition
+  float getZ(ParticleInfo& pinf1, int massIndex1, ParticleInfo& pinf2, int massIndex2,Hep3Vector& q)
+  {
+    float momProduct=pinf1.boostedMoms[massIndex1].dot(pinf2.boostedMoms[massIndex2]);
+    float firstTerm=(momProduct-kinematics::masses[massIndex1]*kinematics::masses[massIndex1]*kinematics::masses[massIndex2]*kinematics::masses[massIndex]/momProduct);
+   float secondTerm=1.0/(pinf2.boostedMoms[massIndex2].dot(q)-kinematics::masses[massIndex2]*kinematics::masses[massIndex2]*pinf1.boostedMoms[massIndex1].dot(q)/(momProduct));
+    float z=firstTerm*secondTerm;
+    return z;
 
   }
 

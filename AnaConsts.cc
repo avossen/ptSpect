@@ -137,6 +137,7 @@ namespace kinematics
   Hep3Vector jet1;
   Hep3Vector jet2;
   Hep3Vector dijet[2];
+  float masses[5];
 
 
  float jetE1;

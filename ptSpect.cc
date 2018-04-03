@@ -181,6 +181,12 @@ namespace Belle {
     masses[muonIdx]=0.14;
     masses[kaonIdx]=0.5;
 
+    kinematics::masses[pionIdx]=masses[pionIdx];
+    kinematics::masses[protonIdx]=masses[protonIdx];
+    kinematics::masses[electronIdx]=masses[electronIdx];
+    kinematics::masses[muonIdx]=masses[muonIdx];
+    kinematics::masses[kaonIdx]=masses[kaonIdx];
+
     for(int i=0;i<numMomBins;i++)
       {
 	pidMatrixPositive[i]=new float**[numThetaBins];

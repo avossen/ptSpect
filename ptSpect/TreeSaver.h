@@ -498,13 +498,30 @@ public:
 
 	      
 	      
-	      dataF.push_back(pair->z1_Pi);
-	      dataF.push_back(pair->z1_K);
-	      dataF.push_back(pair->z1_P);
+	      dataF.push_back(pair->z1_PiPi);
+	      dataF.push_back(pair->z1_PiK);
+	      dataF.push_back(pair->z1_PiP);
 
-	      dataF.push_back(pair->z2_Pi);
-	      dataF.push_back(pair->z2_K);
-	      dataF.push_back(pair->z2_P);
+
+	      dataF.push_back(pair->z1_KPi);
+	      dataF.push_back(pair->z1_KK);
+	      dataF.push_back(pair->z1_KP);
+
+	      dataF.push_back(pair->z1_PPi);
+	      dataF.push_back(pair->z1_PK);
+	      dataF.push_back(pair->z1_PP);
+
+	      dataF.push_back(pair->z2_PiPi);
+	      dataF.push_back(pair->z2_PiK);
+	      dataF.push_back(pair->z2_PiP);
+
+	      dataF.push_back(pair->z2_KPi);
+	      dataF.push_back(pair->z2_KK);
+	      dataF.push_back(pair->z2_KP);
+
+	      dataF.push_back(pair->z2_PPi);
+	      dataF.push_back(pair->z2_PK);
+	      dataF.push_back(pair->z2_PP);
 	    }
 
 	  float labTheta1=dynamic_cast<ParticleInfo&>(pair->firstHadron->userInfo()).labTheta;

@@ -92,6 +92,8 @@ namespace kinematics
   extern float jetE1;
   extern float jetE2;
 
+  extern masses[5];
+
   extern int jetNumParts1;
   extern int jetNumParts2;
 
