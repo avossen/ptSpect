@@ -45,6 +45,7 @@ namespace cuts
   extern const float maxLabThrustCosTheta;
   extern const float minLabThrustCosTheta;
   extern const float minPLab;
+  extern const float maxPLab;
 
   extern const float barrelThetaMin;
   extern const float barrelThetaMax;

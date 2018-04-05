@@ -49,6 +49,7 @@ namespace cuts
       float minZ=0.05;//min z so that this particle is used in asymmetry extraction
   //    float minZ=0.1;//min z so that this particle is used in asymmetry extraction
   //float minZ=0.0;//min z so that this particle is used in asymmetry extraction
+
     float minThrust=0.3;
   //    float minThrust=0.0;
 
@@ -62,8 +63,8 @@ namespace cuts
   //   float minThrustProj=0.4;//too big lets theta around thrust peak at around 1 and cos decay theta at zero
    float minThrustProj=0.0;//no cut...
 
-  //    float maxThrustZ=0.75;//make sure that thrust doesn't point in the direction of the endcaps
-    float maxThrustZ=1.75;//make sure that thrust doesn't point in the direction of the endcaps
+      float maxThrustZ=0.75;//make sure that thrust doesn't point in the direction of the endcaps
+  //    float maxThrustZ=1.75;//make sure that thrust doesn't point in the direction of the endcaps
   //  float maxThrustZ=0.878; //this should be symmetric in CMS (obviously) and at least 0.3 in eta away from cdc border--> this is for +-1.37, so +-0.1
   //  float maxThrustZ=0.878; //this should be symmetric in CMS (obviously) and at least 0.3 in eta away from cdc border
   //  float maxThrustZ=0.79; //this is for eta+-1.07, allowing +- 0.4 on both sides
@@ -77,8 +78,10 @@ namespace cuts
   float minCosTheta=-0.511; //cuts for Martin's PID
   float maxCosTheta=0.842; //cuts for Martin's PID
 
-  float minPLab=0.5; //for Martin's PID
 
+
+  float minPLab=0.5; //for Martin's PID
+  float maxPLab=8.0;
   //these angles correspond to eta of -1.32 to 1.9 in the lab system. Since eta is linear under boosts we can use that to have reasonable cuts on the thrust theta
   //if we assume a jet cone of 2*0.3 (very generous, half of that should be sufficient): 23 deg / 140 deg
   // 2* 0.2 ( so 0.2 from the edge: 21/143  

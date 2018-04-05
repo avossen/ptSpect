@@ -854,11 +854,8 @@ namespace Belle {
 	  {
 	    //	  cout <<"charged z: " << m_z<<endl;
 	  }
-
-
 	if(m_z[massHyp]<cuts::minZThrust)
 	  {
-
 	    continue;
 	  }
 	if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
@@ -916,9 +913,8 @@ namespace Belle {
 	    //	    cout <<"didn't pass min z...: "<< m_z <<", energy: " << boostedVec.e()<<endl;
 	    continue;
 	  }
-	if(labMom<cuts::minPLab)
+	if(labMom<cuts::minPLab || labMom>cuts::maxPLab) 
 	  {
-
 	    continue;
 	  }
 	if(cos(h3Vect.theta())<cuts::minCosTheta||cos(h3Vect.theta())>cuts::maxCosTheta)
