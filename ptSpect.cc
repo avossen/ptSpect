@@ -948,6 +948,7 @@ namespace Belle {
 	  {
 	    pinf.z[i]=m_z[i];
 	    pinf.boostedMoms[i]=boostedVec[i].vect();
+	    pinf.boostedLorentzVec[i]=boostedVec[i];
 	  }
 	////need to set the PID matrices
 	pinf.labTheta=h3Vect.theta();

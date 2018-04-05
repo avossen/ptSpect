@@ -11,7 +11,7 @@ class ParticleInfo:public ParticleUserInfo
  public:
   //I don't think that these are actually used..
   double z[5];
-
+  HepLorentzVector boostedLorentzVec[5];
   Hep3Vector boostedMoms[5];
   //identified as
   int idAs;
