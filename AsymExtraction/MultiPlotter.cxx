@@ -895,61 +895,61 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
        {
        case PiPi:
 	 kTBin1=getBin(binningKt,hp1->kT_PiPi[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_Pi[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_Pi[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiPi[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiPi[i]);
 	 break;
 
        case PiK:
 	 kTBin1=getBin(binningKt,hp1->kT_PiK[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_Pi[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_K[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiK[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiK[i]);
 
 	 break;
 
        case PiP:
 	 kTBin1=getBin(binningKt,hp1->kT_PiP[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_Pi[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_P[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiP[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiP[i]);
 
 	 break;
        case KPi:
 	 kTBin1=getBin(binningKt,hp1->kT_KPi[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_K[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_Pi[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KPi[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KPi[i]);
 
 	 break;
 
        case KK:
 	 kTBin1=getBin(binningKt,hp1->kT_KK[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_K[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_K[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KK[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KK[i]);
 
 	 break;
 
        case KP:
 	 kTBin1=getBin(binningKt,hp1->kT_KP[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_K[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_P[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KP[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KP[i]);
 
 	 break;
        case PPi:
 	 kTBin1=getBin(binningKt,hp1->kT_PPi[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_P[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_Pi[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PPi[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PPi[i]);
 
 	 break;
 
        case PK:
 	 kTBin1=getBin(binningKt,hp1->kT_PK[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_P[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_K[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PK[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PK[i]);
 
 	 break;
 
        case PP:
 	 kTBin1=getBin(binningKt,hp1->kT_PP[i]);
-	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_P[i]);
-	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_P[i]);
+	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PP[i]);
+	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PP[i]);
 
 	 break;
 
@@ -1038,16 +1038,16 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       switch(p)
 	{
 	case PiPi:
-	  this->z1=hp->z1_Pi[i];
-	  this->z2=hp->z2_Pi[i];
+	  this->z1=hp->z1_PiPi[i];
+	  this->z2=hp->z2_PiPi[i];
 	  if(z1 < zCutPi || z2< zCutPi)
 	    continue;
 	  this->kT=hp->kT_PiPi[i];
 	  weight=hp->p_PiPi[i];
 	  break;
 	case PiK:
-	  this->z1=hp->z1_Pi[i];
-	  this->z2=hp->z2_K[i];
+	  this->z1=hp->z1_PiK[i];
+	  this->z2=hp->z2_PiK[i];
 
 	  if(z1 < zCutPi || z2< zCutPK)
 	    continue;
@@ -1056,32 +1056,32 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  //	  cout <<"adding weight: " << weight <<endl;
 	  break;
 	case PiP:
-	  this->z1=hp->z1_Pi[i];
-	  this->z2=hp->z2_P[i];
+	  this->z1=hp->z1_PiP[i];
+	  this->z2=hp->z2_PiP[i];
 	  if(z1 < zCutPi || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_PiP[i];
 	  weight=hp->p_PiP[i];
 	  break;
 	case KPi:
-	  this->z1=hp->z1_K[i];
-	  this->z2=hp->z2_Pi[i];
+	  this->z1=hp->z1_KPi[i];
+	  this->z2=hp->z2_KPi[i];
 	  if(z1 < zCutPK || z2< zCutPi)
 	    continue;
 	  this->kT=hp->kT_KPi[i];
 	  weight=hp->p_KPi[i];
 	  break;
 	case KK:
-	  this->z1=hp->z1_K[i];
-	  this->z2=hp->z2_K[i];
+	  this->z1=hp->z1_KK[i];
+	  this->z2=hp->z2_KK[i];
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_KK[i];
 	  weight=hp->p_KK[i];
 	  break;
 	case KP:
-	  this->z1=hp->z1_K[i];
-	  this->z2=hp->z2_P[i];
+	  this->z1=hp->z1_KP[i];
+	  this->z2=hp->z2_KP[i];
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_KP[i];
@@ -1089,16 +1089,16 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  break;
 
 	case PPi:
-	  this->z1=hp->z1_K[i];
-	  this->z2=hp->z2_Pi[i];
+	  this->z1=hp->z1_PPi[i];
+	  this->z2=hp->z2_PPi[i];
 	  if(z1 < zCutPK || z2< zCutPi)
 	    continue;
 	  this->kT=hp->kT_KPi[i];
 	  weight=hp->p_PPi[i];
 	  break;
 	case PK:
-	  this->z1=hp->z1_K[i];
-	  this->z2=hp->z2_K[i];
+	  this->z1=hp->z1_PK[i];
+	  this->z2=hp->z2_PK[i];
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_KK[i];
@@ -1106,9 +1106,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  weight=hp->p_PK[i];
 	  break;
 	case PP:
-	  this->z1=hp->z1_K[i];
-	  this->z2=hp->z2_P[i];
-	  this->kT=hp->kT_KP[i];
+	  this->z1=hp->z1_PP[i];
+	  this->z2=hp->z2_PP[i];
+	  this->kT=hp->kT_PP[i];
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
 	  weight=hp->p_PP[i];
