@@ -31,8 +31,8 @@ histogram define ${HBKFILE}
 %process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001602-b20090127_0910.mdst 10000
 
 
-process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/00/all/0127/continuum/07/evtgen-uds-00-all-e000055r000793-b20090127_0910.mdst 0
-
+%process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/00/all/0127/continuum/07/evtgen-uds-00-all-e000055r000793-b20090127_0910.mdst 0
+process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 1000
 
 output close
 terminate

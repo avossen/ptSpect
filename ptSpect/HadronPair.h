@@ -138,8 +138,6 @@ class HadronPair
   //get the QT based on the boosted vectors in the hadron pair. The boost will depend on the hadron type.
   float getQt(Hep3Vector& v1, Hep3Vector& v2, float z1, float z2)
   {
-
-
       HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
       HepLorentzVector vR1(v1,kinematics::Q*z1*0.5);
       HepLorentzVector vR2(v2,kinematics::Q*z2*0.5);
@@ -255,6 +253,7 @@ class HadronPair
     ///////---------
 
       HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
+      HepLorentzVector vPhoton2=kinematics::firstElectronCM+kinematics::secondElectronCM;
       HepLorentzVector vR1=firstHadron->p();
       HepLorentzVector vR2=secondHadron->p();
       if(vR1.vect().mag()==0 || vR2.vect().mag() ==0)
@@ -278,35 +277,37 @@ class HadronPair
       //      cout <<"rsum boosted: "<< RSumBoosted.vect() << " r1 boosted: "<< R1Boosted.vect() <<" r2: " << R2Boosted.vect() <<endl;
       //      ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
       //      ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
-      z1=pinf1.z[pionIdx];
-      z2=pinf2.z[pionIdx];
 
       ;
       //  float getZ(ParticleInfo& pinf1, int massIndex1, ParticleInfo& pinf2, int massIndex2,Hep3Vector& q)
       //Hep3Vector q=vPhoton.vect();
-      z1_PiPi=getZ(pinf1,pionIdx,pinf2,pionIdx,vPhoton);
-      z1_PiK=getZ(pinf1,pionIdx,pinf2,kaonIdx,vPhoton);
-      z1_PiP=getZ(pinf1,pionIdx,pinf2,protonIdx,vPhoton);
+      z1_PiPi=getZ(pinf1,pionIdx,pinf2,pionIdx,vPhoton2);
+      z1_PiK=getZ(pinf1,pionIdx,pinf2,kaonIdx,vPhoton2);
+      z1_PiP=getZ(pinf1,pionIdx,pinf2,protonIdx,vPhoton2);
 
-      z2_PiPi=getZ(pinf2,pionIdx,pinf1,pionIdx,vPhoton);
-      z2_PiK=getZ(pinf2,pionIdx,pinf1,kaonIdx,vPhoton);
-      z2_PiP=getZ(pinf2,pionIdx,pinf1,protonIdx,vPhoton);
+      z2_PiPi=getZ(pinf2,pionIdx,pinf1,pionIdx,vPhoton2);
+      z2_PiK=getZ(pinf2,pionIdx,pinf1,kaonIdx,vPhoton2);
+      z2_PiP=getZ(pinf2,pionIdx,pinf1,protonIdx,vPhoton2);
 
-      z1_KPi=getZ(pinf1,kaonIdx,pinf2,pionIdx,vPhoton);
-      z1_KK=getZ(pinf1,kaonIdx,pinf2,kaonIdx,vPhoton);
-      z1_KP=getZ(pinf1,kaonIdx,pinf2,protonIdx,vPhoton);
+      z1=z1_PiPi;
+      z2=z2_PiPi;
 
-      z2_KPi=getZ(pinf2,kaonIdx,pinf1,pionIdx,vPhoton);
-      z2_KK=getZ(pinf2,kaonIdx,pinf1,kaonIdx,vPhoton);
-      z2_KP=getZ(pinf2,kaonIdx,pinf1,protonIdx,vPhoton);
 
-      z1_PPi=getZ(pinf1,protonIdx,pinf2,pionIdx,vPhoton);
-      z1_PK=getZ(pinf1,protonIdx,pinf2,kaonIdx,vPhoton);
-      z1_PP=getZ(pinf1,protonIdx,pinf2,protonIdx,vPhoton);
+      z1_KPi=getZ(pinf1,kaonIdx,pinf2,pionIdx,vPhoton2);
+      z1_KK=getZ(pinf1,kaonIdx,pinf2,kaonIdx,vPhoton2);
+      z1_KP=getZ(pinf1,kaonIdx,pinf2,protonIdx,vPhoton2);
 
-      z2_PPi=getZ(pinf2,protonIdx,pinf1,pionIdx,vPhoton);
-      z2_PK=getZ(pinf2,protonIdx,pinf1,kaonIdx,vPhoton);
-      z2_PP=getZ(pinf2,protonIdx,pinf1,protonIdx,vPhoton);
+      z2_KPi=getZ(pinf2,kaonIdx,pinf1,pionIdx,vPhoton2);
+      z2_KK=getZ(pinf2,kaonIdx,pinf1,kaonIdx,vPhoton2);
+      z2_KP=getZ(pinf2,kaonIdx,pinf1,protonIdx,vPhoton2);
+
+      z1_PPi=getZ(pinf1,protonIdx,pinf2,pionIdx,vPhoton2);
+      z1_PK=getZ(pinf1,protonIdx,pinf2,kaonIdx,vPhoton2);
+      z1_PP=getZ(pinf1,protonIdx,pinf2,protonIdx,vPhoton2);
+
+      z2_PPi=getZ(pinf2,protonIdx,pinf1,pionIdx,vPhoton2);
+      z2_PK=getZ(pinf2,protonIdx,pinf1,kaonIdx,vPhoton2);
+      z2_PP=getZ(pinf2,protonIdx,pinf1,protonIdx,vPhoton2);
 
       z=z1+z2;
       double E1,E2;

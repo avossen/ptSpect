@@ -164,8 +164,10 @@ void MultiPlotter::loadBinnings()
   binningCmsThrustTheta.push_back(1.7);
   binningCmsThrustTheta.push_back(5.0);
 
-  binningThrust.push_back(0.85);
-  binningThrust.push_back(0.9);
+  binningThrust.push_back(0.55);
+  binningThrust.push_back(0.7);
+  binningThrust.push_back(0.75);
+
   binningThrust.push_back(1.85);
 
 
