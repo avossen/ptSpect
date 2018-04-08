@@ -134,9 +134,29 @@ class HadronPair
   }
   //everything relative to thrust
 
+  float getQt(HepLorentzVector& v1, HepLorentzVector& v2)
+  {
+      HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
+      HepLorentzVector vR1=v1;
+      HepLorentzVector vR2=v2;
+      if(vR1.vect().mag()==0 || vR2.vect().mag() ==0)
+	return 0;
+      HepLorentzVector RSum=vR1+vR2;
+      HepLorentzVector RSumBoosted=RSum;
 
+      HepLorentzVector R1Boosted=vR1;
+      HepLorentzVector R2Boosted=vR2;
+      Hep3Vector rBoost=RSum.boostVector();
+
+      vPhoton.boost(-rBoost);
+      RSumBoosted.boost(-rBoost);
+      R1Boosted.boost(-rBoost);
+      R2Boosted.boost(-rBoost);
+      qT=vPhoton.perp(R1Boosted.vect());
+      return qT;
+  }
   //get the QT based on the boosted vectors in the hadron pair. The boost will depend on the hadron type.
-  float getQt(Hep3Vector& v1, Hep3Vector& v2, float z1, float z2)
+  float getQtOld(Hep3Vector& v1, Hep3Vector& v2, float z1, float z2)
   {
       HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
       HepLorentzVector vR1(v1,kinematics::Q*z1*0.5);
@@ -234,18 +254,18 @@ class HadronPair
     kT_PK=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[kaonIdx]);
     kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
 
-    qT_PiPi=getQt(pinf1.boostedMoms[pionIdx],pinf2.boostedMoms[pionIdx],pinf1.z[pionIdx],pinf2.z[pionIdx]);
-    qT_PiK=getQt(pinf1.boostedMoms[pionIdx],pinf2.boostedMoms[kaonIdx],pinf1.z[pionIdx],pinf2.z[kaonIdx]);
-    qT_PiP=getQt(pinf1.boostedMoms[pionIdx],pinf2.boostedMoms[protonIdx],pinf1.z[pionIdx],pinf2.z[protonIdx]);
+    qT_PiPi=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[pionIdx]);
+    qT_PiK=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[kaonIdx]);
+    qT_PiP=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[protonIdx]);
 
 
-    qT_KPi=getQt(pinf1.boostedMoms[kaonIdx],pinf2.boostedMoms[pionIdx],pinf1.z[kaonIdx],pinf2.z[pionIdx]);
-    qT_KK=getQt(pinf1.boostedMoms[kaonIdx],pinf2.boostedMoms[kaonIdx],pinf1.z[kaonIdx],pinf2.z[kaonIdx]);
-    qT_KP=getQt(pinf1.boostedMoms[kaonIdx],pinf2.boostedMoms[protonIdx],pinf1.z[kaonIdx],pinf2.z[protonIdx]);
+    qT_KPi=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[pionIdx]);
+    qT_KK=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[kaonIdx]);
+    qT_KP=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[protonIdx]);
 
-    qT_PPi=getQt(pinf1.boostedMoms[protonIdx],pinf2.boostedMoms[pionIdx],pinf1.z[protonIdx],pinf2.z[pionIdx]);
-    qT_PK=getQt(pinf1.boostedMoms[protonIdx],pinf2.boostedMoms[kaonIdx],pinf1.z[protonIdx],pinf2.z[kaonIdx]);
-    qT_PP=getQt(pinf1.boostedMoms[protonIdx],pinf2.boostedMoms[protonIdx],pinf1.z[protonIdx],pinf2.z[protonIdx]);
+    qT_PPi=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[pionIdx]);
+    qT_PK=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[kaonIdx]);
+    qT_PP=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[protonIdx]);
 
 
 
