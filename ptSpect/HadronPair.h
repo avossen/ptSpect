@@ -57,7 +57,7 @@ class HadronPair
   Hep3Vector PDiff;
 
   double mass; //inv mass of two hadron system
-  double kT;
+  float kT;
 
 
   double kT_PiPi;
@@ -241,17 +241,19 @@ class HadronPair
 ////    kT_PP=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[protonIdx]);
 ////
     //charlotte switches the definition
-   kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
-    kT_PiK=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[kaonIdx]);
-    kT_PiP=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[protonIdx]);
+      kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
+    kT_PiK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
+    kT_PiP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[pionIdx]);
+    //  kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
 
 
-    kT_KPi=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
+    kT_KPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[kaonIdx]);
     kT_KK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[kaonIdx]);
-    kT_KP=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[protonIdx]);
+        kT_KP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[kaonIdx]);
+    //    kT_KP=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[protonIdx]);
 
-    kT_PPi=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[pionIdx]);
-    kT_PK=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[kaonIdx]);
+    kT_PPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[protonIdx]);
+    kT_PK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[protonIdx]);
     kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
 
     qT_PiPi=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[pionIdx]);
@@ -289,7 +291,8 @@ class HadronPair
       RSumBoosted.boost(-rBoost);
       R1Boosted.boost(-rBoost);
       R2Boosted.boost(-rBoost);
-      qT=vPhoton.perp(R1Boosted.vect());
+      //now from the getz...
+      //      qT=vPhoton.perp(R1Boosted.vect());
 
 
 
@@ -306,28 +309,36 @@ class HadronPair
       z1_PiP=getZ(pinf1,pionIdx,pinf2,protonIdx,vPhoton2);
 
       z2_PiPi=getZ(pinf2,pionIdx,pinf1,pionIdx,vPhoton2);
-      z2_PiK=getZ(pinf2,pionIdx,pinf1,kaonIdx,vPhoton2);
-      z2_PiP=getZ(pinf2,pionIdx,pinf1,protonIdx,vPhoton2);
-
-      z1=z1_PiPi;
-      z2=z2_PiPi;
-
+      z2_PiK=getZ(pinf2,kaonIdx,pinf1,pionIdx,vPhoton2);
+      z2_PiP=getZ(pinf2,protonIdx,pinf1,pionIdx,vPhoton2);
 
       z1_KPi=getZ(pinf1,kaonIdx,pinf2,pionIdx,vPhoton2);
       z1_KK=getZ(pinf1,kaonIdx,pinf2,kaonIdx,vPhoton2);
       z1_KP=getZ(pinf1,kaonIdx,pinf2,protonIdx,vPhoton2);
 
-      z2_KPi=getZ(pinf2,kaonIdx,pinf1,pionIdx,vPhoton2);
+      z2_KPi=getZ(pinf2,pionIdx,pinf1,kaonIdx,vPhoton2);
       z2_KK=getZ(pinf2,kaonIdx,pinf1,kaonIdx,vPhoton2);
-      z2_KP=getZ(pinf2,kaonIdx,pinf1,protonIdx,vPhoton2);
+      z2_KP=getZ(pinf2,protonIdx,pinf1,kaonIdx,vPhoton2);
 
       z1_PPi=getZ(pinf1,protonIdx,pinf2,pionIdx,vPhoton2);
       z1_PK=getZ(pinf1,protonIdx,pinf2,kaonIdx,vPhoton2);
       z1_PP=getZ(pinf1,protonIdx,pinf2,protonIdx,vPhoton2);
 
-      z2_PPi=getZ(pinf2,protonIdx,pinf1,pionIdx,vPhoton2);
-      z2_PK=getZ(pinf2,protonIdx,pinf1,kaonIdx,vPhoton2);
+      z2_PPi=getZ(pinf2,pionIdx,pinf1,protonIdx,vPhoton2);
+      z2_PK=getZ(pinf2,kaonIdx,pinf1,protonIdx,vPhoton2);
       z2_PP=getZ(pinf2,protonIdx,pinf1,protonIdx,vPhoton2);
+
+      //set charges/particle types... needed for getZ_Kt
+      hadCharge1=getHadCharge(firstHadron->lund());
+      hadCharge2=getHadCharge(secondHadron->lund());
+
+      hadPType1=getHadType(firstHadron->lund());
+      hadPType2=getHadType(secondHadron->lund());
+
+      hadCharge=getTwoHadCharge(hadCharge1,hadCharge2);
+      hadPType=getTwoHadType(hadPType1,hadPType2);
+
+      getZ_Kt(z1,z2,kT,qT);
 
       z=z1+z2;
       double E1,E2;
@@ -339,17 +350,7 @@ class HadronPair
       diffPhi=PDiff.phi();
       diffTheta=PDiff.theta();
       //      kT=firstHadron->p3().perp(secondHadron->p3());
-      kT=secondHadron->p3().perp(firstHadron->p3());
-
-      //set charges/particle types...
-      hadCharge1=getHadCharge(firstHadron->lund());
-      hadCharge2=getHadCharge(secondHadron->lund());
-
-      hadPType1=getHadType(firstHadron->lund());
-      hadPType2=getHadType(secondHadron->lund());
-
-      hadCharge=getTwoHadCharge(hadCharge1,hadCharge2);
-      hadPType=getTwoHadType(hadPType1,hadPType2);
+      //      kT=secondHadron->p3().perp(firstHadron->p3());
       //        cout <<"and now we set the type to : " << hadPType <<endl;
       computePIDWeights();
 
@@ -453,6 +454,81 @@ class HadronPair
 
       return AnaDef::UNKNOWN;
     }
+
+  void getZ_Kt(float &z1, float & z2, float& kT, float& qT)
+  {
+    switch(hadPType)
+      {
+      case AnaDef::PiPi:
+	z1=z1_PiPi;
+	z2=z2_PiPi;
+	kT=kT_PiPi;
+	qT=qT_PiPi;
+	break;
+
+      case AnaDef::PiK:
+	z1=z1_PiK;
+	z2=z2_PiK;
+	kT=kT_PiK;
+	qT=qT_PiK;
+	break;
+
+      case AnaDef::PiP:
+	z1=z1_PiP;
+	z2=z2_PiP;
+	kT=kT_PiP;
+	qT=qT_PiP;
+	break;
+
+      case AnaDef::KPi:
+	z1=z1_KPi;
+	z2=z2_KPi;
+	kT=kT_KPi;
+	qT=qT_KPi;
+	break;
+      case AnaDef::KK:
+	z1=z1_KK;
+	z2=z2_KK;
+	kT=kT_KK;
+	qT=qT_KK;
+	break;
+
+      case AnaDef::KP:
+	z1=z1_KP;
+	z2=z2_KP;
+	kT=kT_KP;
+	qT=qT_KP;
+	break;
+
+
+      case AnaDef::PPi:
+	z1=z1_PPi;
+	z2=z2_PPi;
+	kT=kT_PPi;
+	qT=qT_PPi;
+	break;
+
+
+      case AnaDef::PK:
+	z1=z1_PK;
+	z2=z2_PK;
+	kT=kT_PK;
+	qT=qT_PiK;
+	break;
+
+      case AnaDef::PP:
+	z1=z1_PP;
+	z2=z2_PP;
+	kT=kT_PP;
+	qT=qT_PP;
+	break;
+
+      default:
+	cout <<"unkonwn type" <<hadPType <<endl;
+	exit(1);
+      }
+
+  } 
 
 
 };

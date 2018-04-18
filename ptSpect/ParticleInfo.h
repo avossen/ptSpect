@@ -13,6 +13,7 @@ class ParticleInfo:public ParticleUserInfo
   double z[5];
   HepLorentzVector boostedLorentzVec[5];
   Hep3Vector boostedMoms[5];
+    float labMom;
   //identified as
   int idAs;
   int charge;

@@ -290,11 +290,14 @@ int main(int argc, char** argv)
 
 
   plotter.doPlots();
-  plotterWoA.doPlots();
+  if(chWoA)
+    plotterWoA.doPlots();
 
+  plotter.printDebug(plotType_2D);
   plotter.savePlots(plotType_2D);
   cout <<"now woa..." <<endl;
-  plotterWoA.savePlots(plotType_2D);
+  if(chWoA)
+    plotterWoA.savePlots(plotType_2D);
 
   //  plotterWoA.savePlot(0,0,);
 

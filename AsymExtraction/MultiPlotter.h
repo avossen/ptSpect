@@ -135,6 +135,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void setBinningMap();
     void doPlots();
     void savePlots(plotType);
+    void printDebug(plotType);
+
 
     //get the histogram that is to be unfolded. This is a 1D histogram binned in z1, (z2) and kT
     TH1D* getHistogram(int binning, int chargeBin, int pidBin);

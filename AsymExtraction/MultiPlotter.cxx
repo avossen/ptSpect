@@ -5,7 +5,6 @@
 //compute means and fill plotResults
 void MultiPlotter::doPlots()
 {
-
   for(int bt=binType_labTheta_z; bt<binType_end;bt++)
     {
       //      cout <<"looking at bin type " << bt <<endl;
@@ -46,7 +45,6 @@ void MultiPlotter::doPlots()
 			{
 			  cout <<"resIdx: " << resIdx <<" mean 1 : " << plotResults[resIdx].meanKinBin1;
 			  cout <<",  mean2: " << plotResults[resIdx].meanKinBin2 <<",  firstBin: " << firstBin <<" second: " << secondBin;
-			  
 			}
 
 		      plotResults[resIdx].pidBin=pidBin;
@@ -73,6 +71,7 @@ void MultiPlotter::loadBinnings()
   binningZ=new vector<float>[6];
 
   //pions
+  //binningZ[0].push_back(0.05);
   binningZ[0].push_back(0.1);
   binningZ[0].push_back(0.125);
   binningZ[0].push_back(0.15);
@@ -81,8 +80,8 @@ void MultiPlotter::loadBinnings()
   binningZ[0].push_back(0.3);
   ////  binningZ.push_back(0.7);
   binningZ[0].push_back(0.4); //// 
-  //  binningZ.push_back(0.5);
-  //  binningZ.push_back(0.6);
+  binningZ[0].push_back(0.5);
+  binningZ[0].push_back(0.6);
   binningZ[0].push_back(1.11);
 
   //the rest
@@ -103,15 +102,14 @@ void MultiPlotter::loadBinnings()
 
   if(useQt)
     {
-      binningKt.push_back(0.5);
+      binningKt.push_back(1.0);
       binningKt.push_back(1.5);
       binningKt.push_back(2.0);
       binningKt.push_back(2.5);
       binningKt.push_back(3.0);
-      binningKt.push_back(3.5);
       binningKt.push_back(4.0);
-      binningKt.push_back(5.0);
       binningKt.push_back(6.0);
+      binningKt.push_back(8.0);
       //  binningKt.push_back(1.5);
       binningKt.push_back(50.3);
 
@@ -148,15 +146,14 @@ void MultiPlotter::loadBinnings()
   //  binningThrustLabTheta.push_back(2.5);
   binningThrustLabTheta.push_back(8.0);
 
-
-
-
-  binningQt.push_back(0.5);
-  binningQt.push_back(1);
-  binningQt.push_back(2);
-  binningQt.push_back(3);
-  binningQt.push_back(4);
-  binningQt.push_back(5);
+  binningQt.push_back(1.0);
+  binningQt.push_back(1.5);
+  binningQt.push_back(2.0);
+  binningQt.push_back(2.5);
+  binningQt.push_back(3.0);
+  binningQt.push_back(4.0);
+  binningQt.push_back(6.0);
+  binningQt.push_back(8.0);
   binningQt.push_back(100);
 
   //is from 0 to pi
@@ -652,11 +649,65 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
   return ret;
 }
 
+//just print a textfile with the bin content for the cross check
+void MultiPlotter::printDebug(plotType mPlotType)
+{
+  PlotResults* m_plotResults=plotResults;
+
+  //  int numKinBin1=0;
+  //  int numKinBin2=0;
+
+  char buffer[200];
+  char buffer1[200];
+  int binningType=binType_z_z;
+  int pidType=PiPi;
+  int chargeType=pairChargeLikesign;
+  //  for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
+    {
+      //      for(int pidType=0;pidType<9;pidType++)
+	{
+	  //  for(int chargeType=0;chargeType<2;chargeType++)
+	    {
+	      string binName=getBinName(binningType,pidType,chargeType,-1,-1);
+	      sprintf(buffer,"%s",binName.c_str());
+	      for(int i=0;i<maxKinMap[pidType][binningType].first;i++)
+		{
+		  for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
+		    {
+		      //		  cout <<" bin: " << i << ", " << j << endl;
+		      double normFactor=1.0;
+		      double maxVal=-1.0;
+		      double maxValNorm=-1.0;
+		      int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
+		      //		  normFactor=1.0/maxValNorm;
+		      normFactor=1.0;
+
+		      for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+			{
+			  float binWidthFactor=1.0;
+			  
+			  //for the last bin, it doesn't make sense to divide by 1000 or so...
+			  int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
+			  //	      cout <<"looking at index:" << resIdx<<endl;
+			  
+			  //	  cout <<"setting x: " << mX[iKtBin] <<endl;
+			  cout <<" " <<  m_plotResults[resIdx].kTValues[iKtBin];
+
+			}
+		      //		  graph.GetYaxis()->SetTitle("normalized counts [arb. units]");
+		      
+		    }
+		}
+	    }
+	  //make sure this is saved...
+	}
+    }
+  rFile.Write();
+}
 
 
 void MultiPlotter::savePlots( plotType mPlotType)
 {
-
   PlotResults* m_plotResults=plotResults;
   PlotResults* loc_plotResults=0;
 
@@ -686,8 +737,6 @@ void MultiPlotter::savePlots( plotType mPlotType)
 	      for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
 		{
 		  //		  cout <<" bin: " << i << ", " << j << endl;
-		  
-		  
 		  double normFactor=1.0;
 		  double maxVal=-1.0;
 		  double maxValNorm=-1.0;

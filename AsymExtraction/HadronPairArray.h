@@ -173,8 +173,6 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(z2_PiK);
 	    branchPointers.push_back(z2_PiP);
 
-
-
 	    branchPointers.push_back(z2_KPi);
 	    branchPointers.push_back(z2_KK);
 	    branchPointers.push_back(z2_KP);
@@ -195,6 +193,9 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(p_PK);
 	    branchPointers.push_back(p_PP);
 
+
+	    //keep the same address, so we don't have to change
+	    //the kt references lateron
 	    branchPointers.push_back(kT_PiPi);
 	    branchPointers.push_back(kT_PiK);
 	    branchPointers.push_back(kT_PiP);
@@ -247,12 +248,13 @@ struct HadronPairArray:public ReaderBase
 
 
 
-	branchPointers.push_back(kT);
+
 	//only for mc...
-
-	branchPointers.push_back(qT);
-
-
+	//#ifdef USE_QT
+	//	branchPointers.push_back(qT);
+	//#else
+	branchPointers.push_back(kT);
+	//#endif
 
 	branchPointers.push_back(hadDiffTheta);
 	branchPointers.push_back(hadDiffPhi);
@@ -279,14 +281,36 @@ struct HadronPairArray:public ReaderBase
 	//if we just test that it is not mcFlagWoA, the mc pair branches on the same fields, so the data field only gets 0..
 	if(mMCFlag==mcFlagNone)
 	  {
-	    branchNames.push_back("z1_Pi");
-	    branchNames.push_back("z1_K");
-	    branchNames.push_back("z1_P");
+	    cout <<"mcflagnone " <<endl;
+	    branchNames.push_back("z1_PiPi");
+	    branchNames.push_back("z1_PiK");
+	    branchNames.push_back("z1_PiP");
+
+
+	    branchNames.push_back("z1_KPi");
+	    branchNames.push_back("z1_KK");
+	    branchNames.push_back("z1_KP");
+
+
+	    branchNames.push_back("z1_PPi");
+	    branchNames.push_back("z1_PK");
+	    branchNames.push_back("z1_PP");
+
 	    
-	    branchNames.push_back("z2_Pi");
-	    branchNames.push_back("z2_K");
-	    branchNames.push_back("z2_P");
+	    branchNames.push_back("z2_PiPi");
+	    branchNames.push_back("z2_PiK");
+	    branchNames.push_back("z2_PiP");
 	    
+	    branchNames.push_back("z2_KPi");
+	    branchNames.push_back("z2_KK");
+	    branchNames.push_back("z2_KP");
+	    
+	    branchNames.push_back("z2_PPi");
+	    branchNames.push_back("z2_PK");
+	    branchNames.push_back("z2_PP");
+	    
+
+
 	    branchNames.push_back("p_PiPi");
 	    branchNames.push_back("p_PiK");
 	    branchNames.push_back("p_PiP");
@@ -325,7 +349,6 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("kT_PK");
 	    branchNames.push_back("kT_PP");
 #endif
-	    
 	  }
 
 	branchNames.push_back("labTheta1"+addendum);
@@ -342,21 +365,22 @@ struct HadronPairArray:public ReaderBase
 	branchNames.push_back("thrustProj1"+addendum);
 	branchNames.push_back("thrustProj2"+addendum);
 
-
+	//qt name exists as _mc and _mcWoa (unlike kT which is called just kt in the woa tree)
 #ifdef USE_QT
 	  branchNames.push_back("qT"+addendum);
-#endif
-	if(mMCFlag!=mcFlagWoA)
-	  branchNames.push_back("kT"+addendum);
+#else
+	  if(mMCFlag!=mcFlagWoA)
+	    branchNames.push_back("kT"+addendum);
 	else//woa has not mcWoA ending for kt
 	  branchNames.push_back("kT");
+#endif
 	//only for non mc...and woa (so no addendum in the other cases..)
 	///-->should be changed now, since we added qT_mc
 	//	if(mMCFlag==mcFlagWoA)
 
-#ifndef USE_QT
-	  branchNames.push_back("qT"+addendum);
-#endif
+	  //#ifndef USE_QT
+	  //	  branchNames.push_back("kT"+addendum);
+	  //#endif
 
 	  //	else
 	  //	  branchNames.push_back("qT");

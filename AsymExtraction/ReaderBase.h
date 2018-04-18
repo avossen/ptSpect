@@ -34,13 +34,17 @@ class ReaderBase
 
   void doAllBranching()
   {
+    cout <<"num FBranch pointers: "<< branchPointers.size() <<" num names: "<< branchNames.size()<<endl;
+    cout <<"num IBranch pointers: "<< branchPointersI.size() <<" num names: "<< branchNamesI.size()<<endl;
     for(unsigned int i=0;i<branchPointers.size();i++)
       {
+	cout <<"branching F on " << i << endl;
 	myChain->SetBranchAddress(branchNames[i].c_str(),branchPointers[i]);
 	cout <<" branching: " << branchNames[i]<<endl;
       }
     for(unsigned int i=0;i<branchPointersI.size();i++)
       {
+	cout <<" integer branching " <<endl;
 	myChain->SetBranchAddress(branchNamesI[i].c_str(),branchPointersI[i]);
 	cout <<" branching: " << branchNamesI[i]<<endl;
       }

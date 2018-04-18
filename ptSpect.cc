@@ -57,7 +57,7 @@ using namespace std;
 #define PY_B 521
 
 //#define SAVE_HISTOS
-#define XCHECK
+//#define XCHECK
 
 #define D0Mass 1.865
 #define D0Width 0.6
@@ -66,7 +66,7 @@ using namespace std;
 
 
 //#define ThrustMethod
-//#define noPID
+#define noPID
 //#define dataOnlyPID
 
 #include <cmath>
@@ -90,7 +90,7 @@ namespace Belle {
 #endif
 
 //#define DEBUG_EVENT 287880//please no output
-#define DEBUG_EVENT 1//please no output
+#define DEBUG_EVENT 280//please no output
 //#define DEBUG_EVENT 15859
 #define DEBUG_EVENT2 -287880
 #include "ptSpect/AnaConsts.h"
@@ -528,11 +528,18 @@ namespace Belle {
 
     kinematics::runNr=runNr;
     kinematics::evtNr=evtNr;
-
-    //    cout <<endl<<"--> run = " << runNr <<" evtNr = "  <<evtNr <<endl;
+    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"looking at debug event " <<endl;
+      }
+    //    (*pXCheck) << endl<<  "processing event nr " << evtNr <<endl;
+    //        cout <<endl<<"--> run = " << runNr <<" evtNr = "  <<evtNr <<endl;
     //    cout <<" --> exp = " << " run = " << runNr << " event = " << evtNr <<endl;
     if(!IpProfile::usable())
-      return;
+      {
+	//	cout <<"ip profile not usable" <<endl;
+	return;
+      }
     if(!(test%1000))
       {
 	//	      cout << "evt " <<test <<endl;
@@ -542,7 +549,10 @@ namespace Belle {
 
     //#ifndef MC
     if(!goodHadronB())
+      {
+	//	cout <<"no good hadronb " <<endl;
       return;
+      }
     //#endif
     float visEnergy=0;
     float visEnergyOnFile=0;
@@ -603,9 +613,12 @@ namespace Belle {
     for(Mdst_charged_Manager::iterator chr_it=mdst_chr_Mgr.begin();chr_it!=mdst_chr_Mgr.end();chr_it++)
       {
 	if(!enoughSVDHits(chr_it))
-	  continue;
+	  {
+	    //	    cout <<" cut track with naive momentum: "<< (*chr_it).p(0)<<", " << (*chr_it).p(1) <<", " << (*chr_it).p(2)<<endl;
+	     continue;
+	  }
 	double m_mass=m_pi;
-	int massHyp=2;
+	int massHyp=pionIdx;
 	double m_theta=0;
 	double m_phi=0;
 	double m_qt=0;
@@ -651,7 +664,7 @@ namespace Belle {
 		//	      cout <<"is electron" <<endl;
 	      }
 	    m_mass=m_e;
-	    massHyp=0;
+	    massHyp=electronIdx;
 	    isLepton=true;
 	    m_histos.hPidE->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
 	    m_histos.hPidEPi->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_pi());
@@ -665,7 +678,7 @@ namespace Belle {
 	      }
 	    m_histos.hPidMuPi->Fill(chr_it->trk().pid_mu(),chr_it->trk().pid_pi());
 	    m_mass=m_muon;
-	    massHyp=1;
+	    massHyp=muonIdx;
 	    isLepton=true;
 		  if(charge>0)
 		    {
@@ -710,7 +723,7 @@ namespace Belle {
 	    if(atcKPi>0.6 && atcKPi < 1.0 && atcKP >0.2 && atcKP < 1.0 && atcPiP<1.0 && atcPiP>0.0) //kaon
 		{
 		  m_mass=m_k;
-		  massHyp=3;
+		  massHyp=kaonIdx;
 		  isPionKaon=true;
 		  if(charge>0)
 		    {
@@ -729,7 +742,7 @@ namespace Belle {
 		  if(atcKP<0.2 && atcKP <1.0 && atcPiP<0.2 && atcPiP<1.0)
 		      {
 			m_mass=m_pr;
-			massHyp=4;
+			massHyp=protonIdx;
 			m_histos.hPidPr->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_p());
 			m_histos.hPidPrPi->Fill(chr_it->trk().pid_p(),chr_it->trk().pid_pi());
 
@@ -752,7 +765,7 @@ namespace Belle {
 			//			if(atcKPi<0.3)
 			if(atcKPi<0.6)
 			    {
-			      massHyp=2;
+			      massHyp=pionIdx;
 			      m_mass=m_pi;
 			      isPionKaon=true;
 			      if(charge>0)
@@ -774,7 +787,8 @@ namespace Belle {
 		      }
 		}
 	  }
-
+	Hep3Vector tmpv(chr_it->p(0),chr_it->p(1),chr_it->p(2));
+	//	(*pXCheck) <<"looking at charged " << ptypName <<"  with lab theta: "<< tmpv.theta() << " costheta: " << tmpv.cosTheta() << " and mom: "<< tmpv.mag()<<endl;
 
 	//	cout <<"massHyp: "<< massHyp <<endl;
 	double dr, dz, refitPx, refitPy, refitPz;
@@ -782,10 +796,11 @@ namespace Belle {
 	v_vertexR.push_back(dr);
 	v_vertexZ.push_back(dz);
 	Particle* tmpP=new Particle(*chr_it,string(ptypName));
-	(*pXCheck).precision(3);
-	(*pXCheck)<< "lab refit " << string(ptypName) << " massHyp: "<< massHyp <<", x"  << refitPx << " y: " << refitPy<< " z: " << refitPz << endl;
-	(*pXCheck)<< "lab non-refit rho "<<tmpP->p().rho()<< "x :"  << tmpP->p().x() << " y: " <<  tmpP->p().y() << " z: " << tmpP->p().z() << " dr: "<< dr <<" dz: "<< dz << endl;
-	(*pXCheck) <<" mass: "<< masses[massHyp] <<endl;
+	//	(*pXCheck).precision(3);
+	//	(*pXCheck) << std::setw(7);
+	//	(*pXCheck)<< "lab refit " << string(ptypName) << " massHyp: "<< massHyp <<", x"  << refitPx << " y: " << refitPy<< " z: " << refitPz << endl;
+	//	(*pXCheck)<< "lab non-refit rho "<<tmpP->p().rho()<< "x :"  << tmpP->p().x() << " y: " <<  tmpP->p().y() << " z: " << tmpP->p().z() << " dr: "<< dr <<" dz: "<< dz << endl;
+	//	(*pXCheck) <<" mass: "<< masses[massHyp] <<endl;
 
 	Hep3Vector h3Vect(refitPx,refitPy,refitPz);
 	////
@@ -799,7 +814,7 @@ namespace Belle {
 	      {
 		//	      cout <<"dr cut: " << fabs(dr) <<endl;
 	      }
-	    cout <<" cut track due to vertex.. r: " << fabs(dr) <<" px lab of track:  " <<(*chr_it).p(0)<< endl;
+	    //	    cout <<" cut track due to vertex.. r: " << fabs(dr) <<" px lab of track:  " <<(*chr_it).p(0)<< endl;
 	    continue;
 	  }
 	if ( fabs(dz) > cuts::vertexZ ) 
@@ -809,7 +824,7 @@ namespace Belle {
 	      {
 		//cout <<"dz cut: " << fabs(dz) <<endl;
 	      }
-	    	    cout <<" cut track due to vertex.. z" <<endl;
+	    //	    	    cout <<" cut track due to vertex.. z" <<endl;
 	    continue;//used to be 4
 	  }
 	if(charge>0)
@@ -831,11 +846,15 @@ namespace Belle {
 	  {
 	    nonBoostedVec[i]=HepLorentzVector(h3Vect,E[i]);
 	    boostedVec[i]=HepLorentzVector(h3Vect,E[i]);
-	    if(i==massHyp)
-	      (*pXCheck) <<" before boost px: "<<    boostedVec[i].px() <<", y: "<< boostedVec[i].py() <<"pz: "<< boostedVec[i].pz() <<" e: "<< boostedVec[i].e() <<endl;
+	      if(i==massHyp)
+		{
+		  //(*pXCheck) <<" before boost px: "<<    boostedVec[i].px() <<", y: "<< boostedVec[i].py() <<"pz: "<< boostedVec[i].pz() <<" e: "<< boostedVec[i].e() <<endl;
+		}
 	    boostedVec[i].boost(kinematics::CMBoost);
 	    if(i==massHyp)
-	      (*pXCheck) <<" after boost px: "<<    boostedVec[i].px() <<", y: "<< boostedVec[i].py() <<"pz: "<< boostedVec[i].pz() <<" e: "<< boostedVec[i].e() <<endl;
+	      {
+		//		(*pXCheck) <<" after boost px: "<<    boostedVec[i].px() <<", y: "<< boostedVec[i].py() <<"pz: "<< boostedVec[i].pz() <<" e: "<< boostedVec[i].e() <<" naive z: "<< boostedVec[i].vect().mag()/5.25 <<endl;
+	      }
 	  }
 
 
@@ -845,9 +864,10 @@ namespace Belle {
 
 	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	      {
-		//	      cout <<"removing pt=: " << h3Vect.perp() <<endl;
+		      cout <<"removing pt=: " << h3Vect.perp() <<endl;
 	      }
 	    //	      cout <<"removing pt=: " << h3Vect.perp() <<endl;
+	    //	    (*pXCheck) <<" cut due to min pt " << endl;
 	    continue;
 	  }
 	for(int i=0;i<5;i++)
@@ -857,7 +877,7 @@ namespace Belle {
 	iChTrks++;
 	if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	  {
-	    //	  cout <<"charged z: " << m_z<<endl;
+	    	  cout <<"charged z: " << m_z<<endl;
 	  }
 	//just use min p cut
 	if(m_z[massHyp]<cuts::minZThrust)
@@ -930,11 +950,12 @@ namespace Belle {
 	  }
 	if(labMom<cuts::minPLab || labMom>cuts::maxPLab) 
 	  {
+	    //	    (*pXCheck) <<" cut due to min plab " << endl;
 	    continue;
 	  }
 	if(cos(h3Vect.theta())<cuts::minCosTheta||cos(h3Vect.theta())>cuts::maxCosTheta)
 	  {
-
+	    //	    (*pXCheck) <<" cut duecos theata " << endl;
 	    if(DEBUG_EVENT==evtNr)
 	      {
 		//		cout << "CUT cos theta: " << cos(h3Vect.theta()) <<"charge: " << charge <<endl;
@@ -953,8 +974,10 @@ namespace Belle {
 	//has to be in parantheses
 	p->userInfo(*(new ParticleInfo()));
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
+
 	pinf.idAs=massHyp;
 	pinf.charge=charge;
+	pinf.labMom=labMom;
 	for(int i=0;i<5;i++)
 	  {
 	    pinf.z[i]=m_z[i];
@@ -966,7 +989,13 @@ namespace Belle {
 
 	if(setHadronPIDProbs(&pinf, labMom)<0)
 	  {
-	    cout <<"exit event" <<endl;
+     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+       {
+	 cout <<"pid exit" <<endl;
+       }
+
+	    //	    (*pXCheck) <<" problem with pid , exit event " << endl;
+	    //	    cout <<"exit event" <<endl;
 	    exitEvent();
 	    return;
 	  }
@@ -988,7 +1017,7 @@ namespace Belle {
 
       }
 
-    cout <<"done with charged particles " << endl;
+    //    cout <<"done with charged particles " << endl;
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();
 
@@ -1053,7 +1082,7 @@ namespace Belle {
     /////---->done
 
 
-    cout <<"do gammas " <<endl;
+    //    cout <<"do gammas " <<endl;
     int gammaCount=0;
     for(std::vector<Mdst_gamma>::const_iterator i =gamma_mgr.begin();i!=gamma_mgr.end();i++)
       {
@@ -1161,7 +1190,7 @@ namespace Belle {
       }
 
 
-    cout <<"do Ds " <<endl;
+    //    cout <<"do Ds " <<endl;
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------
@@ -1287,7 +1316,7 @@ namespace Belle {
 //	kinematics::DStarTag=0;
 //      }
 //
-    cout <<"doing thrust "<<endl;
+//    cout <<"doing thrust "<<endl;
     Thrust t=thrustall(allParticlesBoosted.begin(),allParticlesBoosted.end(),retSelf);
     //    Thrust t2=thrust(allParticlesBoosted.begin(),allParticlesBoosted.end(),retSelf);
 
@@ -1296,9 +1325,9 @@ namespace Belle {
     ///jet computations:
 
     //     cout <<"got  lab thrust " <<endl;
-    //        cout <<"lab thrust theta: " << labThrust.axis.theta() <<endl;
-    //	cout <<"thrust cms theta: "<< t.axis.theta() <<" phi: "<< t.axis.phi() << " mag: "<< t.thru<<endl;
-    //  cout <<"lab thrust phi: " << labThrust.axis.phi() <<endl;
+            cout <<"lab thrust theta: " << labThrust.axis.theta() <<endl;
+   	cout <<"thrust cms theta: "<< t.axis.theta() <<" phi: "<< t.axis.phi() << " mag: "<< t.thru<<endl;
+     cout <<"lab thrust phi: " << labThrust.axis.phi() <<endl;
 
     //    cout <<" Thrust cos theta in lab system: " << cos(labThrust.axis.theta())<<endl;
     //    cout <<" Thrust cos theta in CMS system: " << cos(t.axis.theta())<<endl;
@@ -1309,8 +1338,14 @@ namespace Belle {
     if(cos(labThrust.axis.theta()) > cuts::maxLabThrustCosTheta || cos(labThrust.axis.theta())<cuts::minLabThrustCosTheta)
       {
 	//	cout <<" cut on lab axis " <<endl;
-	exitEvent();
-	return;
+	//	    (*pXCheck) <<" exit event due to lab thrust " << endl;
+     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+       {
+	 cout <<"lab thrust exit" <<endl;
+       }
+     //we don't cut on thrust values anymore...
+     //	exitEvent();
+	//	return;
       }
 
     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
@@ -1359,25 +1394,30 @@ namespace Belle {
 	bool foundReason=false;
 	if(visEnergyOnFile < cuts::minVisEnergy)
 	  {
-	    //	  cout <<"---------------------------"<<endl<<"cut on vis energy: " << cuts::minVisEnergy <<" found only: " <<visEnergyOnFile <<" GeV" <<endl;
+	    //	    (*pXCheck) <<" exit event due to min vis e " << endl;
+	    	  cout <<"---------------------------"<<endl<<"cut on vis energy: " << cuts::minVisEnergy <<" found only: " <<visEnergyOnFile <<" GeV" <<endl;
 	    //	  cout <<"-------------------------------"<<endl;
 	  foundReason=true;
 	  }
 	if(abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ)
 	  {
-	    //	  cout <<"---------------------------"<<endl<<"cut on thrust z projection in CM: " << cuts::maxThrustZ <<" found  " <<kinematics::thrustDirCM.z()/kinematics::thrustDirCM.mag() <<endl;
+	    //	    (*pXCheck) <<" exit event due thrustz " << endl;
+	    cout <<"------event nr: "<< kinematics::evtNr <<" ---------------------"<<endl<<"cut on thrust z projection in CM: " << cuts::maxThrustZ <<" found  " <<kinematics::thrustDirCM.z()/kinematics::thrustDirCM.mag() <<endl;
 	    //	  cout <<"-------------------------------"<<endl;
 	  foundReason=true;
 	  }
 	if(kinematics::thrustMag<cuts::minThrust)
 	  {
-	    //	  cout <<"---------------------------"<<endl<<"cut magnitude: " << cuts::minThrust <<" found  " <<kinematics::thrustMag <<endl;
+	    //	    (*pXCheck) <<" exit event due to minthrust " << endl;
+	    	  cout <<"---------------------------"<<endl<<"cut magnitude: " << cuts::minThrust <<" found  " <<kinematics::thrustMag <<endl;
 	    //	  cout <<"-------------------------------"<<endl;
 	  foundReason=true;
 	  }
 	if( iChTrks < cuts::minNTracks)
 	  {
-	    //	    cout <<"-----------------------"<<endl <<" cut on min tracks, need; "<< cuts::minNTracks <<" have: " << iChTrks <<endl;
+	    
+	    //	    (*pXCheck) <<" exit event due to min ntracks " << endl;
+	   	    cout <<"-----------------------"<<endl <<" cut on min tracks, need; "<< cuts::minNTracks <<" have: " << iChTrks <<endl;
 	    //	  cout <<"-------------------------------"<<endl;
 	  foundReason=true;
 	  }
@@ -1386,6 +1426,11 @@ namespace Belle {
 	  {
 	  //	  cout <<"exiting event due to some cut" <<endl;
 	  }
+     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+       {
+	 cout <<"exit due to some other reason" <<endl;
+       }
+
 	exitEvent();
 	return;
 
@@ -1422,8 +1467,9 @@ namespace Belle {
     //need dijet event...
     if(numHighEJets!=2)
       {
-	exitEvent();
-	return;
+	//	    (*pXCheck) <<" exit event due to min vis e " << endl;
+	//	exitEvent();
+	//	return;
       }
 
     //switch jets, so that they are not energy ordered...
@@ -1528,23 +1574,39 @@ namespace Belle {
 
 #ifdef XCHECK
     int qCounter=-1;
-    (*pXCheck) <<" runNr: "<<runNr <<" eventNr: "<< evtNr;
-    (*pXCheck) <<" thrust Mag: " <<kinematics::thrustMag;
-    (*pXCheck) <<" thrust dir (CM) theta: "<<     kinematics::thrustDirCM.theta();
-    (*pXCheck) <<" phi "<<     kinematics::thrustDirCM.phi()<<endl;
+    (*pXCheck) << std::setw(4);
+        (*pXCheck) <<" runNr: "<<runNr <<" eventNr: "<< evtNr;
+        (*pXCheck) <<" thrust Mag: " <<kinematics::thrustMag;
+       (*pXCheck) <<" thrust dir (CM) theta: "<<     kinematics::thrustDirCM.theta();
+        (*pXCheck) <<" phi "<<     kinematics::thrustDirCM.phi()<<endl;
 
-    (*pXCheck) <<" thrust dir (Lab) theta: "<<     kinematics::thrustDirLab.theta();
-    (*pXCheck) <<" phi "<<     kinematics::thrustDirLab.phi()<<endl;
-    
+    //    (*pXCheck) <<" thrust dir (Lab) theta: "<<     kinematics::thrustDirLab.theta();
+    //    (*pXCheck) <<" phi "<<     kinematics::thrustDirLab.phi()<<endl;
+
     for(vector<HadronPair*>::iterator it=v_hadronPairs.begin();it!=v_hadronPairs.end();it++)
     {
       qCounter++;
       HadronPair* hp=(*it);
       //      if(evtNr==1)
 	{
-	  (*pXCheck) <<" z1: "<< hp->z1 << " z2: "<< hp->z2 << " kT: "<< hp->kT <<" had type1 "<< hp->hadPType1 <<" second had type: "<< hp->hadPType2  <<" first charge: "<< hp->hadCharge1 << " second charge: "<< hp->hadCharge2 <<endl;
+	ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
+	ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+	//	(*pXCheck) <<" two had type; "<< hp->hadPType<<endl;
+	//seems to be in cms...
+	//	(*pXCheck) << "other mom: "<<  hp->firstHadron->p().vect().mag() <<" or: "<< hp->secondHadron->p().vect().mag()<<endl;
+	(*pXCheck) <<"p h1 "<< pinf1.labMom <<" cos(theta)  h1 " << cos(pinf1.labTheta)<<endl;
+	(*pXCheck) <<"p h2 "<< pinf2.labMom <<" cos(theta)  h2 " << cos(pinf2.labTheta)<<endl;
+	(*pXCheck)<< "qT " <<hp->qT <<endl;
+	(*pXCheck) << "z1: " << hp->z1 <<" z2: " << hp->z2 <<" kT: " << hp->kT <<  " pid1 " << hp->firstHadron->lund() <<" pid2 " << hp->firstHadron->lund() <<endl;
+
+	  //cos(pinf1.labTheta) <<" cos labTheta2: "<< cos(pinf2.labTheta) <<" z1: "<< hp->z1 << " z2: "<< hp->z2 << " kT: "<< hp->kT <<", qT: "<< hp->qT << " had type1 "<< hp->hadPType1 <<" second had type: "<< hp->hadPType2  <<" first charge: "<< hp->hadCharge1 << " second charge: "<< hp->hadCharge2 <<endl;
+	//	(*pXCheck) << "naive z1: "<< pinf1.boostedMoms[pinf1.idAs].mag()/5.25 <<" naive z2: "<< pinf2.boostedMoms[pinf2.idAs].mag()/5.25 <<endl;
+	//	(*pXCheck) << " lab Theta1 "<< pinf1.labTheta <<" cosLabTheta: "<< cos(pinf1.labTheta) <<" labTheta2: "<< pinf2.labTheta <<" cosLt2: ";
+	//	(*pXCheck) << cos(pinf2.labTheta)<<endl;
+	//	(*pXCheck) << " cms Theta1 "<< pinf1.cmsTheta <<" cosCmsTheta: "<< cos(pinf1.cmsTheta) <<" cmsTheta2: "<< pinf2.cmsTheta <<" cosLt2: ";
+	//	(*pXCheck) << cos(pinf2.cmsTheta)<<endl;
 	}
-      (*pXCheck)<<setprecision(4);
+	//      (*pXCheck)<<setprecision(4);
     }
     (*pXCheck) <<endl;
 #endif
@@ -1769,6 +1831,7 @@ namespace Belle {
 	  {
 	    if((*it)->pType().charge()!=0)
 	      {
+		//		(*pXCheck )<< "putting particle with cos lab theta: "<< cos(pinf.labTheta) <<" in first hemi, naive z: " << tmpVec.mag()/5.25<<endl;
 		v_firstHemi.push_back(*it);
 	      }
 
@@ -1777,6 +1840,7 @@ namespace Belle {
 	  {
 	    if((*it)->pType().charge()!=0)
 	      {
+		//		(*pXCheck )<< "putting particle with cos lab theta: "<< cos(pinf.labTheta) <<" in second hemi, naive z: " << tmpVec.mag()/5.25<< endl;
 		//rather pointers...
 		v_secondHemi.push_back(*it);
 	      }
@@ -1793,14 +1857,14 @@ namespace Belle {
   //probably (hopefully)  get teh similar result by just running over v_allParticles
   void ptSpect::findHadronPairs()
   {
-  for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
+    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
       {
  	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
 	for(vector<Particle*>::const_iterator it2=v_secondHemi.begin();it2!=v_secondHemi.end();it2++)
 	  {
 	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
 	    //not back to back according to thrustless definition (note that being in first and second hemisphere is not necessarily enough
-	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+	    //	    if((*it2)->sp().vect().dot((*it)->p().vect())>0)
 	    bool acceptPair=false;
 	      for(int i=0;i<5;i++)
 		{
@@ -1831,8 +1895,14 @@ namespace Belle {
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
 	    hp->compute();
 	    hp2->compute();
+	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+       {
+	 	 cout <<"putting hadron pair" <<endl;
+       }
 	    v_hadronPairs.push_back(hp);
-	    v_hadronPairs.push_back(hp2);
+
+	    //decided not put the other combination in anymore...
+	    //	    v_hadronPairs.push_back(hp2);
 	  }
       }  
   //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
@@ -1876,8 +1946,13 @@ namespace Belle {
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
 		hp->compute();
 		hp2->compute();
+		if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+       {
+	 cout <<"putting hadron pair" <<endl;
+       }
+
 		v_hadronPairs.push_back(hp);
-		v_hadronPairs.push_back(hp2);
+		//		v_hadronPairs.push_back(hp2);
 	  }
       }  
   //  cout <<v_hadronPairs.size() <<" pairs after first with first" <<endl;
@@ -1921,9 +1996,13 @@ namespace Belle {
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
 		hp->compute();
 		hp2->compute();
+		if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+       {
+	 cout <<"putting hadron pair" <<endl;
+       }
 
 		v_hadronPairs.push_back(hp);
-		v_hadronPairs.push_back(hp2);
+		//		v_hadronPairs.push_back(hp2);
 	  }
       }  
   //  cout <<v_hadronPairs.size() <<" pairs after second with second" <<endl;
