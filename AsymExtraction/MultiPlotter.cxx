@@ -77,6 +77,7 @@ void MultiPlotter::loadBinnings()
   binningZ[0].push_back(0.15);
   binningZ[0].push_back(0.175);
   binningZ[0].push_back(0.2);
+  binningZ[0].push_back(0.25);
   binningZ[0].push_back(0.3);
   ////  binningZ.push_back(0.7);
   binningZ[0].push_back(0.4); //// 
@@ -656,7 +657,7 @@ void MultiPlotter::printDebug(plotType mPlotType)
 
   //  int numKinBin1=0;
   //  int numKinBin2=0;
-
+  int total=0;
   char buffer[200];
   char buffer1[200];
   int binningType=binType_z_z;
@@ -692,6 +693,7 @@ void MultiPlotter::printDebug(plotType mPlotType)
 			  
 			  //	  cout <<"setting x: " << mX[iKtBin] <<endl;
 			  cout <<" " <<  m_plotResults[resIdx].kTValues[iKtBin];
+			  total+=m_plotResults[resIdx].kTValues[iKtBin];
 
 			}
 		      //		  graph.GetYaxis()->SetTitle("normalized counts [arb. units]");
@@ -702,7 +704,8 @@ void MultiPlotter::printDebug(plotType mPlotType)
 	  //make sure this is saved...
 	}
     }
-  rFile.Write();
+
+    cout <<endl<<" total: " << total <<endl;
 }
 
 
@@ -1223,7 +1226,13 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	    {
 	      //	      cout <<"filling thrusttheta bin: "<< firstBin << " zb in : "<< secondBin <<endl;
 	    }
-	  //	    cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
+	  //	  	    cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
+	  //		    cout <<"weight: "<< weight <<endl;
+	  if(chargeBin==pairChargeLikesign && pidBin==PiPi && bt==binType_z_z)
+	    {
+	      //	      cout <<"filling in bin " << firstBin*(maxKinMap[pidBin][bt].second*numKtBins)+secondBin*numKtBins+kTBin<<endl;
+	    }
+
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
 	  uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*weight);
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);

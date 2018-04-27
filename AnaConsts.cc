@@ -101,7 +101,7 @@ namespace cuts
   float maxPi0GAsym=0.8;//looked at distribution
   //  float maxQt=3.5;
   float maxQt=1000.0;
-  int minNTracks=3;
+  int minNTracks=2;
   float vertexZ=4.0;
   float vertexR=1.3;
   float minPtThrust=0.0;
@@ -137,20 +137,12 @@ namespace kinematics
   double thrust;
   float thetaEThrust;
 
-  Hep3Vector jet1;
-  Hep3Vector jet2;
-  Hep3Vector dijet[2];
+
   float masses[5];
 
 
- float jetE1;
- float jetE2;
 
- int jetNumParts1;
- int jetNumParts2;
 
- float jetFluffiness1;
- float jetFluffiness2;
   float R;
 
 }

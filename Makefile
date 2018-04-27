@@ -17,7 +17,7 @@ CPPFLAGS = -DHAVE_LIBCURSES=1 -DHAVE_LIBREADLINE=1 -DHAVE_POSTGRES=1 \
 	   -DHAVE_LIBNSL=1 -DHAVE_LIBDL=1 -DFORTRAN_PPU=1 -DHAVE_LIBCRYPT=1 \
            -DCERNLIB_TYPE -DHEP_SHORT_NAMES -DBELLE_SHORT_NAMES \
            -DDSTXX_NOINLINE -DBELLE_TARGET_H=\"belle-default.h\" \
-	   -fPIC -O3 $(shell root-config --cflags) $(shell ../../fastjet-install/bin/fastjet-config --cxxflags --plugins)
+	   -fPIC -g $(shell root-config --cflags) $(shell ../../fastjet-install/bin/fastjet-config --cxxflags --plugins)
 
 INCLUDE = -I$(BELLE_TOP_DIR)/include -I. 
 
@@ -25,7 +25,7 @@ INCLUDE = -I$(BELLE_TOP_DIR)/include -I.
 	g++ -c $^ $(CPPFLAGS) $(INCLUDE)
 
 %.so : *.o
-	g++ $(SOFLAGS) -o $@ $< $(LIBS) 
+	g++ -g $(SOFLAGS) -o $@ $< $(LIBS) 
 
 
 

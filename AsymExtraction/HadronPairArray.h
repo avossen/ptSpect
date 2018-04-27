@@ -1,3 +1,5 @@
+#define DEBUG_EVENT 60233
+
 #ifndef HADRON_PAIR_ARRAY_H
 #define HADRON_PAIR_ARRAY_H
 #include "ReaderBase.h"
@@ -136,7 +138,7 @@ struct HadronPairArray:public ReaderBase
 
   // pid dependent z cut is then in MultiPlotter because it has to be applied in each event for each weight differently
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.1), secondZCut(0.05), hadronTagFiducialCut(7.2), asymmetryFlag(false),kTCut(5.26)
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.1), secondZCut(0.05), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(5.26)
   {
 
 #ifdef USE_QT
@@ -418,8 +420,12 @@ struct HadronPairArray:public ReaderBase
 
   }
 
-  void afterFill()
+  void afterFill(int evtNr=0)
   {
+    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"we see " <<numPairs<<endl;
+      }
     for(int i=0;i<numPairs;i++)
       {
 	//	cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
@@ -429,7 +435,17 @@ struct HadronPairArray:public ReaderBase
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {
-	    cut[i]=1;
+
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  cout <<"cut on fid" <<endl;
+	cut[i]=1;
+
+	    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"hadron fid " <<endl;
+      }
+	    
+	    cout <<"cut hadon fid cut " <<endl;
 	  }
 	if(kT_PiPi[i]>kTCut || kT_PiK[i]>kTCut || kT_PiP[i]>kTCut || kT_KPi[i]>kTCut || kT_KK[i]>kTCut || kT_KP[i]>kTCut || kT_PPi[i]>kTCut || kT_PK[i]>kTCut || kT_PPi[i]>kTCut)
 	  {
@@ -438,6 +454,15 @@ struct HadronPairArray:public ReaderBase
 #endif
 	     cout <<"kt cut, : "<< kT_PiPi[i] <<" pik: "<< kT_PiK[i] <<" kpi: "<< kT_KPi[i] << " KK: " << kT_KK[i] <<" PiP: " << kT_PiP[i] << " KP: "<< kT_KP[i] <<" PPi: "<< kT_PPi[i];
 	    cout <<" PK: " << kT_PK[i] << " PP: " << kT_PP[i] <<endl;
+    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"kt cut " <<endl;
+      }
+
+
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  cout <<"cut on kt" <<endl;
+
 	    cut[i]=1;
 	  }
 
@@ -465,14 +490,35 @@ struct HadronPairArray:public ReaderBase
 	  }
 
 	if(asymFlag && asymmetryFlag){
-	  cut[i]=1;}
+
+
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  cout <<"cut on asym" <<endl;
+
+	  cut[i]=1;
+
+	  cout <<"cut asym " <<endl;
+}
+
        if(particleType1[i]!=0 || particleType2[i]!=0)
 	  {
 	    //	    cut[i]=1;
 	  }
 
 	if(z2[i]<secondZCut)
-	  cut[i]=1;
+	  {
+	    //	    cout <<"second z cut " <<endl;
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"second z cut d " <<endl;
+	      }
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+	      cout <<"second z cut on fid "<< z2[i] <<endl;
+	      }
+
+	    cut[i]=1;
+	  }
 
 	//////////-----------test: restrict to hadron from uds
 	if(mMCFlag==mcFlagMC)
@@ -514,6 +560,8 @@ struct HadronPairArray:public ReaderBase
 	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;
 	    if(particleType[i]<0)
 	      {
+		cout <<"pid < 0" <<endl;
+
 		cut[i]=1;
 		continue;
 	      }
@@ -583,6 +631,7 @@ struct HadronPairArray:public ReaderBase
 
 		break;
 	      case UNKNOWN:
+		cout <<"unknown pid " <<endl;
 		cut[i]=1;
 		continue;
 		break;
@@ -598,6 +647,16 @@ struct HadronPairArray:public ReaderBase
 	///------------------
 	if(z1[i]<zCut || z2[i]<zCut)
 	  {
+	    //	    cout <<"fail z cut of " << zCut << " : " << z1[i] <<" z2: "<< z2[i] <<endl;
+    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"fail z cut " <<endl;
+      }
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  {
+	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
+	  }
+
 	    cut[i]=1;
 	  }
 
@@ -605,11 +664,27 @@ struct HadronPairArray:public ReaderBase
 	  {
 	    //	    if(particleType[i]==0 && chargeType[i]==0)
 	    //	      cout <<" cut due to wrong z: " << z[i] <<endl;
+	    //	    cout <<"wrong z " <<endl;
+    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"wrong z  " <<endl;
+      }
+
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  cout <<"wrong z on fid" <<endl;
+
 	    cut[i]=1;
 	  }
 
 	if(z1[i] >zUpperCut|| z2[i] >zUpperCut)
 	  {
+	    //	    cout <<" upper z cut " << endl;
+    if(evtNr==DEBUG_EVENT)
+      {
+	cout <<"upper z " <<endl;
+      }
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  cout <<"upper z on fid" <<endl;
 
 	    cut[i]=1;
 	  }
@@ -622,17 +697,43 @@ struct HadronPairArray:public ReaderBase
 	//	  cut[i]=1;
 	if(isnan(z1[i])|| isnan(z2[i]))
 	  {
+
 	   cut[i]=1;
-	   //	   cout <<"nan!" <<endl;
+	     cout <<"nan!" <<endl;
 	  }
 
 	if(mMCFlag==mcFlagWoA && cut[i]==0)
 	  {
 	    //	    cout <<"accepted woa event with kt: "<< kT[i] << " z1: " << z1[i] << " z2: "<< z2[i] <<endl;
 	  }
-	
-      }
 
+	if(cut[i]==1)
+	  {
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      cout <<"cutted on fid" <<endl;
+	    
+	    //	    cout <<"Hadron pair was cut .. " <<endl;
+	  }	
+
+	if(DEBUG_EVENT==evtNr)
+	  {
+	    //	    cout <<" pPi: " << p_PiPi[i] << p_PiPi[i] << " chargetype: "<< chargeType[i] <<endl;
+	  }
+	//pairChargeLikesign==0
+	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  {
+	    //cout <<" z1: " <<z1[i] <<" z2: "<< z2[i] <<" qT: "<< kT[i] <<endl;
+	    cout<<"Event " << evtNr;
+	    	    cout <<std::fixed;
+	    	    cout.precision(3);
+		    //	       cout  << " qT " <<kT[i];
+		    //	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
+	    cout <<endl;
+		//	cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
+	//cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+	  }
+      }
+    //    cout <<"---------"<<endl;
 
 
 

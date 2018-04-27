@@ -1,3 +1,4 @@
+#define DEBUG_EVENT 6190
 #ifndef ANADEFS_H
 #define ANADEFS_H
 

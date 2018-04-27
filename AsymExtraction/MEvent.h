@@ -54,7 +54,7 @@ class MEvent:public ReaderBase
   //1 - 2.14 is 0.7-1.76 in cms
   //acos(0.5e) is 1.05 rad --> in lab 0.73 -.1.7
   //no cuts.. since e.g. cuts on thrust theta together with hadron theta binning biases kT...
-  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(0.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(3.52), minThrust(0.5),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(false),DCutMC(false),DStarCutMC(false)
+  MEvent(TChain* chain, int mMCFlag=mcFlagNone):ReaderBase(mMCFlag),lowerThrustThetaCut(-1000.0),upperThrustThetaCut(3.5), thrustThetaCMSMaxProj(1.3), lowerThrustThetaCutCMS(0.0), upperThrustThetaCutCMS(1001.8), maxMissingEnergy(5.52), minThrust(0.0),d0Cut(false),d0CutV2(false),dStarCut(false),dStarCutV2(false),isrCut(false),DCutMC(false),DStarCutMC(false)
   {
     myChain=chain;
     if(chain)
@@ -138,54 +138,92 @@ class MEvent:public ReaderBase
     if(mMCFlag!=mcFlagWoA)
       {
 	if(isrCut && (isrPhotonEnergy > isrCut))
+	  {
+	    //	    cout << "isr" <<endl;
 	   cutEvent=true;
+	  }
 	if(d0Cut && (0==d0Tag))
+	  {
+	    //	    cout <<"d0" <<endl;
 	  cutEvent=true;
+	  }
 	if(dStarCut && (0==dStarTag))
+	  {
+	    //	    cout << "dstar " <<endl;
 	  cutEvent=true;
+	  }
        if(d0CutV2 && (D_Decay<0))
 	 {
+	   //	   cout <<"d0cutv2 " <<endl;
 	   //  cout <<" cut event " << endl;
 	  cutEvent=true;
 	 }
        //       if(!cutEvent)
        //              cout <<" didn't cut event" << endl;
 	if(dStarCutV2 && (DStarDecay<0))
+	  {
+	    //	    cout <<" dcut v2" <<endl;
 	  cutEvent=true;
+	  }
 	if(DStarCutMC && (D_Decay_mc<0 && DStarDecay_mc<0))
+	  {
+	    //	    cout <<" another d cut " <<endl;
 	  cutEvent=true;
+	  }
 	///check what the reconstruction does
 	//	if(DStarDecay !=2 && D_Decay!=1)
 	//	  cutEvent=true;
 
 
-
-    if(E_miss<-1)
-      cutEvent=true;
+	//charlotte has EVis < 11 GeV, I have E_miss defined as  10.5177-E_vis
+	if(E_miss<(10.5177-11.0))
+      {
+	//	cout <<" e mis < 1 : "<< E_miss <<endl;
+	cutEvent=true;
+      }
     if(E_miss>maxMissingEnergy)
-      cutEvent=true;
+      {
+	//	cout <<"e_mis > max: "<< E_miss <<endl;
+	cutEvent=true;
+      }
       }
     if(Thrust<minThrust)
+      {
+	//	cout <<" min thrust " <<endl;
       cutEvent=true;
+      }
    
     if(thrustThetaLab>upperThrustThetaCut)
+      {
+	//	cout <<"thrust theta upper" <<endl;
       cutEvent=true;
+      }
     if(thrustThetaLab<lowerThrustThetaCut)
+      {
+	//	cout <<"thrustthetalab lower" <<endl;
       cutEvent=true;
+  }
     if(thrustThetaCMS>upperThrustThetaCutCMS)
+      {
+	//	cout <<"theta cms upper " <<endl;
       cutEvent=true;
+      }
     if(thrustThetaCMS<lowerThrustThetaCutCMS)
-      cutEvent=true;
-
+      {
+	//	cout <<"theta cms lower " <<endl;
+	cutEvent=true;
+      }
     if(fabs(cos(thrustThetaCMS))>thrustThetaCMSMaxProj)
-      cutEvent=true;
-
+      {
+	//	cout <<"cos thrust cms" <<endl;
+	cutEvent=true;
+      }
     transProj=sin(thetaEThrust)*sin(thetaEThrust)/(1+cos(thetaEThrust)*cos(thetaEThrust));
     longProj=sqrt(1-transProj*transProj);
 
     if(cutEvent)
       {
-	//      cout <<"docut Event"<<endl;
+	//         cout <<"docut Event "<<evtNr <<endl;
       }
     else
       {
@@ -201,7 +239,7 @@ class MEvent:public ReaderBase
 //	//
 	//      cout <<"donotcut Event " <<endl;
       }
-
+    //    cout <<" looking at run: "<< runNr <<" event " << evtNr <<endl;
   }
 }; 
 

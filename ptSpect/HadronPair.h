@@ -1,3 +1,5 @@
+//#define DEBUG_EVENT 8035//please no output
+
 #ifndef HADRONPAIR_H
 #define HADRONPAIR_H
 #include "event/BelleEvent.h"
@@ -182,15 +184,24 @@ class HadronPair
   //set the various values based on the two hadrons
   void compute()
   {
+
+
     ////compute pid products, kT and z..
     ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
     ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
 
+
+   if(DEBUG_EVENT==kinematics::evtNr)
+      {
+	cout <<"hadron pair compute p pion: " << pinf1.p_Pi <<" and " << pinf2.p_Pi<<endl;
+	cout <<"dot product:  " << pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[pionIdx])<<endl;
+      }
     //sub optimal, since the weights are not in arrays one can iterate over...
     p_PiPi=0.0;
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[pionIdx])<0))
-      p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
-
+      {
+	p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
+      }
 
     p_PiK=0.0;
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
@@ -427,7 +438,7 @@ class HadronPair
     {
       if(AnaDef::SH_TypeUnknown==c1 || AnaDef::SH_TypeUnknown==c2)
 	{
-	  //	  cout <<" unknown two had " <<endl;
+	  	  cout <<" unknown two had " <<endl;
 	return AnaDef::UNKNOWN;
 	}
 
@@ -451,7 +462,7 @@ class HadronPair
 	return AnaDef::PP;
 
 
-
+      cout <<"no match, unknown" << c1 <<" c2: "<< c2 <<endl;
       return AnaDef::UNKNOWN;
     }
 
@@ -524,8 +535,16 @@ class HadronPair
 	break;
 
       default:
-	cout <<"unkonwn type" <<hadPType <<endl;
-	exit(1);
+	//particle is a lepton, let's just use the pion numbers
+	z1=z1_PiPi;
+	z2=z2_PiPi;
+	kT=kT_PiPi;
+	qT=qT_PiPi;
+
+	  break;
+	
+	//	cout <<"unkonwn type" <<hadPType <<endl;
+	//	exit(1);
       }
 
   } 

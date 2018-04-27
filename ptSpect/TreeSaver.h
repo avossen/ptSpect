@@ -40,7 +40,7 @@ saving to root trees
 //#define NUM_F_FIELDS 22 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //#define NUM_F_FIELDS 25 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 ////-->with the jet stuff, subtract 8
-#define NUM_F_FIELDS 16 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
+#define NUM_F_FIELDS 8 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //6-->10 with the genIds..
 #define NUM_I_FIELDS 6
 
@@ -354,18 +354,19 @@ public:
       dataF.push_back(kinematics::thrustDirCM.phi());
       dataF.push_back(kinematics::thrustDirLab.theta());
       dataF.push_back(kinematics::thetaEThrust);
-      dataF.push_back(kinematics::jetFluffiness1);
-      dataF.push_back(kinematics::jetFluffiness2);
 
-      dataF.push_back(kinematics::jetE1);
-      dataF.push_back(kinematics::jetE2);
-
-      dataF.push_back(kinematics::jet1.phi());
-      dataF.push_back(kinematics::jet2.phi());
-
-      dataF.push_back(kinematics::jet1.theta());
-      dataF.push_back(kinematics::jet2.theta());
-
+//      dataF.push_back(kinematics::jetFluffiness1);
+//      dataF.push_back(kinematics::jetFluffiness2);
+//
+//      dataF.push_back(kinematics::jetE1);
+//      dataF.push_back(kinematics::jetE2);
+//
+//      dataF.push_back(kinematics::jet1.phi());
+//      dataF.push_back(kinematics::jet2.phi());
+//
+//      dataF.push_back(kinematics::jet1.theta());
+//      dataF.push_back(kinematics::jet2.theta());
+//
 #ifdef MC
       float angleToRecThrust=gi.jet1.angle(kinematics::jet1);
 
@@ -390,18 +391,18 @@ public:
       dataF.push_back(phiToRecThrust);
 
       //------
-      dataF.push_back(gi.fluffiness1);
-      dataF.push_back(gi.fluffiness2);
-
-      dataF.push_back(gi.jetE1);
-      dataF.push_back(gi.jetE2);
-
-      dataF.push_back(gi.jetPhi1);
-      dataF.push_back(gi.jetPhi2);
-
-      dataF.push_back(gi.jetTheta1);
-      dataF.push_back(gi.jetTheta2);
-      ///-----
+//      dataF.push_back(gi.fluffiness1);
+//      dataF.push_back(gi.fluffiness2);
+//
+//      dataF.push_back(gi.jetE1);
+//      dataF.push_back(gi.jetE2);
+//
+//      dataF.push_back(gi.jetPhi1);
+//      dataF.push_back(gi.jetPhi2);
+//
+//      dataF.push_back(gi.jetTheta1);
+//      dataF.push_back(gi.jetTheta2);
+//      ///-----
 
 
       dataF.push_back(gi.vpEnergy);
@@ -419,8 +420,8 @@ public:
 #endif
       dataI.push_back(kinematics::runNr);
       dataI.push_back(kinematics::evtNr);
-      dataI.push_back(kinematics::jetNumParts1);
-      dataI.push_back(kinematics::jetNumParts2);
+      //      dataI.push_back(kinematics::jetNumParts1);
+      //      dataI.push_back(kinematics::jetNumParts2);
       dataI.push_back(kinematics::D0Tag);
       dataI.push_back(kinematics::DStarTag);
       dataI.push_back(kinematics::DDecay);
@@ -609,6 +610,13 @@ public:
     pDataTree->Branch(fieldname,memLoc,(fieldname+string("/I")).c_str());
     fieldNamesI.push_back(fieldname);
   };
+
+  void finalize()
+  {
+
+
+    pDataTree->Write();
+  }
 
   void addArrayI(char* fieldname)
   {

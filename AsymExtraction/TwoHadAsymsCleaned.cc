@@ -103,7 +103,9 @@ int main(int argc, char** argv)
     chAll=new TChain("GenTree");
   else
     {
+      cout <<"define datatree" <<endl;
       chAll=new TChain("DataTree");
+
       if(isMC==mcAsData)
 	chWoA=new TChain("GenTree");
     }
@@ -161,9 +163,19 @@ int main(int argc, char** argv)
   MEvent myEvent(chAll,mEventDataMCFlag);
   //  MEvent myEventMC(chAll,mcFlagMC);
   cout <<" 1 " << endl;
-  HadronPairArray hadPairWoA(chWoA,mcFlagWoA);
+
+
   cout <<" 2 " << endl;
-  MEvent myEventWoA(chWoA,mcFlagWoA);
+  MEvent* pMyEventWoA;
+  HadronPairArray* pHadPairWoA;
+  if(chWoA)
+    {
+      pMyEventWoA=new MEvent(chWoA,mcFlagWoA);
+       pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
+    }
+
+
+  //  MEvent myEventWoA(chWoA,mcFlagWoA);
 
   cout << "done event " << endl;
   cout <<"how many? "<<endl;
@@ -225,7 +237,7 @@ int main(int argc, char** argv)
 
       //      cout <<"normal quad after fill" <<endl;
       //           cout<<" data after fill " <<endl;
-      hadPair.afterFill();
+      hadPair.afterFill(myEvent.evtNr);
       //      cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	hadPairMC->afterFill();
@@ -258,17 +270,17 @@ int main(int argc, char** argv)
 	  if(!(i%10000))
 	    cout <<"processing woa event nr " << i << " of " << nevents << "(" << 100*i/(float)neventsWoA<< "% )"<<endl;
 	  chWoA->GetEntry(i);
-	  myEventWoA.afterFill();
+	  pMyEventWoA->afterFill();
 	  
-	  if(myEventWoA.cutEvent)
+	  if(pMyEventWoA->cutEvent)
 	    {
 	      continue;
 	    }
-	  hadPairWoA.afterFill();
+	  pHadPairWoA->afterFill();
 
 
 	  //	  cout <<"adding had quad to plotter... " <<endl;
-	  plotterWoA.addHadPairArray(&hadPairWoA, myEventWoA);
+	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
 
 	}
     }
@@ -292,8 +304,9 @@ int main(int argc, char** argv)
   plotter.doPlots();
   if(chWoA)
     plotterWoA.doPlots();
-
+  cout <<" printing debug " <<endl;
   plotter.printDebug(plotType_2D);
+  cout <<"done " <<endl;
   plotter.savePlots(plotType_2D);
   cout <<"now woa..." <<endl;
   if(chWoA)
