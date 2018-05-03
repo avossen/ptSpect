@@ -124,8 +124,8 @@ void MultiPlotter::loadBinnings()
       binningKt.push_back(0.65);
       binningKt.push_back(0.78);
       binningKt.push_back(0.96);
-      //  binningKt.push_back(1.5);
-      binningKt.push_back(5.3);
+      binningKt.push_back(2.5);
+      binningKt.push_back(5000.3);
     }
 
   //    binningLabTheta.push_back(0.9);

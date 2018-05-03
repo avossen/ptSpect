@@ -4,7 +4,7 @@
 #define HADRON_PAIR_ARRAY_H
 #include "ReaderBase.h"
 #include "TMath.h"
-#define USE_QT
+//#define USE_QT
 //300 is also the number in the Treesaver, so cannot be larger...
 #define Max_ArrSize 300
 
@@ -138,7 +138,7 @@ struct HadronPairArray:public ReaderBase
 
   // pid dependent z cut is then in MultiPlotter because it has to be applied in each event for each weight differently
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.1), secondZCut(0.05), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(5.26)
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.05),zUpperCut(1.1), secondZCut(0.05), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(5.31145668)
   {
 
 #ifdef USE_QT
@@ -428,6 +428,21 @@ struct HadronPairArray:public ReaderBase
       }
     for(int i=0;i<numPairs;i++)
       {
+    //for the benefit of the xcheck
+    if(z1[i]< z2[i])
+      {
+	float tmp=z2[i];
+	z2[i]=z1[i];
+	z1[i]=tmp;
+      }
+
+    if(z1_PiPi[i]< z2_PiPi[i])
+      {
+	float tmp=z2_PiPi[i];
+	z2_PiPi[i]=z1_PiPi[i];
+	z1_PiPi[i]=tmp;
+      }
+
 	//	cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
 	//	cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	//	cout <<"hp after fill!" <<endl;
@@ -452,8 +467,8 @@ struct HadronPairArray:public ReaderBase
 #ifdef USE_QT
 	    cout <<"qt defined " <<endl;
 #endif
-	     cout <<"kt cut, : "<< kT_PiPi[i] <<" pik: "<< kT_PiK[i] <<" kpi: "<< kT_KPi[i] << " KK: " << kT_KK[i] <<" PiP: " << kT_PiP[i] << " KP: "<< kT_KP[i] <<" PPi: "<< kT_PPi[i];
-	    cout <<" PK: " << kT_PK[i] << " PP: " << kT_PP[i] <<endl;
+	    //	     cout <<"kt cut, : "<< kT_PiPi[i] <<" pik: "<< kT_PiK[i] <<" kpi: "<< kT_KPi[i] << " KK: " << kT_KK[i] <<" PiP: " << kT_PiP[i] << " KP: "<< kT_KP[i] <<" PPi: "<< kT_PPi[i];
+	    //	    cout <<" PK: " << kT_PK[i] << " PP: " << kT_PP[i] <<endl;
     if(evtNr==DEBUG_EVENT)
       {
 	cout <<"kt cut " <<endl;
@@ -461,8 +476,9 @@ struct HadronPairArray:public ReaderBase
 
 
 	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  cout <<"cut on kt" <<endl;
-
+	  {
+	    //	  cout <<"cut on kt" <<endl;
+	  }
 	    cut[i]=1;
 	  }
 
@@ -493,12 +509,14 @@ struct HadronPairArray:public ReaderBase
 
 
 	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  cout <<"cut on asym" <<endl;
+	  {
+	    //	  cout <<"cut on asym" <<endl;
+	  }
 
 	  cut[i]=1;
 
-	  cout <<"cut asym " <<endl;
-}
+	  //	  cout <<"cut asym " <<endl;
+	}
 
        if(particleType1[i]!=0 || particleType2[i]!=0)
 	  {
@@ -671,7 +689,9 @@ struct HadronPairArray:public ReaderBase
       }
 
 	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  cout <<"wrong z on fid" <<endl;
+	  {
+	    //	  cout <<"wrong z on fid" <<endl;
+	  }
 
 	    cut[i]=1;
 	  }
@@ -684,7 +704,9 @@ struct HadronPairArray:public ReaderBase
 	cout <<"upper z " <<endl;
       }
 	if(p_PiPi[i]>0 && chargeType[i]==0)
+	  {
 	  cout <<"upper z on fid" <<endl;
+	  }
 
 	    cut[i]=1;
 	  }
@@ -710,7 +732,9 @@ struct HadronPairArray:public ReaderBase
 	if(cut[i]==1)
 	  {
 	    if(p_PiPi[i]>0 && chargeType[i]==0)
-	      cout <<"cutted on fid" <<endl;
+	      {
+		//	      cout <<"cutted on fid" <<endl;
+	      }
 	    
 	    //	    cout <<"Hadron pair was cut .. " <<endl;
 	  }	
@@ -723,12 +747,12 @@ struct HadronPairArray:public ReaderBase
 	if(p_PiPi[i]>0 && chargeType[i]==0)
 	  {
 	    //cout <<" z1: " <<z1[i] <<" z2: "<< z2[i] <<" qT: "<< kT[i] <<endl;
-	    cout<<"Event " << evtNr;
-	    	    cout <<std::fixed;
-	    	    cout.precision(3);
+	    //	    cout<<"Event " << evtNr;
+	    //  	    cout <<std::fixed;
+	    //	    	    cout.precision(3);
 		    //	       cout  << " qT " <<kT[i];
 		    //	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
-	    cout <<endl;
+	    //	    cout <<endl;
 		//	cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
 	//cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
 	  }

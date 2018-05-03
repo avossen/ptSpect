@@ -837,7 +837,7 @@ namespace Belle {
 	{
 	  float m_z=2*allPB_E[i]/kinematics::Q;
 	  float theta=AuxFunc::getTheta(cmThrust,allParticlesBoosted[i]);
-	  m_histos->hEFlowMC->Fill(theta,m_z);
+	  //	  m_histos->hEFlowMC->Fill(theta,m_z);
 	}
     }
     DebugHistos* m_histos;

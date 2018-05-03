@@ -256,13 +256,13 @@ private:
 
   bool enoughSVDHits(Mdst_charged_Manager::iterator);
   void getDrDz(Mdst_charged_Manager::iterator, int, double&, double&, double&, double&, double&);
-  BelleTuple* T_dist;
-  BelleTuple* m_tup;
-  BelleTuple* m_tupG;
-  BelleTuple* m_tupThrust;
-  BelleTuple* m_tupThrustPa;
-  BelleTuple* m_tupPi0;
-  BelleTuple* m_tupEvData;
+//  BelleTuple* T_dist;
+//  BelleTuple* m_tup;
+//  BelleTuple* m_tupG;
+//  BelleTuple* m_tupThrust;
+//  BelleTuple* m_tupThrustPa;
+//  BelleTuple* m_tupPi0;
+//  BelleTuple* m_tupEvData;
   vector<HadronPair*> v_hadronPairs;
 
   vector<Particle*> v_firstHemi;
@@ -289,7 +289,7 @@ private:
   vector<int> dataI; //int data    "
 
   TFile* m_file;
-  DebugHistos m_histos;
+//  DebugHistos m_histos;
 
   //get phi after the given vector is the z direction
 
