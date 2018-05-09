@@ -252,7 +252,15 @@ class HadronPair
 ////    kT_PP=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[protonIdx]);
 ////
     //charlotte switches the definition
-      kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
+      //lower perp higher for debug 
+      if(pinf2.boostedMoms[pionIdx].mag() < pinf1.boostedMoms[pionIdx].mag())
+	{
+	kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
+	}
+      else
+	{
+	  kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
+	}
     kT_PiK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
     kT_PiP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[pionIdx]);
     //  kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
