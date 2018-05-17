@@ -19,11 +19,28 @@ class ParticleInfo:public ParticleUserInfo
   int charge;
 
   float pidProbabilities[5];
+  float pidProbabilities2[5];
+  float pidUncert[5];
   float p_Pi;
   float p_K;
   float p_p;
   float p_e;
   float p_mu;
+
+  float p_Pi2;
+  float p_K2;
+  float p_p2;
+  float p_e2;
+  float p_mu2;
+
+  float ep_Pi;
+  float ep_K;
+  float ep_p;
+  float ep_e;
+  float ep_mu;
+
+
+
 
   double labTheta;
   double cmsTheta;

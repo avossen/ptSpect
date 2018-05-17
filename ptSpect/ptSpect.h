@@ -166,6 +166,14 @@ static int getBin(vector<float>& b1, float value)
   float ****pidMatrixPositive;
   float ****pidMatrixNegative;
 
+  float ****pidMatrixPositive2;
+  float ****pidMatrixNegative2;
+
+  float ****pidUncertPositive;
+  float ****pidUncertNegative;
+
+
+
     vector<Particle*> chargedPiCandidates;
     vector<Particle*> chargedKCandidates;
     vector<Particle*> pi0Candidates;

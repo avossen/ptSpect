@@ -19,7 +19,11 @@ class PlotResults   : public TObject
   float meanKinBin2;
 
   float kTUncertainties[maxKtBins];
+  float kTSysUncertainties[maxKtBins];
   float kTValues[maxKtBins];
+  //using alternative pid methods
+  float kTValues1[maxKtBins];
+  float kTValues2[maxKtBins];
   float kTMeans[maxKtBins];
 
 

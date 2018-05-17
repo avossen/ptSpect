@@ -454,6 +454,7 @@ public:
 	  if(!mcPart)
 	    {
 	      dataF.push_back(pair->p_PiPi);
+	      //	      cout <<"saving p_pipi: "<< pair->p_PiPi <<endl;
 	      dataF.push_back(pair->p_PiK);	  
 	      dataF.push_back(pair->p_PiP);
 
@@ -466,6 +467,40 @@ public:
 	      dataF.push_back(pair->p_PPi);
 	      dataF.push_back(pair->p_PK);	  
 	      dataF.push_back(pair->p_PP);
+
+
+	      dataF.push_back(pair->p_PiPi2);
+	      //	      cout <<"saving p_pipi2: "<< pair->p_PiPi2 <<endl;
+	      dataF.push_back(pair->p_PiK2);	  
+	      dataF.push_back(pair->p_PiP2);
+
+
+	      dataF.push_back(pair->p_KPi2);
+	      dataF.push_back(pair->p_KK2);	  
+	      dataF.push_back(pair->p_KP2);
+	      
+	      
+	      dataF.push_back(pair->p_PPi2);
+	      dataF.push_back(pair->p_PK2);	  
+	      dataF.push_back(pair->p_PP2);
+
+
+	      dataF.push_back(pair->ep_PiPi);
+	      dataF.push_back(pair->ep_PiK);	  
+	      dataF.push_back(pair->ep_PiP);
+
+
+	      dataF.push_back(pair->ep_KPi);
+	      dataF.push_back(pair->ep_KK);	  
+	      dataF.push_back(pair->ep_KP);
+	      
+	      
+	      dataF.push_back(pair->ep_PPi);
+	      dataF.push_back(pair->ep_PK);	  
+	      dataF.push_back(pair->ep_PP);
+
+
+
 	      
 	      dataF.push_back(pair->kT_PiPi);
 	      dataF.push_back(pair->kT_PiK);	  

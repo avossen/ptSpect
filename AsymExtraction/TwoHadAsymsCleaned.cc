@@ -197,7 +197,7 @@ int main(int argc, char** argv)
   else 
     ss<<"_data_";
 
-  bool m_useQt=false;
+  bool m_useQt=true;
 #ifdef USE_QT
   m_useQt=true;
 #endif

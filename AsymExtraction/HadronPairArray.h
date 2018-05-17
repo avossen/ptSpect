@@ -38,6 +38,36 @@ struct HadronPairArray:public ReaderBase
   float p_PK[Max_ArrSize];
   float p_PP[Max_ArrSize];
 
+  float p_PiPi2[Max_ArrSize];
+  float p_PiK2[Max_ArrSize];
+
+  float p_PiP2[Max_ArrSize];
+
+  float p_KPi2[Max_ArrSize];
+  float p_KK2[Max_ArrSize];
+  float p_KP2[Max_ArrSize];
+
+  float p_PPi2[Max_ArrSize];
+  float p_PK2[Max_ArrSize];
+  float p_PP2[Max_ArrSize];
+
+
+  float ep_PiPi[Max_ArrSize];
+  float ep_PiK[Max_ArrSize];
+
+  float ep_PiP[Max_ArrSize];
+
+  float ep_KPi[Max_ArrSize];
+  float ep_KK[Max_ArrSize];
+  float ep_KP[Max_ArrSize];
+
+  float ep_PPi[Max_ArrSize];
+  float ep_PK[Max_ArrSize];
+  float ep_PP[Max_ArrSize];
+
+
+
+
   float kT_PiPi[Max_ArrSize];
   float kT_PiK[Max_ArrSize];
 
@@ -195,6 +225,31 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(p_PK);
 	    branchPointers.push_back(p_PP);
 
+	    branchPointers.push_back(p_PiPi2);
+	    branchPointers.push_back(p_PiK2);
+	    branchPointers.push_back(p_PiP2);
+
+	    branchPointers.push_back(p_KPi2);
+	    branchPointers.push_back(p_KK2);
+	    branchPointers.push_back(p_KP2);
+
+	    branchPointers.push_back(p_PPi2);
+	    branchPointers.push_back(p_PK2);
+	    branchPointers.push_back(p_PP2);
+
+	    branchPointers.push_back(ep_PiPi);
+	    branchPointers.push_back(ep_PiK);
+	    branchPointers.push_back(ep_PiP);
+
+	    branchPointers.push_back(ep_KPi);
+	    branchPointers.push_back(ep_KK);
+	    branchPointers.push_back(ep_KP);
+
+	    branchPointers.push_back(ep_PPi);
+	    branchPointers.push_back(ep_PK);
+	    branchPointers.push_back(ep_PP);
+
+
 
 	    //keep the same address, so we don't have to change
 	    //the kt references lateron
@@ -311,8 +366,6 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("z2_PK");
 	    branchNames.push_back("z2_PP");
 	    
-
-
 	    branchNames.push_back("p_PiPi");
 	    branchNames.push_back("p_PiK");
 	    branchNames.push_back("p_PiP");
@@ -324,6 +377,33 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("p_PPi");
 	    branchNames.push_back("p_PK");
 	    branchNames.push_back("p_PP");
+
+	    branchNames.push_back("p_PiPi_2");
+	    branchNames.push_back("p_PiK_2");
+	    branchNames.push_back("p_PiP_2");
+
+	    branchNames.push_back("p_KPi_2");
+	    branchNames.push_back("p_KK_2");
+	    branchNames.push_back("p_KP_2");
+	    
+	    branchNames.push_back("p_PPi_2");
+	    branchNames.push_back("p_PK_2");
+	    branchNames.push_back("p_PP_2");
+
+	    branchNames.push_back("ep_PiPi");
+	    branchNames.push_back("ep_PiK");
+	    branchNames.push_back("ep_PiP");
+
+	    branchNames.push_back("ep_KPi");
+	    branchNames.push_back("ep_KK");
+	    branchNames.push_back("ep_KP");
+	    
+	    branchNames.push_back("ep_PPi");
+	    branchNames.push_back("ep_PK");
+	    branchNames.push_back("ep_PP");
+
+
+
 
 #ifdef USE_QT
 	    branchNames.push_back("qT_PiPi");
@@ -428,6 +508,64 @@ struct HadronPairArray:public ReaderBase
       }
     for(int i=0;i<numPairs;i++)
       {
+	cut[i]=0;
+	if(isnan(ep_PiPi[i]))
+	  {
+	    cout <<"eppipi nan" <<endl;
+	    cut[i]=1;
+	  }
+
+    if(isnan(ep_PiK[i]))
+      {
+      cout <<"eppik nan" <<endl;
+	    cut[i]=1;
+	  }
+
+
+    if(isnan(ep_KPi[i]))
+      {
+      cout <<"epKpi nan" <<endl;
+	    cut[i]=1;
+	  }
+
+    if(isnan(ep_KK[i]))
+      {
+      cout <<"epKK nan" <<endl;
+	    cut[i]=1;
+	  }
+
+
+    if(isnan(ep_PiP[i]))
+      {
+      cout <<"epPiP nan" <<endl;
+	    cut[i]=1;
+	  }
+
+
+    if(isnan(ep_PPi[i]))
+      {
+      cout <<"epPPi nan" <<endl;
+	    cut[i]=1;
+	  }
+
+
+    if(isnan(ep_KP[i]))
+      {
+
+      cout <<"epKP nan" <<endl;
+	    cut[i]=1;
+	  }
+
+    if(isnan(ep_PK[i]))
+      {
+      cout <<"epPK nan" <<endl;
+	    cut[i]=1;
+	  }
+
+
+
+	//	cout <<"looking at p_pipi: "<< p_PiPi[i] << " and " << p_PiPi2[i]<<" e: "<< ep_PiPi[i]<<endl;
+
     //for the benefit of the xcheck
     if(z1[i]< z2[i])
       {
@@ -446,7 +584,7 @@ struct HadronPairArray:public ReaderBase
 	//	cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
 	//	cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	//	cout <<"hp after fill!" <<endl;
-	cut[i]=0;
+
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {
@@ -455,12 +593,12 @@ struct HadronPairArray:public ReaderBase
 	  cout <<"cut on fid" <<endl;
 	cut[i]=1;
 
-	    if(evtNr==DEBUG_EVENT)
-      {
-	cout <<"hadron fid " <<endl;
-      }
-	    
-	    cout <<"cut hadon fid cut " <<endl;
+	if(evtNr==DEBUG_EVENT)
+	  {
+	    cout <<"hadron fid " <<endl;
+	  }
+	
+	cout <<"cut hadon fid cut " <<endl;
 	  }
 	if(kT_PiPi[i]>kTCut || kT_PiK[i]>kTCut || kT_PiP[i]>kTCut || kT_KPi[i]>kTCut || kT_KK[i]>kTCut || kT_KP[i]>kTCut || kT_PPi[i]>kTCut || kT_PK[i]>kTCut || kT_PPi[i]>kTCut)
 	  {
@@ -532,7 +670,7 @@ struct HadronPairArray:public ReaderBase
 	      }
 	    if(p_PiPi[i]>0 && chargeType[i]==0)
 	      {
-	      cout <<"second z cut on fid "<< z2[i] <<endl;
+		//		cout <<"second z cut on fid "<< z2[i] <<endl;
 	      }
 
 	    cut[i]=1;
@@ -573,6 +711,15 @@ struct HadronPairArray:public ReaderBase
 	    p_PPi[i]=0.0;
 	    p_PK[i]=0.0;
 	    p_PP[i]=0.0;
+	    p_PiPi2[i]=0.0;
+	    p_PiK2[i]=0.0;
+	    p_PiP2[i]=0.0;
+	    p_KPi2[i]=0.0;
+	    p_KK2[i]=0.0;
+	    p_KP2[i]=0.0;
+	    p_PPi2[i]=0.0;
+	    p_PK2[i]=0.0;
+	    p_PP2[i]=0.0;
 
 	    
 	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;
@@ -587,12 +734,14 @@ struct HadronPairArray:public ReaderBase
 	      {
 	      case PiPi:
 		p_PiPi[i]=1.0;
+		p_PiPi2[i]=1.0;
 		kT_PiPi[i]=kT[i];
 		z1_PiPi[i]=z1[i];
 		z2_PiPi[i]=z2[i];
 		break;
 	      case PiK:
 		p_PiK[i]=1.0;
+		p_PiK2[i]=1.0;
 		kT_PiK[i]=kT[i];
 		z1_PiK[i]=z1[i];
 		z2_PiK[i]=z2[i];
@@ -600,6 +749,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PiP:
 		p_PiP[i]=1.0;
+		p_PiP2[i]=1.0;
 		kT_PiP[i]=kT[i];
 		z1_PiP[i]=z1[i];
 		z2_PiP[i]=z2[i];
@@ -608,6 +758,7 @@ struct HadronPairArray:public ReaderBase
 
 	      case KPi:
 		p_KPi[i]=1.0;
+		p_KPi2[i]=1.0;
 		kT_KPi[i]=kT[i];
 		z1_KPi[i]=z1[i];
 		z2_KPi[i]=z2[i];
@@ -615,6 +766,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case KK:
 		p_KK[i]=1.0;
+		p_KK2[i]=1.0;
 		kT_KK[i]=kT[i];
 		z1_KK[i]=z1[i];
 		z2_KK[i]=z2[i];
@@ -622,6 +774,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case KP:
 		p_KP[i]=1.0;
+		p_KP2[i]=1.0;
 		kT_KP[i]=kT[i];
 		z1_KP[i]=z1[i];
 		z2_KP[i]=z2[i];
@@ -629,6 +782,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PPi:
 		p_PPi[i]=1.0;
+		p_PPi2[i]=1.0;
 		kT_PPi[i]=kT[i];
 		z1_PPi[i]=z1[i];
 		z2_PPi[i]=z2[i];
@@ -636,6 +790,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PK:
 		p_PK[i]=1.0;
+		p_PK2[i]=1.0;
 		kT_PK[i]=kT[i];
 		z1_PK[i]=z1[i];
 		z2_PK[i]=z2[i];
@@ -643,6 +798,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PP:
 		p_PP[i]=1.0;
+		p_PP2[i]=1.0;
 		kT_PP[i]=kT[i];
 		z1_PP[i]=z1[i];
 		z2_PP[i]=z2[i];
@@ -672,7 +828,7 @@ struct HadronPairArray:public ReaderBase
       }
 	if(p_PiPi[i]>0 && chargeType[i]==0)
 	  {
-	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
+	    //	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
 	  }
 
 	    cut[i]=1;
@@ -705,7 +861,7 @@ struct HadronPairArray:public ReaderBase
       }
 	if(p_PiPi[i]>0 && chargeType[i]==0)
 	  {
-	  cout <<"upper z on fid" <<endl;
+	    //	  cout <<"upper z on fid" <<endl;
 	  }
 
 	    cut[i]=1;
@@ -743,9 +899,12 @@ struct HadronPairArray:public ReaderBase
 	  {
 	    //	    cout <<" pPi: " << p_PiPi[i] << p_PiPi[i] << " chargetype: "<< chargeType[i] <<endl;
 	  }
+
 	//pairChargeLikesign==0
 	if(p_PiPi[i]>0 && chargeType[i]==0)
 	  {
+	    //
+	    //	    cout << "looking at pair pipi with prob: " << p_PiPi[i] <<endl;
 	    //cout <<" z1: " <<z1[i] <<" z2: "<< z2[i] <<" qT: "<< kT[i] <<endl;
 	    //	    cout<<"Event " << evtNr;
 	    //  	    cout <<std::fixed;

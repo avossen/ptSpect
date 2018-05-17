@@ -120,7 +120,10 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 
       cout <<"allocating " << numKinematicBinning <<" * " << NumCharge << " * " << maxKinBins <<" * " << maxKinBins <<" * " <<numKtBins <<" * " <<numKtBins<<endl;
       counts=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
+      counts1=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
+      counts2=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
       uncertainties=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
+      sysUncertainties=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
       meanValues_kin1=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins);
       meanValues_kin2=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins);
       meanValues_kT=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
@@ -231,8 +234,14 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 
     unsigned int numKtBins;
     unsigned int maxKinBins;
+    //this might have the average of teh two PID methods
     double****** counts;
+    //for Martin's two alternative PID weights
+    double****** counts1;
+    double****** counts2;
     double****** uncertainties;
+    //keeping track of the PID uncertainties
+    double****** sysUncertainties;
 
     double***** meanValues_kin1;
     double***** meanValues_kin2;

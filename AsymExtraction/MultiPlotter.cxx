@@ -23,7 +23,15 @@ void MultiPlotter::doPlots()
 			{
 			  locCount+=counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].kTValues[ktBin]=counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  plotResults[resIdx].kTValues1[ktBin]=counts1[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  plotResults[resIdx].kTValues2[ktBin]=counts2[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].kTUncertainties[ktBin]=sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]);
+			  cout << " sys Uncert: "<< sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]<<endl;
+			  if(sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]<0)
+			    {
+			      cout <<"sysUncertainties to small " <<endl;
+			    }
+			  plotResults[resIdx].kTSysUncertainties[ktBin]=sqrt(sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]);
 			  cout <<"using counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  cout <<", uncertainties: " << uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  cout <<", sqrt: "<< sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin])<<endl;
@@ -693,6 +701,10 @@ void MultiPlotter::printDebug(plotType mPlotType)
 			  
 			  //	  cout <<"setting x: " << mX[iKtBin] <<endl;
 			  cout <<" " <<  m_plotResults[resIdx].kTValues[iKtBin];
+			  cout <<" " <<  m_plotResults[resIdx].kTValues1[iKtBin];
+			  cout <<" " <<  m_plotResults[resIdx].kTValues2[iKtBin];
+			  cout <<" " <<  m_plotResults[resIdx].kTUncertainties[iKtBin];
+			  cout <<" " <<  m_plotResults[resIdx].kTSysUncertainties[iKtBin];
 			  total+=m_plotResults[resIdx].kTValues[iKtBin];
 
 			}
@@ -1085,6 +1097,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       //      int particleBin=hp->particleType[i];
 
       float weight=0.0;
+
+      //for the two alternative PID
+      float weight1=0.0;
+      float weight2=0.0;
+      //to keep track of the uncertainty on the PID
+      float sys=0.0;
       //don'te care for now...
 
       //      cout <<" pid: " << p <<endl;
@@ -1097,7 +1115,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPi || z2< zCutPi)
 	    continue;
 	  this->kT=hp->kT_PiPi[i];
-	  weight=hp->p_PiPi[i];
+
+	  weight1=hp->p_PiPi[i];
+	  weight2=hp->p_PiPi2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_PiPi[i];
+	  //	  cout <<"sys is : "<< sys <<endl;
 	  break;
 	case PiK:
 	  this->z1=hp->z1_PiK[i];
@@ -1106,7 +1129,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPi || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_PiK[i];
-	  weight=hp->p_PiK[i];
+
+	  weight1=hp->p_PiK[i];
+	  weight2=hp->p_PiK2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_PiK[i];
+
 	  //	  cout <<"adding weight: " << weight <<endl;
 	  break;
 	case PiP:
@@ -1115,7 +1143,11 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPi || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_PiP[i];
-	  weight=hp->p_PiP[i];
+	  weight1=hp->p_PiP[i];
+	  weight2=hp->p_PiP2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_PiP[i];
+
 	  break;
 	case KPi:
 	  this->z1=hp->z1_KPi[i];
@@ -1123,7 +1155,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPK || z2< zCutPi)
 	    continue;
 	  this->kT=hp->kT_KPi[i];
-	  weight=hp->p_KPi[i];
+
+	  weight1=hp->p_KPi[i];
+	  weight2=hp->p_KPi2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_KPi[i];
+
 	  break;
 	case KK:
 	  this->z1=hp->z1_KK[i];
@@ -1131,7 +1168,11 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_KK[i];
-	  weight=hp->p_KK[i];
+	  weight1=hp->p_KK[i];
+	  weight2=hp->p_KK2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_KK[i];
+
 	  break;
 	case KP:
 	  this->z1=hp->z1_KP[i];
@@ -1139,7 +1180,11 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
 	  this->kT=hp->kT_KP[i];
-	  weight=hp->p_KP[i];
+	  weight1=hp->p_KP[i];
+	  weight2=hp->p_KP2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_KP[i];
+
 	  break;
 
 	case PPi:
@@ -1148,16 +1193,25 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  if(z1 < zCutPK || z2< zCutPi)
 	    continue;
 	  this->kT=hp->kT_KPi[i];
-	  weight=hp->p_PPi[i];
+	  weight1=hp->p_PPi[i];
+	  weight2=hp->p_PPi2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_PPi[i];
+
 	  break;
 	case PK:
 	  this->z1=hp->z1_PK[i];
 	  this->z2=hp->z2_PK[i];
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
-	  this->kT=hp->kT_KK[i];
+	  this->kT=hp->kT_PK[i];
+	  weight1=hp->p_PK[i];
+	  weight2=hp->p_PK2[i];
+	  weight=(weight1+weight2)/2;
 
-	  weight=hp->p_PK[i];
+	  sys=hp->ep_PK[i];
+
+
 	  break;
 	case PP:
 	  this->z1=hp->z1_PP[i];
@@ -1165,7 +1219,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  this->kT=hp->kT_PP[i];
 	  if(z1 < zCutPK || z2< zCutPK)
 	    continue;
-	  weight=hp->p_PP[i];
+
+	  weight1=hp->p_PP[i];
+	  weight2=hp->p_PP2[i];
+	  weight=(weight1+weight2)/2;
+	  sys=hp->ep_PP[i];
+
 	  break;
 
 
@@ -1175,6 +1234,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  this->z2=hp->z2[i];
 	  this->kT=hp->kT[i];
 	  weight =0.0;
+	  weight1 =0.0;
+	  weight2=0.0;
+	  sys=0.0;
+
 	  cout <<"done with default " << endl;
 	}
 
@@ -1234,7 +1297,18 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	    }
 
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
+	  counts1[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight1;
+	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight2;
 	  uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*weight);
+
+	  if(isnan(sys*sys))
+	    {
+	      cout <<"sys*sys is nan: "<< sys<<endl;
+	    }
+
+	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(sys*sys);
+	  //	  	  cout <<"adding sys: "<< sys*sys <<" adding to " << sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin] <<endl;
+
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);
 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*secondKin);
 	  meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*kT);
