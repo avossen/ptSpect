@@ -1587,10 +1587,33 @@ namespace Belle {
 	//	(*pXCheck) <<" two had type; "<< hp->hadPType<<endl;
 	//seems to be in cms...
 	//	(*pXCheck) << "other mom: "<<  hp->firstHadron->p().vect().mag() <<" or: "<< hp->secondHadron->p().vect().mag()<<endl;
-	(*pXCheck) <<"p h1 "<< pinf1.labMom <<" cos(theta)  h1 " << cos(pinf1.labTheta)<<endl;
+	(*pXCheck) <<"p h1 "<< pinf1.labMom <<" cos(theta)  h1 " << cos(pinf1.labTheta)<<" ";
 	(*pXCheck) <<"p h2 "<< pinf2.labMom <<" cos(theta)  h2 " << cos(pinf2.labTheta)<<endl;
-	(*pXCheck)<< "qT " <<hp->qT <<endl;
-	(*pXCheck) << "z1: " << hp->z1 <<" z2: " << hp->z2 <<" kT: " << hp->kT <<  " pid1 " << hp->firstHadron->lund() <<" pid2 " << hp->firstHadron->lund() <<endl;
+
+	(*pXCheck) <<"i 0 pid h1 data "<< pinf1.p_Pi <<" mc " << pinf1.p_Pi2;
+	(*pXCheck) <<" pid h2 data "<< pinf2.p_Pi <<" mc " << pinf2.p_Pi2<<endl;
+
+	(*pXCheck) <<"i 1 pid h1 data "<< pinf1.p_K <<" mc " << pinf1.p_K2;
+	(*pXCheck) <<" pid h2 data"<< pinf2.p_K <<" mc " << pinf2.p_K2<<endl;
+
+	(*pXCheck) <<"i 2 pid h1 data "<< pinf1.p_p <<" mc " << pinf1.p_p2;
+	(*pXCheck) <<" pid h2 data "<< pinf2.p_p <<" mc " << pinf2.p_p2<<endl;
+
+
+	(*pXCheck) << "i 0 z h1 " << hp->z1_PiPi << " z h2 "<< hp->z2_PiPi <<" kT " << hp->kT_PiPi << " qT " << hp->qT_PiPi <<endl;
+	(*pXCheck) << "i 1 z h1 " << hp->z1_PiK << " z h2 "<< hp->z2_PiK <<" kT " << hp->kT_PiK << " qT " << hp->qT_PiK <<endl;
+	(*pXCheck) << "i 2 z h1 " << hp->z1_PiP << " z h2 "<< hp->z2_PiP <<" kT " << hp->kT_PiP << " qT " << hp->qT_PiP <<endl;
+
+	(*pXCheck) << "i 3 z h1 " << hp->z1_KPi << " z h2 "<< hp->z2_KPi <<" kT " << hp->kT_KPi << " qT " << hp->qT_KPi <<endl;
+	(*pXCheck) << "i 4 z h1 " << hp->z1_KK << " z h2 "<< hp->z2_KK <<" kT " << hp->kT_KK << " qT " << hp->qT_KK <<endl;
+	(*pXCheck) << "i 5 z h1 " << hp->z1_KP << " z h2 "<< hp->z2_KP <<" kT " << hp->kT_KP << " qT " << hp->qT_KP <<endl;
+
+	(*pXCheck) << "i 6 z h1 " << hp->z1_PPi << " z h2 "<< hp->z2_PPi <<" kT " << hp->kT_PPi << " qT " << hp->qT_PPi <<endl;
+	(*pXCheck) << "i 7 z h1 " << hp->z1_PK << " z h2 "<< hp->z2_PK <<" kT " << hp->kT_PK << " qT " << hp->qT_PK <<endl;
+	(*pXCheck) << "i 8 z h1 " << hp->z1_PP << " z h2 "<< hp->z2_PP <<" kT " << hp->kT_PP << " qT " << hp->qT_PP <<endl;
+
+	//(*pXCheck)<< "qT " <<hp->qT <<endl;
+	//	(*pXCheck) << "z1: " << hp->z1 <<" z2: " << hp->z2 <<" kT: " << hp->kT <<  " pid1 " << hp->firstHadron->lund() <<" pid2 " << hp->firstHadron->lund() <<endl;
 
 	  //cos(pinf1.labTheta) <<" cos labTheta2: "<< cos(pinf2.labTheta) <<" z1: "<< hp->z1 << " z2: "<< hp->z2 << " kT: "<< hp->kT <<", qT: "<< hp->qT << " had type1 "<< hp->hadPType1 <<" second had type: "<< hp->hadPType2  <<" first charge: "<< hp->hadCharge1 << " second charge: "<< hp->hadCharge2 <<endl;
 	//	(*pXCheck) << "naive z1: "<< pinf1.boostedMoms[pinf1.idAs].mag()/5.25 <<" naive z2: "<< pinf2.boostedMoms[pinf2.idAs].mag()/5.25 <<endl;
@@ -3276,11 +3299,36 @@ namespace Belle {
     //lowest bin is the border..
     thetaBin--;
     momBin--;
-    //    cout <<" plab: " << mom<<" bin: " << momBin <<" cosTheta: "<< cos(info->labTheta) <<"/bin " << thetaBin << " charge: " << info->charge <<endl;
+    //     cout <<" plab: " << mom<<" bin: " << momBin <<" cosTheta: "<< cos(info->labTheta) <<"/bin " << thetaBin << " charge: " << info->charge <<endl;
     //probability for each mass hyposthesis
     //    cout <<"mom: " << mom << " bin: " << momBin <<" that: " << info->labTheta <<" bin: "<< thetaBin <<endl;
     int idAs=info->idAs;
     //    cout <<" set hadron pid probs idAs: " << idAs <<" thetaBin: "<< thetaBin << " momBin: "<< momBin <<endl;
+
+    int momBinUp=momBin+1;
+    int momBinDown=momBin-1;
+    int thetaBinUp=thetaBin+1;
+    int thetaBinDown=thetaBin-1;
+    if(momBinDown<0)
+      momBinDown=0;
+    if(thetaBinDown<0)
+      thetaBinDown=0;
+    if(momBinUp>=numMomBins)
+      momBinUp=numMomBins-1;
+    if(thetaBinUp>=numThetaBins)
+      thetaBinUp=numThetaBins-1;
+
+
+    //    cout <<" looking at pi/pi hypo: "<<   pidMatrixPositive[momBin][thetaBin][2][2] <<" or: "<<  pidMatrixNegative[momBin][thetaBin][2][2]<<endl;
+
+
+    //    cout <<" mom/theta up looking at pi/pi hypo: "<<   pidMatrixPositive[momBinUp][thetaBinUp][2][2] <<" or: "<<  pidMatrixNegative[momBinUp][thetaBinUp][2][2]<<endl;
+
+    //    cout <<" mom/theta down looking at pi/pi hypo: "<<   pidMatrixPositive[momBinDown][thetaBinDown][2][2] <<" or: "<<  pidMatrixNegative[momBinDown][thetaBinDown][2][2]<<endl;
+
+
+
+
     for(int hypo=0;hypo<5;hypo++)
       {
 	//default
@@ -3340,7 +3388,7 @@ namespace Belle {
 	      {
 	      //	      cout <<"pid neg probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
 		info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	
-		info->pidProbabilities2[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	
+		info->pidProbabilities2[hypo]=pidMatrixNegative2[momBin][thetaBin][hypo][idAs];	
 		info->pidUncert[hypo]=pidUncertNegative[momBin][thetaBin][hypo][idAs];
 		//	      cout <<"hypothesis: " << hypo <<" weight: "<< info->pidProbabilities[hypo] <<endl;    
 		if(fabs(info->pidProbabilities[hypo])>10000)
@@ -3504,6 +3552,10 @@ namespace Belle {
 #else
 	                    pidMatrixPositive[u][v][i][j]=mat(i,j);
 			    pidMatrixPositive2[u][v][i][j]=mat2(i,j);
+			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
+
+			    if(pidMatrixPositive2[u][v][i][j]>100.0)
+			      pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
 			   pidUncertPositive[u][v][i][j]=symUncert;
 
 #endif
@@ -3525,14 +3577,17 @@ namespace Belle {
 		 pidUncertNegative[u][v][i][j]=0.0;
 		 }
 #else
+	       //			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
 	       pidMatrixNegative[u][v][i][j]=mat(i,j);
 	       pidMatrixNegative2[u][v][i][j]=mat2(i,j);
-		 pidUncertNegative[u][v][i][j]=symUncert;
+	       if(pidMatrixNegative2[u][v][i][j]>100.0)
+		 pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
+	       pidUncertNegative[u][v][i][j]=symUncert;
 #endif
 	     //	     cout <<"loading negative " << i << ", " << j << " "  << mat(i,j) <<endl;
 	     }
 
-	   //          matrix[k][i][j] = mat(i,j);
+	   //        matrix[k][i][j] = mat(i,j);
           //if(k==72) cout << i << " " << j <<" " <<  mat(i,j) << endl;
        }
      }

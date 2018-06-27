@@ -1610,7 +1610,7 @@ void MultiPlotter::reorder(float* mX, float* mY, float* mYErr, int numBins)
 }
 
 
-const int MultiPlotter::numKinematicBinning=7;
+const int MultiPlotter::numKinematicBinning=1;
 const int MultiPlotter::NumCharges=3;
 const int MultiPlotter::NumPIDs=10;
 //there is also an unknown flag which e.g. is used for all the electron/muon combinations

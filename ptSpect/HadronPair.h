@@ -140,8 +140,6 @@ class HadronPair
   float z2_PP;
 
 
-
-
   //only for mc
   double diffPhi;
   double diffTheta;

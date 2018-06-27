@@ -4,7 +4,7 @@
 #define HADRON_PAIR_ARRAY_H
 #include "ReaderBase.h"
 #include "TMath.h"
-//#define USE_QT
+#define USE_QT
 //300 is also the number in the Treesaver, so cannot be larger...
 #define Max_ArrSize 300
 
@@ -566,7 +566,7 @@ struct HadronPairArray:public ReaderBase
 
 	//	cout <<"looking at p_pipi: "<< p_PiPi[i] << " and " << p_PiPi2[i]<<" e: "<< ep_PiPi[i]<<endl;
 
-    //for the benefit of the xcheck
+    //for the benefit of the xcheck, debug
     if(z1[i]< z2[i])
       {
 	float tmp=z2[i];
