@@ -197,12 +197,13 @@ int main(int argc, char** argv)
   else 
     ss<<"_data_";
 
-  bool m_useQt=true;
+  bool m_useQt=false;
 #ifdef USE_QT
   m_useQt=true;
+  cout<<"setting m_useQt" <<endl;
 #endif
 
-
+  cout <<"m_useqt: " << m_useQt <<endl;
   MultiPlotter smearingPlotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
   MultiPlotter plotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter plotterMC(const_cast<char*>("NormalMC"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
@@ -240,7 +241,10 @@ int main(int argc, char** argv)
       hadPair.afterFill(myEvent.evtNr);
       //      cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
-	hadPairMC->afterFill();
+	{
+	  cout <<"filling mc pair " <<endl;
+	  hadPairMC->afterFill();
+	}
  
       for(int i=0;i<hadPair.numPairs;i++)
 	{

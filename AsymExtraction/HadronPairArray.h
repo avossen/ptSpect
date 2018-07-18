@@ -4,7 +4,7 @@
 #define HADRON_PAIR_ARRAY_H
 #include "ReaderBase.h"
 #include "TMath.h"
-#define USE_QT
+//#define USE_QT
 //300 is also the number in the Treesaver, so cannot be larger...
 #define Max_ArrSize 300
 
@@ -676,6 +676,11 @@ struct HadronPairArray:public ReaderBase
 	    cut[i]=1;
 	  }
 
+	if(p_PiPi[i]>0.5 && z1[i] < 0.1 && z2[i] < 0.1 && chargeType[i]==0)
+	  {
+	    //	    cout <<"kT pipi: "<< kT_PiPi[i] << " kt: "<< kT[i] <<" z1: " << z1[i] << " z2: " << z2[i] << " z1pipi: " << z1_PiPi[i] <<" z2pipi: " << z2_PiPi[i] <<endl;
+	  }
+
 	//////////-----------test: restrict to hadron from uds
 	if(mMCFlag==mcFlagMC)
 	  {
@@ -914,6 +919,10 @@ struct HadronPairArray:public ReaderBase
 	    //	    cout <<endl;
 		//	cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
 	//cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+	  }
+	if(p_PiPi[i]>0.5 && z1[i] < 0.1 && z2[i] < 0.1 && chargeType[i]==0)
+	  {
+	    //	    cout <<"cut? " << cut[i] <<endl;
 	  }
       }
     //    cout <<"---------"<<endl;

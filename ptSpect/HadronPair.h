@@ -252,7 +252,7 @@ class HadronPair
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
       {
 	p_PiK=pinf1.p_Pi*pinf2.p_K;
-	p_PiK2=pinf1.p_Pi*pinf2.p_K2;
+	p_PiK2=pinf1.p_Pi2*pinf2.p_K2;
 	ep_PiK=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_K,pinf2.ep_K);
       }
     p_PiP=0.0;

@@ -5,7 +5,7 @@
 //compute means and fill plotResults
 void MultiPlotter::doPlots()
 {
-  for(int bt=binType_labTheta_z; bt<binType_end;bt++)
+  for(int bt=binType_z_z; bt<binType_end;bt++)
     {
       //      cout <<"looking at bin type " << bt <<endl;
       //      for(int chargeBin=0;chargeBin<NumCharges;chargeBin++)
@@ -38,7 +38,7 @@ void MultiPlotter::doPlots()
 
 
 			  plotResults[resIdx].kTMeans[ktBin]=meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
-			  if(bt==binType_labTheta_z && chargeBin==0)
+			  if(bt==binType_z_z && chargeBin==0)
 			    {
 			      cout <<"kTbin: " <<ktBin << " kt count: "<< plotResults[resIdx].kTValues[ktBin] << " mean kt: "<< plotResults[resIdx].kTMeans[ktBin]<<endl;
 			    }
@@ -49,7 +49,7 @@ void MultiPlotter::doPlots()
 
 		      plotResults[resIdx].firstKinBin=firstBin;
 		      plotResults[resIdx].secondKinBin=secondBin;
-		      if(bt==binType_labTheta_z && chargeBin==0)
+		      if(bt==binType_z_z && chargeBin==0)
 			{
 			  cout <<"resIdx: " << resIdx <<" mean 1 : " << plotResults[resIdx].meanKinBin1;
 			  cout <<",  mean2: " << plotResults[resIdx].meanKinBin2 <<",  firstBin: " << firstBin <<" second: " << secondBin;
@@ -198,6 +198,7 @@ void MultiPlotter::saveSmearingMatrix()
 	}
     }
     }
+  rFile.Write();
 }
 
 
@@ -738,7 +739,7 @@ void MultiPlotter::savePlots( plotType mPlotType)
   float mY[50];
   float mXErr[50];
   float mYErr[50];
-  for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
+  for(int binningType=binType_z_z; binningType<binType_end;binningType++)
     {
       for(int pidType=0;pidType<9;pidType++)
 	{
@@ -908,6 +909,7 @@ pair<int,int> MultiPlotter::pidBin2ZBinningIdx(int pidBin)
    return ret;
  
 }
+
 //if accSmearing the number of pairs in the array might be different
 //hp1 is the measured, hp2 the mc one, so we only check on hp1 if it is cut
 void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, bool accSmearing)
@@ -917,6 +919,10 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      {
        cout <<" smearing  hadron pairs not the same size: "<< hp1->numPairs <<", to " << hp2->numPairs <<endl;
        return;
+     }
+   else
+     {
+       cout <<"same size " <<endl;
      }
   for(int i=0;i<hp1->numPairs;i++)
     {
@@ -930,9 +936,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	  //	  cout <<"hadron pair survived " <<endl;
 	}
 
-
       int chargeBin=hp2->chargeType[i];
-
       //      int particleBin1=hp->particleType1[i];
       //      int particleBin2=hp->particleType2[i];
       //      int particleBin=hp->particleType[i];
@@ -950,8 +954,6 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      int kTBin2=getBin(binningKt,hp2->kT[i]);
 
      //       cout <<" kt data " << hp1->kT[i] << " kit mc: "<< hp2->kT[i] << " data PiPi " << hp1->kT_PiPi[i] << " mc " << hp2->kT_PiPi[i] <<endl;
-
-
      int  z2Bin1=getBin(binningZ[zIdx2.first],hp2->z1[i]);
      int z2Bin2=getBin(binningZ[zIdx2.second],hp2->z2[i]);
      int  z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1[i]);
@@ -1031,7 +1033,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
       ///let's only use the first z bin...
 
 
-  pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
+     pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
 
      int numZBins1=binningZ[zIdx.first].size();
      int numZBins2=binningZ[zIdx.second].size();
@@ -1119,6 +1121,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  weight1=hp->p_PiPi[i];
 	  weight2=hp->p_PiPi2[i];
 	  weight=(weight1+weight2)/2;
+	  
+	  //cout <<"looking at weight1: "<< weight1 <<" weight2: " << weight2 <<" weight: "<< weight <<endl;
 	  sys=hp->ep_PiPi[i];
 	  //	  cout <<"sys is : "<< sys <<endl;
 	  break;
@@ -1249,8 +1253,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       thrustBin=getBin(binningThrust,event.Thrust);
 
       qTBin=getBin(binningQt,qT);
+
       kTBin=getBin(binningKt,kT);
-      //      cout <<"kt: " << kT <<" bin: "<< kTBin<<endl;
+      //n      if(z1<0.1 && z2<0.1)
+      //	cout <<"z1: "<< z1 <<" z2: "<< z2 <<" kt: " << kT <<" bin: "<< kTBin<<endl;
 
       pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
       zbin1=getBin(binningZ[zIdx.first],this->z1);
@@ -1261,7 +1267,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       labThetaBin2=getBin(binningLabTheta,hp->labTheta2[i]);
       //      cout <<"getting mass: " << hq->hp1.mass[i] <<endl;
 	
-      for(int bt=binType_labTheta_z; bt<binType_end;bt++)
+      for(int bt=binType_z_z; bt<binType_end;bt++)
 	{
 	  int firstBin=*(binningMap[bt].first);
 	  int secondBin=*(binningMap[bt].second);
@@ -1326,7 +1332,8 @@ void MultiPlotter::setBinningMap()
   maxKinMap=new vector< pair<int, int> >[NumPIDs];
 
 
-  for(int bt=binType_labTheta_z; bt<binType_end;bt++)
+  //have to run over all
+  for(int bt=binType_qTOnly; bt<binType_end;bt++)
     {
       switch(bt)
 	{
@@ -1381,7 +1388,7 @@ void MultiPlotter::setBinningMap()
       int maxZ2=binningZ[zIdx.second].size();
       
       
-      for(int bt=binType_labTheta_z; bt<binType_end;bt++)
+      for(int bt=binType_qTOnly; bt<binType_end;bt++)
 	{
 	  switch(bt)
 	    {
@@ -1610,7 +1617,7 @@ void MultiPlotter::reorder(float* mX, float* mY, float* mYErr, int numBins)
 }
 
 
-const int MultiPlotter::numKinematicBinning=1;
+const int MultiPlotter::numKinematicBinning=7;
 const int MultiPlotter::NumCharges=3;
 const int MultiPlotter::NumPIDs=10;
 //there is also an unknown flag which e.g. is used for all the electron/muon combinations

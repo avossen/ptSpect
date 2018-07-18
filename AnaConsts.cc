@@ -136,8 +136,6 @@ namespace kinematics
   float thrustMag;
   double thrust;
   float thetaEThrust;
-
-
   float masses[5];
 
 

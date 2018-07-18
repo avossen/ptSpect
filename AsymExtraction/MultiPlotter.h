@@ -12,7 +12,7 @@
 #include "TSVDUnfold.h"
 #include <tuple>
 
-enum binningType{binType_z_z,binType_end};
+enum binningType{binType_qTOnly,binType_ThrustOnly,binType_labThetaOnly,binType_labTheta_z,binType_ThrustLabTheta_z,binType_zOnly,binType_z_z,binType_end};
 //enum binningType{ binType_z_z,binType_zOnly,binType_end};
 enum pairType{pairChargeLikesign, pairPN,  pairUnknown,pairTypeEnd};
 enum plotType{plotType_2D ,plotType_end};
@@ -23,6 +23,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
  public:
  MultiPlotter(bool m_useQt,const char* pathBase,const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(pathBase,filenameBase,nameAdd,exNr,onRes,uds,charm,mc),zCutPi(0.05),zCutPK(0.1),useQt(m_useQt)
     {
+      cout<<"museQt: " << m_useQt <<" useQt: "<< useQt <<endl;
       auto mt=std::make_tuple(1,1);
       maxSmearing=new int*[NumPIDs];
       for(int i=0;i<NumPIDs;i++)

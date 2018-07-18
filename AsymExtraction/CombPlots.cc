@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 	      TH2D* smearingMatrix=(TH2D*)smearingFile->Get(buffer);
 	      if(smearingMatrix->Integral()<10)
 		{
-		  cout <<" c: "<< c <<" p: "<< p << " integarl: " << smearingMatrix->Integral()<<endl;
+		  cout <<" c: "<< c <<" p: "<< p << " integral: " << smearingMatrix->Integral()<<endl;
 		  continue;
 		}
 	      smearingMatrix->Draw("colz");
@@ -301,8 +301,8 @@ int main(int argc, char** argv)
 	      TH1D** d=new (TH1D*);
 
 	      //no unfolding for now
-	      TH1D* output=(TH1D*)combinedHisto->Clone("sth");
-	      //TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+	      //	      TH1D* output=(TH1D*)combinedHisto->Clone("sth");
+	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
 	      //for closure test, bini is output....
 	      //	      for(int t=0;t<combinedHisto->GetNbinsX();t++)
 	      //		{
@@ -324,8 +324,6 @@ int main(int argc, char** argv)
 	      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,b,c,p,"dataInput");
 	      //    TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(output,b,c,p,"allDataInput");
 	      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"allDataInput");
-
-
 
 	      TCanvas cnvs2;
 	      //need one canvas for the legend
@@ -356,8 +354,6 @@ int main(int argc, char** argv)
 		  sepKtZHistosDataInput[iZ]->SetMarkerColor(kBlack);
 		  sepKtZHistos[iZ]->SetMarkerColor(kBlue);
 		  sepKtZHistos[iZ]->SetMarkerStyle(23);
-
-
 		  //		  		  sepKtZHistos[iZ]->Draw("A P  E1");
 		  //		  		  sepKtZHistos_mcInput[iZ]->Draw("SAME P E1");
 		  sepKtZHistos[iZ]->Draw("SAME P  E1");
@@ -480,10 +476,6 @@ int main(int argc, char** argv)
 	{
 	  	  cout<<"saving results vs exp" <<endl;
 	  TFile tmpFile("resVsExpWeighted.root","recreate");
-
-
-
-
 	  tmpFile.Write();
 	  tmpFile.Close();
 	  //	  cout <<"done " <<endl;

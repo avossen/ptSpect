@@ -29,7 +29,7 @@ initialize
 nprocess set 0
 histogram define ${HBKFILE}
 #debug run
-process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
+#process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
 
 #job 25
 #process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001660-b20090127_0910.mdst 1000000

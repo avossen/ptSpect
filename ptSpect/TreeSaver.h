@@ -255,9 +255,10 @@ public:
 	pinf.cmsPhi=boostedVec.phi();
 
 
-	Hep3Vector axis=gi.jet1;
-	if(boostedVec.vect().dot(gi.jet1)<0)
-	  axis=gi.jet2;
+	Hep3Vector axis=gi.cmThrust;
+	//	if(boostedVec.vect().dot(gi.jet1)<0)
+	//	  axis=gi.jet2;
+	//might consider flip here
 	pinf.thrustProj=axis.dot(boostedVec.vect())/(axis.mag()*boostedVec.vect().mag());
 
 	//turns out that the ones where z is -1 are all the electron/muon 
@@ -313,7 +314,7 @@ public:
       //      cout <<"ts 1 "<<endl;
 
       bool normalHemi=true;
-      if(hp.firstHadron->p().vect().dot(gi.jet1)<0)
+      if(hp.firstHadron->p().vect().dot(gi.cmThrust)<0)
 	normalHemi=false;
 
       if(validType)
@@ -368,7 +369,7 @@ public:
 //      dataF.push_back(kinematics::jet2.theta());
 //
 #ifdef MC
-      float angleToRecThrust=gi.jet1.angle(kinematics::jet1);
+      float angleToRecThrust=gi.cmThrust.angle(kinematics::thrustDirCM);
 
 
       Hep3Vector tmpThrust=gi.cmThrust;      

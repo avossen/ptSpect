@@ -95,18 +95,6 @@ namespace Belle {
 
       vector<float> mGZBins;
     Hep3Vector cmThrust;
-    Hep3Vector jet1;
-    Hep3Vector jet2;
-    Hep3Vector dijet[2];
-    float fluffiness1;
-    float fluffiness2;
-    float jetE1;
-    float jetE2;
-    float jetPhi1;
-    float jetPhi2;
-    float jetTheta1;
-    float jetTheta2;
-
 
     float cmThrustMag;
     Hep3Vector labThrust;
@@ -780,41 +768,6 @@ namespace Belle {
 
       ////////////////jet algos....
 
-      JetDefinition jet_def(ee_genkt_algorithm,kinematics::R,-1);
- ClusterSequence cs(fjParticles,jet_def);
- vector<PseudoJet> jets=sorted_by_E(cs.inclusive_jets());
- int numHighEJets=0;
- for(unsigned int i=0;i<jets.size();i++)
-   {
-     if(jets[i].modp()>3.5)
-       numHighEJets++;
-   }
-
-//need dijet event...
- if(numHighEJets!=2)
-   {
-     //      return;
-   }
- jet1=Hep3Vector(jets[0].px(),jets[0].py(),jets[0].pz());
-      //to have the same convention as with thrust we have to flip the direction of the second jet...
- jet2=Hep3Vector((-1)*jets[1].px(),(-1)*jets[1].py(),(-1)*jets[1].pz());
-
- fluffiness1=AuxFunc::computeFluffiness(jets[0]);
- fluffiness2=AuxFunc::computeFluffiness(jets[1]);
-
- jetE1=jets[0].modp();
- jetE2=jets[1].modp();
-
- jetPhi1=jets[0].phi();
- jetPhi2=jets[1].phi();
-
- jetTheta1=jets[0].phi();
- jetTheta2=jets[1].phi();
-
-
- ////?
- dijet[0]=kinematics::jet1;
- dijet[1]=kinematics::jet2;
 
 
       ////////////

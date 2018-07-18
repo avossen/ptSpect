@@ -1584,11 +1584,19 @@ namespace Belle {
 	{
 	ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
 	ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+
+	//momentum ordering for easier comparison
+	if(pinf1.labMom<pinf2.labMom)
+	  {
+	    pinf1=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+	    pinf2=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
+	  }
+
 	//	(*pXCheck) <<" two had type; "<< hp->hadPType<<endl;
 	//seems to be in cms...
 	//	(*pXCheck) << "other mom: "<<  hp->firstHadron->p().vect().mag() <<" or: "<< hp->secondHadron->p().vect().mag()<<endl;
-	(*pXCheck) <<"p h1 "<< pinf1.labMom <<" cos(theta)  h1 " << cos(pinf1.labTheta)<<" ";
-	(*pXCheck) <<"p h2 "<< pinf2.labMom <<" cos(theta)  h2 " << cos(pinf2.labTheta)<<endl;
+	(*pXCheck) <<"plab h1 "<< pinf1.labMom << " h2 " << pinf2.labMom;
+	(*pXCheck) << " costheta h1 " << cos(pinf1.labTheta)<<"  h2 " << cos(pinf2.labTheta)<<endl;
 
 	(*pXCheck) <<"i 0 pid h1 data "<< pinf1.p_Pi <<" mc " << pinf1.p_Pi2;
 	(*pXCheck) <<" pid h2 data "<< pinf2.p_Pi <<" mc " << pinf2.p_Pi2<<endl;
@@ -3503,13 +3511,8 @@ namespace Belle {
 	   if(isnan(matUncertPos(i,j)))
 	     {
 	       cout <<" matuncert pos nan"<<endl;
+	       //to force using the neg uncert
 	       symUncert=0;
-	     }
-
-	   if(isnan(matUncertPos2(i,j)))
-	     {
-	       cout <<" matuncert pos2 nan"<<endl;
-	       symUncert2=0;
 	     }
 	   if(isnan(matUncertNeg(i,j)))
 	     {
@@ -3528,14 +3531,13 @@ namespace Belle {
 	     {
 	       if(fabs(matUncertNeg2(i,j))>symUncert2)
 		 symUncert2=fabs(matUncertNeg2(i,j));
-
 	     }
-	   symUncert=sqrt((symUncert*symUncert+symUncert2*symUncert2))/2;
+	   if(fabs(symUncert2)<100.0)
+	     symUncert=sqrt((symUncert*symUncert+symUncert2*symUncert2))/2;
 	   if(isnan(symUncert))
 	     cout<<"resulting uncertainty still nan!!!!!!!!"<<endl<<endl;
 	   if(w==1)
 	     {
-
 #ifdef noPID
 	       	       if(i==j)
 			 {
@@ -3553,13 +3555,32 @@ namespace Belle {
 	                    pidMatrixPositive[u][v][i][j]=mat(i,j);
 			    pidMatrixPositive2[u][v][i][j]=mat2(i,j);
 			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
+		    cout <<"loading 2" << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
 
-			    if(pidMatrixPositive2[u][v][i][j]>100.0)
-			      pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
+			    if(fabs(pidMatrixPositive2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0)
+			      {
+				pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
+				//the uncert asseignment doesnt' matter, since we use the average between the two anyways
+				symUncert2=symUncert;
+			      }
+
+			   if(isnan(pidMatrixPositive2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
+			      {
+				pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
+				symUncert2=symUncert;
+			      }
+			   symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
 			   pidUncertPositive[u][v][i][j]=symUncert;
+			   if(isnan(symUncert))
+			     cout <<"poblem with pos symUncert!!!" <<endl;
+			   
 
 #endif
 	     //	     cout <<"loading positive "<< i <<", " << j << " "  << mat(i,j) <<endl;
+
+
+
+
 	     }
 	   else
 	     {
@@ -3577,19 +3598,37 @@ namespace Belle {
 		 pidUncertNegative[u][v][i][j]=0.0;
 		 }
 #else
-	       //			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
+	      		    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
+			    cout <<"symUncert: "<< symUncert <<endl;
+		    cout <<"loading 2 " << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
 	       pidMatrixNegative[u][v][i][j]=mat(i,j);
 	       pidMatrixNegative2[u][v][i][j]=mat2(i,j);
-	       if(pidMatrixNegative2[u][v][i][j]>100.0)
-		 pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
+	       if(fabs(pidMatrixNegative2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0) 
+		 {
+		   pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
+		   symUncert2=symUncert;
+		 }
+	       if(isnan(pidMatrixNegative2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
+		 {
+		   pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
+		   symUncert2=symUncert;
+		 }
+
+	       symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
+	       if(isnan(symUncert))
+		 cout <<"poblem with neg symUncert!!!" <<endl;
 	       pidUncertNegative[u][v][i][j]=symUncert;
 #endif
+
+
+			      
+
 	     //	     cout <<"loading negative " << i << ", " << j << " "  << mat(i,j) <<endl;
 	     }
 
 	   //        matrix[k][i][j] = mat(i,j);
           //if(k==72) cout << i << " " << j <<" " <<  mat(i,j) << endl;
-       }
+	 }
      }
   }
  fpid->Close();

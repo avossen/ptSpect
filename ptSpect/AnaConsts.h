@@ -87,20 +87,8 @@ namespace kinematics
   extern double thrust;
   extern bool thrustZReverted;
   extern float thetaEThrust;
-  extern Hep3Vector jet1;
-  extern Hep3Vector jet2;
-  extern Hep3Vector dijet[2];
-  extern float jetE1;
-  extern float jetE2;
-
+ 
   extern float masses[5];
-
-  extern int jetNumParts1;
-  extern int jetNumParts2;
-
-  extern float jetFluffiness1;
-  extern float jetFluffiness2;
-  extern float R;
 
 }
 extern const double pi;
