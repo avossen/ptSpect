@@ -534,12 +534,17 @@ namespace Belle {
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
 
+    bool eventCut=false;
+
     const double m_pi0=0.1349766;
 
     vector<float> v_drH1;
     vector<float> v_drH2;
     if(!validRun)
-      return;
+      {
+	eventCut=true;
+	//	return;
+      }
     int evtNr;
     int runNr;
     /////for xcheck
@@ -559,7 +564,8 @@ namespace Belle {
     if(!IpProfile::usable())
       {
 	//	cout <<"ip profile not usable" <<endl;
-	return;
+	eventCut=true;
+	//	return;
       }
     if(!(test%1000))
       {
@@ -572,7 +578,9 @@ namespace Belle {
     if(!goodHadronB())
       {
 	//	cout <<"no good hadronb " <<endl;
-      return;
+	eventCut=true;
+
+	//      return;
       }
     //#endif
     float visEnergy=0;
@@ -1081,7 +1089,13 @@ namespace Belle {
       }
 
     ////do this after we collected the reconstructed particles, so we know what we don't have to save
-    pTreeSaver->saveGenInfo(v_allParticles);
+    pTreeSaver->saveGenInfo(v_allParticles, eventCut);
+    if(eventCut)
+      {
+	exitEvent();
+	return;
+      }
+
     //    cout <<"done with charged particles " << endl;
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();

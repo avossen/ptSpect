@@ -128,7 +128,7 @@ namespace Belle {
       thrustPR=-log(tan(cmThrust.theta()/2));
     }
 
-    void doAll(vector<Particle*>& ap)
+    void doAll(vector<Particle*>& ap, bool eventCut)
     {
       //hopefully after thust computation
       //  if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
@@ -541,7 +541,7 @@ namespace Belle {
 		  if((*it2)->mdstCharged()==gph)
 		    foundSecond=true;
 		}
-	      if(foundFirst&&foundSecond)
+	      if(!eventCut && foundFirst&&foundSecond)
 		{
 		  //only save the ones that were dropped due to acceptance
 		  continue;

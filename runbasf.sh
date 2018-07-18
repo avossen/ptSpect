@@ -28,6 +28,8 @@ module put_parameter ptSpect rfname\/home/belle/vossen/myProjects/ptSpect/mcEx55
 initialize
 nprocess set 0
 histogram define ${HBKFILE}
+
+process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001621-b20090127_0910.mdst 10000
 #debug run
 #process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
 

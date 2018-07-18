@@ -719,11 +719,11 @@ public:
     }
 
 
-  void saveGenInfo(vector<Particle*>& ap)
+  void saveGenInfo(vector<Particle*>& ap, bool eventCut)
   {
 #ifdef MC
     gi.fillInf();
-    gi.doAll(ap);
+    gi.doAll(ap, eventCut);
 #endif
   }
 
