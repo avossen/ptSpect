@@ -40,7 +40,8 @@ saving to root trees
 //#define NUM_F_FIELDS 22 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //#define NUM_F_FIELDS 25 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 ////-->with the jet stuff, subtract 8
-#define NUM_F_FIELDS 8 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
+//#define NUM_F_FIELDS 8 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
+#define NUM_F_FIELDS 16 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //6-->10 with the genIds..
 #define NUM_I_FIELDS 6
 
@@ -186,17 +187,14 @@ public:
   //gets the corresponding generator info
   void getQGenInfo(HadronPair* pair)
     {
-
       vector<Particle*> v_p;
       vector<Gen_hepevt*> v_g;
 
       Gen_hepevt gph1;
       Gen_hepevt gph2;
 
-
       gph1=get_hepevt(pair->firstHadron->mdstCharged());
       gph2=get_hepevt(pair->secondHadron->mdstCharged());
-
 
       //id 911 is gamma from background addmixture (I think..)
 
@@ -721,11 +719,11 @@ public:
     }
 
 
-  void saveGenInfo()
+  void saveGenInfo(vector<Particle*>& ap)
   {
 #ifdef MC
     gi.fillInf();
-    gi.doAll();
+    gi.doAll(ap);
 #endif
   }
 

@@ -497,10 +497,6 @@ namespace Belle {
     pTreeSaver->addFieldF("diffThetaThrust_mc");
     pTreeSaver->addFieldF("diffPhiThrust_mc");
 
-    pTreeSaver->addFieldF("fluffiness1_mc");
-    pTreeSaver->addFieldF("fluffiness2_mc");
-
-
     pTreeSaver->addFieldF("VP_Energy"); //energy of virtual photon
     pTreeSaver->addFieldF("VP_PX"); //energy of virtual photon
     pTreeSaver->addFieldF("VP_PY"); //energy of virtual photon
@@ -609,9 +605,6 @@ namespace Belle {
     vector<float> nonBoostedE;
     vector<Hep3Vector> allParticlesNonBoosted;
 
-
-
-
     vector<float> allPB_E; //energy for the three vec above...
     Mdst_charged_Manager& mdst_chr_Mgr=Mdst_charged_Manager::get_manager();
     //  Mdst_klong_Manager& mdst_klong_Mgr=Mdst_klong_Manager::get_manager();
@@ -628,11 +621,9 @@ namespace Belle {
     //   cout <<"chargedTracks: " << mdst_chr_Mgr.size() <<" num Trk: " << mdst_trk_Mgr.size() <<" klong: " << mdst_klong_Mgr.size() <<endl;
 
     //    cout <<"there are " << mdst_chr_Mgr.size() << " charge tracks in mdst_chr " <<endl;
-
-
     //
     //saves generator level pairs in MC (doesn't do anything for no MC)
-    pTreeSaver->saveGenInfo();
+
 
 
     for(Mdst_charged_Manager::iterator chr_it=mdst_chr_Mgr.begin();chr_it!=mdst_chr_Mgr.end();chr_it++)
@@ -1089,6 +1080,8 @@ namespace Belle {
 
       }
 
+    ////do this after we collected the reconstructed particles, so we know what we don't have to save
+    pTreeSaver->saveGenInfo(v_allParticles);
     //    cout <<"done with charged particles " << endl;
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();

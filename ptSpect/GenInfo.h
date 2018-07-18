@@ -2,6 +2,7 @@
 #define GENINFO_H
 
 #include "belle.h"
+#include <mdst/mdst.h>
 #include MDST_H
 #include EVTCLS_H
 #include MDST_OBS_H
@@ -26,7 +27,7 @@
 #include "ptSpect/Savable.h"
 #include "ptSpect/ParticleInfoMass.h"
 #include "ptSpect/DebugHistos.h"
-
+#include BELLETDF_H
 
 #include "fastjet/ClusterSequence.hh"
 #include <iostream>
@@ -127,7 +128,7 @@ namespace Belle {
       thrustPR=-log(tan(cmThrust.theta()/2));
     }
 
-    void doAll()
+    void doAll(vector<Particle*>& ap)
     {
       //hopefully after thust computation
       //  if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
@@ -142,7 +143,8 @@ namespace Belle {
       //      cout <<" w/o acceptance " << endl;
       //      cout <<"we have " << v_allParticles.size() <<" particles " <<endl;
       setParticleProperties(v_allParticles, cmThrust,v_firstHemi, v_secondHemi);
-      findHadronPairs(v_firstHemi,v_secondHemi, v_hadronPairs);   
+      findHadronPairs(v_allParticles, v_hadronPairs, ap);   
+      //
       fillWPairData(v_hadronPairs);
       //      cout <<"push back event data.. " <<endl; 
       int numF=num_fA_data;
@@ -467,6 +469,9 @@ namespace Belle {
 	  //I don't think these fields are used, let's just use [0] and disentangle later with particleId
 	  //	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
 	  pinf.z[0]=m_z;
+	  //need some cutoff so we are not swamped with pairs. This should be the same as in the analysis
+	  if(m_z<0.05)
+	    continue;
 	  //theta should be the one in the lab system as before...
 	  pinf.labTheta=labTheta;
 	  pinf.labPhi=labPhi;
@@ -517,8 +522,58 @@ namespace Belle {
 	}
     }
 
-    void findHadronPairs(vector<Particle*>& v_firstHemi, vector<Particle*>& v_secondHemi, vector<HadronPair*>& v_hadronPairs)
+    void findHadronPairs(vector<Particle*>& v_allParticles,vector<HadronPair*>& v_hadronPairs, vector<Particle*>& ap)
     {
+      for(vector<Particle*>::const_iterator it=v_allParticles.begin();it!=v_allParticles.end();it++)
+	{
+	  for(vector<Particle*>::const_iterator it2=(it+1);it2!=v_allParticles.end();it2++)
+	    {
+	      ///check if that was already in the rec
+	      ////
+	      bool foundFirst=false;
+	      bool foundSecond=false;
+	      for(vector<Particle*>::const_iterator itP=ap.begin();itP!=ap.end();itP++)
+		{
+		  Gen_hepevt gph;      
+		  gph=get_hepevt((*itP)->mdstCharged());
+		  if((*it)->mdstCharged()==gph)
+		    foundFirst=true;
+		  if((*it2)->mdstCharged()==gph)
+		    foundSecond=true;
+		}
+	      if(foundFirst&&foundSecond)
+		{
+		  //only save the ones that were dropped due to acceptance
+		  continue;
+		}
+	      ///
+
+	      //back-to-back pair
+	      if((*it)->p().vect().dot((*it2)->p().vect())<0)
+		{
+		  //now we have to check if that is already in our reconstruction pairs or should be part of the acceptance correction, otherwise it is already paired with
+		  //the accepted ones...
+		  HadronPair* hp=new HadronPair();
+		  hp->firstHadron=*it;
+		  hp->secondHadron=*it2;
+	      
+		  //done in HadronPair::compute now...
+		  //	      hp->hadCharge=AnaDef::PN;
+		  //	      hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
+		  //first hemi
+		  hp->compute();
+		  v_hadronPairs.push_back(hp);
+
+		}
+	    }
+	}
+    }
+
+    void findHadronPairsThrust(vector<Particle*>& v_firstHemi, vector<Particle*>& v_secondHemi, vector<HadronPair*>& v_hadronPairs)
+    {
+
+      //changed all this to just this condition:
+      //		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
       //      cout <<"find hadron pairs with " << v_firstHemiPos.size() << " in pos and " << v_firstHemiNeg.size() <<endl;
       for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
 	{
