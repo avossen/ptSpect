@@ -221,12 +221,9 @@ class HadronPair
   //set the various values based on the two hadrons
   void compute()
   {
-
-
     ////compute pid products, kT and z..
     ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
     ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
-
 
    if(DEBUG_EVENT==kinematics::evtNr)
       {
@@ -239,7 +236,6 @@ class HadronPair
     ep_PiPi=0.0;
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[pionIdx])<0))
       {
-
 	p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
 	p_PiPi2=pinf1.p_Pi2*pinf2.p_Pi2;
 	//	cout <<" looking at pion p: " << pinf1.p_Pi <<" and " << pinf2.p_Pi<<", alt: "<< pinf1.p_Pi2<<" and " <<pinf2.p_Pi2 <<" comb p: " << p_PiPi <<" and " << p_PiPi2<<endl;
@@ -381,9 +377,6 @@ class HadronPair
     qT_PK=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[kaonIdx]);
     qT_PP=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[protonIdx]);
 
-
-
-
     ///////---------
 
       HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
@@ -405,10 +398,6 @@ class HadronPair
       R2Boosted.boost(-rBoost);
       //now from the getz...
       //      qT=vPhoton.perp(R1Boosted.vect());
-
-
-
-
       //      cout <<"rsum boosted: "<< RSumBoosted.vect() << " r1 boosted: "<< R1Boosted.vect() <<" r2: " << R2Boosted.vect() <<endl;
       //      ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
       //      ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
@@ -561,7 +550,6 @@ class HadronPair
 	return AnaDef::PPi;
       if(AnaDef::Proton==c1&& AnaDef::Proton==c2)
 	return AnaDef::PP;
-
 
       //      cout <<"no match, unknown" << c1 <<" c2: "<< c2 <<endl;
       return AnaDef::UNKNOWN;

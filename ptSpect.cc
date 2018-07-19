@@ -663,9 +663,9 @@ namespace Belle {
 	///we take all (and the name doesn't really matter, so make this pion default)
 	//	strcpy(ptypName,"unknown");
 	if(charge>0)
-	strcpy(ptypName,"PI+");
+	  strcpy(ptypName,"PI+");
 	else
-	strcpy(ptypName,"PI-");
+	  strcpy(ptypName,"PI-");
 	lundPC=-1;
 
 
@@ -980,9 +980,9 @@ namespace Belle {
 
 	//this is now done by the new and better functions...
 	///--- temp disables
-       	findDStar(allParticlesBoosted, allPB_particleClass, allPB_particleCharge);
+	/////---       	findDStar(allParticlesBoosted, allPB_particleClass, allPB_particleCharge);
 
-	Particle* pNonBoosted;
+	Particle* pNonBoosted=0;
 	if(isLepton){
 
 	}
@@ -1041,14 +1041,14 @@ namespace Belle {
 	  }
 
 	Particle* p=new Particle(*chr_it,string(ptypName));
-
-	//has to be in parantheses
-	p->userInfo(*(new ParticleInfo()));
-	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
       
-	pinf.idAs=massHyp;
+	//has to be in parantheses
+       	p->userInfo(ParticleInfo());
+       ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
+      
+       pinf.idAs=massHyp;
 	pinf.charge=charge;
-	pinf.labMom=labMom;
+       	pinf.labMom=labMom;
 	for(int i=0;i<5;i++)
 	  {
 	    pinf.z[i]=m_z[i];
@@ -1056,7 +1056,7 @@ namespace Belle {
 	    pinf.boostedLorentzVec[i]=boostedVec[i];
 	  }
 	////need to set the PID matrices
-	pinf.labTheta=h3Vect.theta();
+		pinf.labTheta=h3Vect.theta();
 
 	if(setHadronPIDProbs(&pinf, labMom)<0)
 	  {
@@ -1071,12 +1071,12 @@ namespace Belle {
 	    return;
 	  }
 
-	pinf.cmsTheta=boostedVec[massHyp].theta();
+		pinf.cmsTheta=boostedVec[massHyp].theta();
 	//	cout <<"theta lab:" << h3Vect.theta() <<"cms: "<< boostedVec.theta()<<endl;
 	//	cout <<"theta phi:" << h3Vect.phi() <<"cms: "<< boostedVec.phi()<<endl;
 
-	pinf.labPhi=h3Vect.phi();
-	pinf.cmsPhi=boostedVec[massHyp].phi();
+		pinf.labPhi=h3Vect.phi();
+		pinf.cmsPhi=boostedVec[massHyp].phi();
 	Ptype& m_pt=p->pType();
 	//is it ok, to leave the default error matrix?
 	p->momentum().momentum(boostedVec[massHyp]);
@@ -1084,12 +1084,14 @@ namespace Belle {
 	//	cout <<"add to all particles for comp " <<endl;
 	//only hadrons, even if unidentified trust that leptons can be separated
 	//	if(!isLepton)  --> changed since we apply PID unfolding
-	  v_allParticles.push_back(p);
+	v_allParticles.push_back(p);
 
       }
-
+    /////find memory leaks...
+    //    exitEvent();
+    //    return;
     ////do this after we collected the reconstructed particles, so we know what we don't have to save
-    pTreeSaver->saveGenInfo(v_allParticles, eventCut);
+      pTreeSaver->saveGenInfo(v_allParticles, eventCut);
     if(eventCut)
       {
 	exitEvent();
@@ -1099,67 +1101,6 @@ namespace Belle {
     //    cout <<"done with charged particles " << endl;
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();
-
-
-    //////--->inserted pi0
-
-    Mdst_pi0_Manager &pi0_mgr=Mdst_pi0_Manager::get_manager();
-    for(std::vector<Mdst_pi0>::const_iterator i =pi0_mgr.begin();i!=pi0_mgr.end();i++)
-      {
-	const Mdst_pi0& pi0=*i;
-	int id =(int)pi0.get_ID();
-
-	double px=pi0.px();
-	double py=pi0.py();
-	double pz=pi0.pz();
-
-	Mdst_ecl_aux &aux1 =eclaux_mgr(Panther_ID(pi0.gamma(0).ecl().get_ID()));
-	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
-	double e9oe25_1 =aux1.e9oe25();
-	Mdst_ecl_aux &aux2 =eclaux_mgr(Panther_ID(pi0.gamma(1).ecl().get_ID()));
-	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
-	double e9oe25_2 =aux2.e9oe25();
-	double mass=pi0.mass(); //mass before fitting ???
-	if(mass>0.15 || mass<0.12)
-	  continue;
-	float pLab=sqrt(px*px+py*py+pz*pz);
-	//      cout <<"pi0mass: "<< mass <<endl;≈
-
-	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
-	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
-	///let's have 100 MeV here...
-	if(g1Energy < 0.05 || g2Energy < 0.05)
-	//	if(g1Energy < 0.1 || g2Energy < 0.1)
-	  continue;
-
-	Particle* p=new Particle(pi0);
-
-	double confLevel;
-
-	HepPoint3D pi0DecPoint;
-	HepSymMatrix pi0ErrMatrix;
-
-	setGammaError(p->child(0),IpProfile::position(), IpProfile::position_err_b_life_smeared());
-	setGammaError(p->child(1),IpProfile::position(), IpProfile::position_err_b_life_smeared());
-	//otherwise the delete p might go wrong... who knows...
-	p->userInfo(*(new ParticleInfoMass()));
-	if(!doKmFit(*p,  confLevel,0,m_pi0))
-	  {
-	    delete p;
-	    continue;
-	  }
-
-	ParticleInfoMass& pinf=dynamic_cast<ParticleInfoMass&>(p->userInfo());
-	pinf.gammaE1=g1Energy;
-	pinf.gammaE2=g2Energy;
-	pinf.e9oe25_1=e9oe25_1;
-	pinf.e9oe25_2=e9oe25_2;
-	pi0Candidates.push_back(p);
-
-      }
-
-
-    /////---->done
 
 
     //    cout <<"do gammas " <<endl;
@@ -1281,8 +1222,8 @@ namespace Belle {
     //------------------------------------------------------------------------------------
     if(m_mc)
       {
-	recD0MC();
-	recDStarMC();
+	/////	recD0MC();
+	/////	recDStarMC();
       }
 
 
@@ -1554,7 +1495,7 @@ namespace Belle {
 #ifdef ThrustMethod
     findHadronPairsThrust();
 #else
-    findHadronPairs();
+     findHadronPairs();
 #endif
 
 #ifdef SAVE_HISTOS
@@ -1733,7 +1674,7 @@ namespace Belle {
       {
 	cout <<" saving " << v_hadronPairs.size() <<" pairs" <<endl;
       }
-    pTreeSaver->fillWPairData(v_hadronPairs,m_evtInfo);
+          pTreeSaver->fillWPairData(v_hadronPairs,m_evtInfo);
   }
   void ptSpect::saveHistos( vector<Hep3Vector>& v_allParticlesBoosted, vector<Hep3Vector>& v_allParticlesNonBoosted)
   {
@@ -1903,13 +1844,11 @@ namespace Belle {
   //probably (hopefully)  get teh similar result by just running over v_allParticles
   void ptSpect::findHadronPairs()
   {
-
-
-		      if(DEBUG_EVENT==kinematics::evtNr)
-			{
-			  cout <<"combining hadrons: "<< v_firstHemi.size() <<" second: "<< v_secondHemi.size() <<endl;
-			}
-
+    if(DEBUG_EVENT==kinematics::evtNr)
+      {
+	cout <<"combining hadrons: "<< v_firstHemi.size() <<" second: "<< v_secondHemi.size() <<endl;
+      }
+    
 
     for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
       {
@@ -1936,10 +1875,6 @@ namespace Belle {
 
 		    }
 		}
-
-
-
-
 
 	      if(!acceptPair)
 		continue;
@@ -2238,7 +2173,7 @@ namespace Belle {
   // begin_run function
   void ptSpect::term()
   {
-    pTreeSaver->finalize();
+          pTreeSaver->finalize();
 
     histoD0Spect->Write();
     histoDStar->Write();

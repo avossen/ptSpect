@@ -69,13 +69,14 @@ namespace Belle {
       {
 	if(fabs(geantId)==lc_pPlus)
 	  {
-	    return 0;
+	    return 4;
 	  }
 	if(fabs(geantId)==lc_kPlus)
 	  {
-	    return 1;
+	    return 3;
 	  }
-	return 3;
+	//pion
+	return 2;
       }
   
 
@@ -122,6 +123,11 @@ namespace Belle {
 	this->m_histos=m_histos;
       }
 
+    void finalize()
+    {
+      tData.pDataTree->Write();
+    }
+
     void fillInf()
     {
       computeGenThrust();
@@ -143,7 +149,7 @@ namespace Belle {
       //      cout <<" w/o acceptance " << endl;
       //      cout <<"we have " << v_allParticles.size() <<" particles " <<endl;
       setParticleProperties(v_allParticles, cmThrust,v_firstHemi, v_secondHemi);
-      findHadronPairs(v_allParticles, v_hadronPairs, ap);   
+      findHadronPairs(v_allParticles, v_hadronPairs, ap, eventCut);   
       //
       fillWPairData(v_hadronPairs);
       //      cout <<"push back event data.. " <<endl; 
@@ -162,7 +168,10 @@ namespace Belle {
 
       //      cout <<"save data.. " <<endl;
       if(v_hadronPairs.size()>0)
-	saveData(tData.dataF,tData.dataI,2*(numI+numF));
+	{
+	  //	  cout <<"saving " << v_hadronPairs.size() <<" gen hadron pairs " <<endl;
+	  saveData(tData.dataF,tData.dataI,2*(numI+numF));
+	}
       //      cout <<"now clean up. " <<endl;
       //get ready for next call where dataF has to be clean (this is static)
       tData.dataF.clear();
@@ -196,7 +205,7 @@ namespace Belle {
 
       addArrayF("labTheta1_mcWoA");
       addArrayF("labTheta2_mcWoA");
-
+      
       addArrayF("labPhi1_mcWoA");
       addArrayF("labPhi2_mcWoA");
 
@@ -209,7 +218,7 @@ namespace Belle {
       addArrayF("thrustProj1_mcWoA");
       addArrayF("thrustProj2_mcWoA");
 
-      addArrayF("kT");
+      addArrayF("kT_mcWoA");
       //hadron quad level
       //qT
       addArrayF("HadDiffTheta_mcWoA");
@@ -431,9 +440,9 @@ namespace Belle {
 	{
 	  *(int*)tData.treeData[i+dataF.size()+offset]=dataI[i];
 	}
-      //      cout <<"fill..." <<endl;
+      //          cout <<"fill..." <<endl;
       tData.pDataTree->Fill();
-      //      cout <<"done filling " <<endl;
+      //          cout <<"done filling " <<endl;
     };
     //unfortunately just a copy of the ptSpect functions
     void getHadronLists(vector<Particle*>& v_allParticles)
@@ -457,21 +466,34 @@ namespace Belle {
 
 	  //	   cout <<"valid " <<endl;
 	  Particle* np=new Particle(*gen_it);
+	  //	  cout<<" adding lund: "<< np->lund() << endl;
 	  HepLorentzVector boostedVec(gen_it->PX(),gen_it->PY(),gen_it->PZ(),gen_it->E());
 	  float labTheta=boostedVec.theta();
 	  float labPhi=boostedVec.phi();
 	  //	  cout <<"got tehta: " << m_theta << " is there a diff with vec3? " << boostedVec.vect().theta()<<endl;
 	  boostedVec.boost(kinematics::CMBoost);
-	  np->userInfo(*(new ParticleInfoMass())); //gets deleted in destructor of Particle
+	  np->userInfo(ParticleInfoMass()); //gets deleted in destructor of Particle
 	  ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(np->userInfo());
 	  float m_z=2*boostedVec.t()/kinematics::Q;
 	  pinf.motherGenId=motherGenId;
 	  //I don't think these fields are used, let's just use [0] and disentangle later with particleId
 	  //	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
 	  pinf.z[0]=m_z;
+	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
+	  pinf.boostedMoms[getIdxFromGeantId(geantID)]=boostedVec.vect();
+	  pinf.boostedLorentzVec[getIdxFromGeantId(geantID)]=boostedVec;
+	  //	  cout <<"geant id is : "<< geantID <<" index: "<< getIdxFromGeantId(geantID) <<endl;
+	  //	  cout <<"adding particle with z: "<< m_z <<endl;
 	  //need some cutoff so we are not swamped with pairs. This should be the same as in the analysis
-	  if(m_z<0.05)
-	    continue;
+
+	  //  float minCosTheta=-0.511; //cuts for Martin's PID
+	  //  float maxCosTheta=0.842; //cuts for Martin's PID
+
+	  if(m_z<0.05 || cos(labTheta)<-0.511 || cos(labTheta)>0.842)
+	    {
+	      delete np;
+	      continue;
+	    }
 	  //theta should be the one in the lab system as before...
 	  pinf.labTheta=labTheta;
 	  pinf.labPhi=labPhi;
@@ -522,7 +544,7 @@ namespace Belle {
 	}
     }
 
-    void findHadronPairs(vector<Particle*>& v_allParticles,vector<HadronPair*>& v_hadronPairs, vector<Particle*>& ap)
+    void findHadronPairs(vector<Particle*>& v_allParticles,vector<HadronPair*>& v_hadronPairs, vector<Particle*>& ap, bool eventCut)
     {
       for(vector<Particle*>::const_iterator it=v_allParticles.begin();it!=v_allParticles.end();it++)
 	{
@@ -532,37 +554,46 @@ namespace Belle {
 	      ////
 	      bool foundFirst=false;
 	      bool foundSecond=false;
+	      //	      cout <<"checking vs " << ap.size()<<" particles " <<endl;
 	      for(vector<Particle*>::const_iterator itP=ap.begin();itP!=ap.end();itP++)
 		{
 		  Gen_hepevt gph;      
 		  gph=get_hepevt((*itP)->mdstCharged());
-		  if((*it)->mdstCharged()==gph)
+		  if((*it)->genHepevt()==gph)
 		    foundFirst=true;
-		  if((*it2)->mdstCharged()==gph)
+		  if((*it2)->genHepevt()==gph)
 		    foundSecond=true;
 		}
+	      if(foundFirst&& foundSecond)
+		{
+		  //		  cout <<"found hadron pair already saved " << endl;
+		}
+
 	      if(!eventCut && foundFirst&&foundSecond)
 		{
 		  //only save the ones that were dropped due to acceptance
 		  continue;
 		}
 	      ///
-
+	      //cout <<" is this a new gen hadron pair? " << endl;
 	      //back-to-back pair
 	      if((*it)->p().vect().dot((*it2)->p().vect())<0)
 		{
+		  //  cout <<"yes it is.." <<endl;
 		  //now we have to check if that is already in our reconstruction pairs or should be part of the acceptance correction, otherwise it is already paired with
 		  //the accepted ones...
 		  HadronPair* hp=new HadronPair();
 		  hp->firstHadron=*it;
 		  hp->secondHadron=*it2;
-	      
+
 		  //done in HadronPair::compute now...
-		  //	      hp->hadCharge=AnaDef::PN;
+		  //	      nhp->hadCharge=AnaDef::PN;
 		  //	      hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
 		  //first hemi
 		  hp->compute();
+		  //		  cout <<" creating pair with z1: "<< hp->z1 <<" z2: "<< hp->z2 <<endl;
 		  v_hadronPairs.push_back(hp);
+
 
 		}
 	    }
@@ -647,8 +678,8 @@ namespace Belle {
       Gen_hepevt_Manager& gen_hep_Mgr=Gen_hepevt_Manager::get_manager();
       //      	cout <<"-------------------------new evt--------------------------"<<endl;
       //	cout <<setw(9)<<" ID "<<setw(9)<<"ISTHEP"<<setw(9)<<" LUND_ID  "<<setw(9)<<"Mo first"<<setw(9)<<"    MoLast"<<setw(9)<<"   daFirst"<<setw(9)<<" daLast "<<setw(9)<<" PX  "<<setw(9)<<"PY"<<setw(9)<<"  PZ "<<setw(9)<<"  E "<<setw(9)<<"  M  "<<setw(9)<<" VX "<<setw(9)<<"  VY "<<setw(9)<<"  VZ"<<setw(9)<<"   T " <<endl;
-      HepLorentzVector* lv_q1;
-      HepLorentzVector* lv_q2;
+      HepLorentzVector* lv_q1=0;
+      HepLorentzVector* lv_q2=0;
       float m_px=0;
       float m_py=0;
       float m_pz=0;
@@ -725,9 +756,16 @@ namespace Belle {
 	   	       if(abs(gen_it->idhep()) <10 && gen_it->idhep()!=0) 
 	   		{ 
 	   		  if(numQuarks==0) 
+			    {
+			      if(lv_q1!=0)
+				delete lv_q1;
 	   		    lv_q1=new HepLorentzVector(gen_it->PX(),gen_it->PY(),gen_it->PZ(), gen_it->E()); 
+			    }
 	   		  if(numQuarks==1) 
 	   		    { 
+			      if(lv_q2!=0)
+				delete lv_q2;
+
 	   		      lv_q2=new HepLorentzVector(gen_it->PX(),gen_it->PY(),gen_it->PZ(), gen_it->E()); 
 	   		      lv_q1->boost(kinematics::CMBoost); 
 	   		      lv_q2->boost(kinematics::CMBoost); 
@@ -735,6 +773,7 @@ namespace Belle {
 	   		  numQuarks++; 
 		  
 	   		} 
+	
 	  /* 	    /\*	    	    	    if(abs(gen_it->idhep()) <10 && gen_it->idhep()!=0) */
 	  /* 	      { */
 	  /* 		//		cout <<gen_it->idhep()<<endl; */
@@ -820,7 +859,7 @@ namespace Belle {
       delete lv_q1;
       delete lv_q2;
 
-
+    
       ////////////////jet algos....
 
 

@@ -451,10 +451,7 @@ struct HadronPairArray:public ReaderBase
 #ifdef USE_QT
 	  branchNames.push_back("qT"+addendum);
 #else
-	  if(mMCFlag!=mcFlagWoA)
 	    branchNames.push_back("kT"+addendum);
-	else//woa has not mcWoA ending for kt
-	  branchNames.push_back("kT");
 #endif
 	//only for non mc...and woa (so no addendum in the other cases..)
 	///-->should be changed now, since we added qT_mc
@@ -738,6 +735,7 @@ struct HadronPairArray:public ReaderBase
 	    switch(particleType[i])
 	      {
 	      case PiPi:
+		//		cout <<"got pion pair" <<endl;
 		p_PiPi[i]=1.0;
 		p_PiPi2[i]=1.0;
 		kT_PiPi[i]=kT[i];

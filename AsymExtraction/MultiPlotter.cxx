@@ -922,7 +922,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      }
    else
      {
-       cout <<"same size " <<endl;
+       //       cout <<"same size " <<endl;
      }
   for(int i=0;i<hp1->numPairs;i++)
     {

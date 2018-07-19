@@ -229,7 +229,7 @@ public:
 	float labPhi=boostedVec.phi();
 
 	boostedVec.boost(kinematics::CMBoost);
-	v_p[i]->userInfo(*(new ParticleInfo())); //gets deleted in destructor of Particle
+	v_p[i]->userInfo(ParticleInfo()); //gets deleted in destructor of Particle
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(v_p[i]->userInfo());
 	pinf.motherGenId=v_g[i]->mother().idhep();
 
@@ -243,6 +243,9 @@ public:
 	pinf.z[0]=m_z;
 
 	pinf.z[gi.getIdxFromGeantId(geantID)]=m_z;
+	pinf.boostedMoms[gi.getIdxFromGeantId(geantID)]=boostedVec.vect();
+	pinf.boostedLorentzVec[gi.getIdxFromGeantId(geantID)]=boostedVec;
+
 	pinf.labTheta=labTheta;
 	pinf.labPhi=labPhi;
 
@@ -647,7 +650,7 @@ public:
 
   void finalize()
   {
-
+    gi.finalize();
 
     pDataTree->Write();
   }

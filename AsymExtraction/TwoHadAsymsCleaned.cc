@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -168,10 +167,10 @@ int main(int argc, char** argv)
   cout <<" 2 " << endl;
   MEvent* pMyEventWoA;
   HadronPairArray* pHadPairWoA;
-  if(chWoA)
+  if(chWoA) 
     {
       pMyEventWoA=new MEvent(chWoA,mcFlagWoA);
-       pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
+      pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
     }
 
 
@@ -230,6 +229,7 @@ int main(int argc, char** argv)
       if(!(i%10000))
 	cout <<"processing event nr " << i << " of " << nevents << "(" << 100*i/(float)nevents<< "% )"<<endl;
       chAll->GetEntry(i);
+
       myEvent.afterFill();
       if(myEvent.cutEvent)
 	{
@@ -238,12 +238,14 @@ int main(int argc, char** argv)
 
       //      cout <<"normal quad after fill" <<endl;
       //           cout<<" data after fill " <<endl;
+      cout <<"had pair data " <<endl;
       hadPair.afterFill(myEvent.evtNr);
-      //      cout <<"mc after fill " <<endl;
+      //           cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	{
-	  cout <<"filling mc pair " <<endl;
+	  	    cout <<"filling mc pair " <<endl;
 	  hadPairMC->afterFill();
+	    cout <<"done " <<endl;
 	}
  
       for(int i=0;i<hadPair.numPairs;i++)
@@ -280,12 +282,11 @@ int main(int argc, char** argv)
 	    {
 	      continue;
 	    }
+	  //  cout <<"woa after fill " <<endl;
 	  pHadPairWoA->afterFill();
-
-
+	  //  cout <<"done " <<endl;
 	  //	  cout <<"adding had quad to plotter... " <<endl;
 	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
-
 	}
     }
 

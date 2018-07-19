@@ -60,8 +60,9 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	  for(int p=0;p<NumPIDs;p++)
 	    {
 	      pair<int,int> zIdx=pidBin2ZBinningIdx(p);
-	      maxSmearing[p][0]=numKtBins*binningZ[zIdx.first].size()*binningZ[zIdx.second].size();
-	      maxSmearing[p][1]=numKtBins*binningZ[zIdx.first].size();
+	      //add one for outside acceptance
+	      maxSmearing[p][0]=numKtBins*binningZ[zIdx.first].size()*binningZ[zIdx.second].size()+1;
+	      maxSmearing[p][1]=numKtBins*binningZ[zIdx.first].size()+1;
 
 	      cout <<" zidx.first: "<< zIdx.first <<" second; " <<  zIdx.second <<" num zbins1: " << binningZ[zIdx.first].size() <<" sedond: " << binningZ[zIdx.second].size() <<" numKt: "<< numKtBins <<endl;
 
