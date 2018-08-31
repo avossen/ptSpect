@@ -191,6 +191,7 @@ void MultiPlotter::saveSmearingMatrix()
     {
       for(int p=0;p<NumPIDs;p++)
 	{
+	  backgroundCounts[b][p][c]->Write();
 	  kinematicSmearingMatrix[b][p][c]->Write();
       
 	  xini[b][p][c]->Write();
@@ -914,6 +915,7 @@ pair<int,int> MultiPlotter::pidBin2ZBinningIdx(int pidBin)
 //hp1 is the measured, hp2 the mc one, so we only check on hp1 if it is cut
 void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, bool accSmearing)
  {
+   bool addToBG=false;
   //needed for the mean computation...
    if(hp1->numPairs!=hp2->numPairs)
      {
@@ -935,6 +937,15 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	{
 	  //	  cout <<"hadron pair survived " <<endl;
 	}
+
+      //reconstructed pair but no mc pair
+      //the hp2 will be cut due to the z cut, so the test for -1 is superfluous
+      if(hp2->cut[i] || hp2->z1[i]==-1)
+	{
+	  addToBG=true; 
+	}
+      ////-----> need a check here if hadron pair 2 (the mc) was cut or has -1 entries (no match found)
+      ///that would mean that the entry is 'background'
 
       int chargeBin=hp2->chargeType[i];
       //      int particleBin1=hp->particleType1[i];
@@ -1031,19 +1042,23 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      //          cout <<" second (mc) z: "<< hp2->z1[i] <<endl;
 	  //          cout <<" second (mc) z2: "<< hp2->z2[i] <<endl;
       ///let's only use the first z bin...
-
-
      pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
 
      int numZBins1=binningZ[zIdx.first].size();
      int numZBins2=binningZ[zIdx.second].size();
-      int recBin0=z1Bin2*numZBins1*numKtBins+z1Bin1*numKtBins+kTBin1;
-      int iniBin0=z2Bin2*numZBins1*numKtBins+z2Bin1*numKtBins+kTBin2;
-      int recBin1=z1Bin1*numKtBins+kTBin1;
-      int iniBin1=z2Bin1*numKtBins+kTBin2;
+     int recBin0=z1Bin2*numZBins1*numKtBins+z1Bin1*numKtBins+kTBin1;
+     int iniBin0=z2Bin2*numZBins1*numKtBins+z2Bin1*numKtBins+kTBin2;
+     int recBin1=z1Bin1*numKtBins+kTBin1;
+     int iniBin1=z2Bin1*numKtBins+kTBin2;
 
       //      cout <<"ini bin: " << iniBin <<" recBin: " << recBin <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
       //      cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<" iniBin: "<< iniBin <<endl;
+     if(addToBG)
+       {
+	 backgroundCounts[0][pidBin][chargeBin]->Fill(recBin0);
+	 backgroundCounts[1][pidBin][chargeBin]->Fill(recBin1);
+       }
+
       xini[0][pidBin][chargeBin]->Fill(iniBin0);
       bini[0][pidBin][chargeBin]->Fill(recBin0);
       xini[1][pidBin][chargeBin]->Fill(iniBin1);
@@ -1054,7 +1069,6 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
       kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
     }
  }
-
 
 
 void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)

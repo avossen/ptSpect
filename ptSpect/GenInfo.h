@@ -130,12 +130,14 @@ namespace Belle {
 
     void fillInf()
     {
+      //      cout <<"compute thrust " <<endl;
       computeGenThrust();
       thrustPR=-log(tan(cmThrust.theta()/2));
     }
 
     void doAll(vector<Particle*>& ap, bool eventCut)
     {
+      //      cout <<"do all.." <<endl;
       //hopefully after thust computation
       //  if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
       //      if(cmThrustMag<cuts::minThrust|| abs(cmThrust.z()/cmThrust.mag()> cuts::maxThrustZ))
@@ -577,6 +579,10 @@ namespace Belle {
 	      ///
 	      //cout <<" is this a new gen hadron pair? " << endl;
 	      //back-to-back pair
+	      //also have to implement fiducial cuts-->do that in the particle selection when we have the lab momentum
+
+
+
 	      if((*it)->p().vect().dot((*it2)->p().vect())<0)
 		{
 		  //  cout <<"yes it is.." <<endl;

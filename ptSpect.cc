@@ -3,7 +3,8 @@
 
 //#define DEBUG_EVENT 15859
 #define DEBUG_EVENT2 -287880
-
+//this will be used for the ISR corrections
+const bool onlyGen=false;
 const bool PRINT=false;
 #include <iomanip>
 #include "TMatrixD.h"
@@ -281,13 +282,13 @@ namespace Belle {
   // begin_run function
   void ptSpect::begin_run(BelleEvent* evptr, int* status)
   {
-       IpProfile::begin_run();
-        eid::init_data();
+    IpProfile::begin_run();
+    eid::init_data();
 
     BeamEnergy::begin_run();
     double eler=BeamEnergy::E_LER();
     double eher=BeamEnergy::E_HER();
-
+    //    cout <<"got eler: " << eler <<" eher: " << eher<<endl;
     if(eler <3.0 || eher <7.0 || eler > 5.0 || eher > 9.0)
       {
 	validRun=false;
@@ -308,7 +309,6 @@ namespace Belle {
     cout <<" Q is : "<<kinematics::Q<< endl;
     kinematics::firstElectronCM.boost(kinematics::CMBoost);
     kinematics::secondElectronCM.boost(kinematics::CMBoost);
-    //    cout <<"end beginrun " <<endl;
     return;
   }
 
@@ -533,8 +533,20 @@ namespace Belle {
   // event function
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
-
     bool eventCut=false;
+
+    if(onlyGen)
+      {
+	eventCut=true;
+	//	cout <<"save gen info" <<endl;
+	pTreeSaver->saveGenInfo(v_allParticles, eventCut);
+	if(eventCut)
+	  {
+	    exitEvent();
+	    return;
+	  }
+      }
+
 
     const double m_pi0=0.1349766;
 

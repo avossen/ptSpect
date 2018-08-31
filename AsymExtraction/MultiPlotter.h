@@ -48,6 +48,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       maxKinBins=maxZBins;
 
       kinematicSmearingMatrix=new TH2D***[2];
+      backgroundCounts=new TH1D***[2];
+
       xini=new TH1D***[2];
       bini=new TH1D***[2];
 
@@ -55,6 +57,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	{
 
 	  kinematicSmearingMatrix[b]=new TH2D**[NumPIDs];
+	  backgroundCounts[b]=new TH1D**[NumPIDs];
 	  xini[b]=new TH1D**[NumPIDs];
 	  bini[b]=new TH1D**[NumPIDs];
 	  for(int p=0;p<NumPIDs;p++)
@@ -67,6 +70,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	      cout <<" zidx.first: "<< zIdx.first <<" second; " <<  zIdx.second <<" num zbins1: " << binningZ[zIdx.first].size() <<" sedond: " << binningZ[zIdx.second].size() <<" numKt: "<< numKtBins <<endl;
 
 	      kinematicSmearingMatrix[b][p]=new TH2D*[NumCharges];
+	      backgroundCounts[b][p]=new TH1D*[NumCharges];
 	      xini[b][p]=new TH1D*[NumCharges];
 	      bini[b][p]=new TH1D*[NumCharges];
 	      for(int c=0;c<NumCharges;c++)
@@ -74,6 +78,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 		  sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		  kinematicSmearingMatrix[b][p][c]=new TH2D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b],maxSmearing[p][b],0,maxSmearing[p][b]);
 		  cout <<"dimensions of smearing for pid: "<< p <<" "<< maxSmearing[p][b] << " binning " << b <<endl;
+		  sprintf(buffer,"backgroundCounts_binning%d_pidBin%d_chargeBin%d",b,p,c);
+		  backgroundCounts[b][p][c]=new TH1D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b]);
 		  sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		  xini[b][p][c]=new TH1D(buffer,buffer,maxSmearing[p][b],0,maxSmearing[p][b]);
 		  sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
@@ -182,7 +188,10 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     TH1D* hOneDVsTwoDA2;
     TH1D* hOneDVsTwoDA3;
 
+
     TH2D**** kinematicSmearingMatrix;
+    //if something is reconstructed but isn't in the MC
+    TH1D**** backgroundCounts;
     TH1D**** xini;
     TH1D**** bini;
 

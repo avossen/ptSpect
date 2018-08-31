@@ -808,7 +808,7 @@ struct HadronPairArray:public ReaderBase
 
 		break;
 	      case UNKNOWN:
-		cout <<"unknown pid " <<endl;
+		//		cout <<"unknown pid " <<endl;
 		cut[i]=1;
 		continue;
 		break;
@@ -820,7 +820,7 @@ struct HadronPairArray:public ReaderBase
 
 
 	  }
-
+	//	cout <<"good id" <<endl;
 	///------------------
 	if(z1[i]<zCut || z2[i]<zCut)
 	  {

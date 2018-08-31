@@ -238,14 +238,14 @@ int main(int argc, char** argv)
 
       //      cout <<"normal quad after fill" <<endl;
       //           cout<<" data after fill " <<endl;
-      cout <<"had pair data " <<endl;
+      //      cout <<"had pair data " <<endl;
       hadPair.afterFill(myEvent.evtNr);
       //           cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	{
-	  	    cout <<"filling mc pair " <<endl;
+	  //	  	    cout <<"filling mc pair " <<endl;
 	  hadPairMC->afterFill();
-	    cout <<"done " <<endl;
+	  //	    cout <<"done " <<endl;
 	}
  
       for(int i=0;i<hadPair.numPairs;i++)
