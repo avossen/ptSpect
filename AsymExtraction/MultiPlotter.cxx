@@ -3,7 +3,7 @@
 
 
 //compute means and fill plotResults
-void MultiPlotter::doPlots()
+void MultiPlotter::doPlots(bool print)
 {
   for(int bt=binType_z_z; bt<binType_end;bt++)
     {
@@ -21,30 +21,59 @@ void MultiPlotter::doPlots()
 		      int resIdx=getResIdx(bt,pidBin,chargeBin,firstBin,secondBin);
 		      for(unsigned int ktBin=0;ktBin<numKtBins;ktBin++)
 			{
+			  if(print)
+			    {
+			      cout <<"looking at bt: " <<  bt <<" pidBin: "<< pidBin<<" firstbin: "<< firstBin;
+			      cout <<" secondBin: "<< secondBin <<" kTBin : " << ktBin<<endl;
+			    }
+
 			  locCount+=counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].kTValues[ktBin]=counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  if(print)
+			    {
+			  cout <<"kt vals: "<< plotResults[resIdx].kTValues[ktBin];
+			    }
 			  plotResults[resIdx].kTValues1[ktBin]=counts1[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].kTValues2[ktBin]=counts2[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].kTUncertainties[ktBin]=sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]);
 			  cout << " sys Uncert: "<< sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]<<endl;
+
+
 			  if(sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]<0)
 			    {
 			      cout <<"sysUncertainties to small " <<endl;
 			    }
 			  plotResults[resIdx].kTSysUncertainties[ktBin]=sqrt(sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]);
-			  cout <<"using counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
-			  cout <<", uncertainties: " << uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
-			  cout <<", sqrt: "<< sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin])<<endl;
+			  if(print)
+			    {
+			      cout <<"using counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			      cout <<", uncertainties: " << uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			      cout <<", sqrt: "<< sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin])<<endl;
+			    }
 
 
 			  plotResults[resIdx].kTMeans[ktBin]=meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  if(bt==binType_z_z && chargeBin==0)
 			    {
-			      cout <<"kTbin: " <<ktBin << " kt count: "<< plotResults[resIdx].kTValues[ktBin] << " mean kt: "<< plotResults[resIdx].kTMeans[ktBin]<<endl;
+			      if(print)
+				{
+				  cout <<"resIdx: "<< resIdx<<endl;
+				  cout <<"kTbin: " <<ktBin << " kt count: "<< plotResults[resIdx].kTValues[ktBin] << " mean kt: "<< plotResults[resIdx].kTMeans[ktBin]<<endl;
+				}
 			    }
+			}//end kt bins
+		      if(locCount>0)
+			{
+			  plotResults[resIdx].meanKinBin1=meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
+			  plotResults[resIdx].meanKinBin2=meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
 			}
-		      plotResults[resIdx].meanKinBin1=meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
-		      plotResults[resIdx].meanKinBin1=meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
+			  else{
+			    plotResults[resIdx].meanKinBin1=0;
+			    plotResults[resIdx].meanKinBin2=0;
+			  }
+			
+
+			  
 
 
 		      plotResults[resIdx].firstKinBin=firstBin;
@@ -417,8 +446,44 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 
 
 //mc_input is what is called xini in the tsvdunfold docu, MC_out is what is called bini
-TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d)
-{
+TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D** d)
+{  
+  int countThreshold=0;
+  vector<int> lowCountRows;
+  for(int ix=0;ix<smearingMatrix1->GetNbinsX();ix++)
+    {
+      int countX=0;
+      int countY=0;
+      for(int iy=0;iy<smearingMatrix1->GetNbinsY();iy++)
+	{
+	  countX+=smearingMatrix1->GetBinContent(ix+1,iy+1);
+	}
+      //this row has low counts, let's see if the column is small too
+      if(countX<=countThreshold)
+	{
+	  for(int iy=0;iy<smearingMatrix1->GetNbinsY();iy++)
+	    {
+	      //switch x and y to check column
+	      countY+=smearingMatrix1->GetBinContent(iy+1,ix+1);
+	    }
+	  if(countY<=countThreshold)
+	    {
+	      lowCountRows.push_back(ix);
+	    }
+	}
+      
+    }
+  
+  cout <<"found " << lowCountRows.size()<<" low count rows " <<endl;
+  for(int i=0;i<lowCountRows.size();i++)
+    {
+      cout <<lowCountRows[i]<<", ";
+    }
+  cout <<endl;
+
+
+  //smearingMatrix
+
   //  TH1D* xini=(TH1D*)file2.Get("xini");
   //  TH1D* bini=(TH1D*)file2.Get("bini");
   
@@ -430,51 +495,111 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   //      d->Fill(i%105);
   //
   //    }
+
+  //  int maxBin=99*10;
+  cout <<"bins in the beginning: "<< smearingMatrix1->GetNbinsX();
+  int initialDimension=smearingMatrix1->GetNbinsX();
+  int maxBin=initialDimension-lowCountRows.size();
+  cout <<" low countsRows size: "<< lowCountRows.size() <<" maxBins: "<< maxBin<<endl;
+  TH2D* smearingMatrix=new TH2D("tmpSm","tmpSm",maxBin,0,maxBin,maxBin,0,maxBin);
+  TH1D* MC_input=new TH1D("tmpMCIn","tmpMCIn",maxBin,0,maxBin);
+  TH1D* MC_out=new TH1D("tmpMCOut","tmpMCOut",maxBin,0,maxBin);
+  TH1D* data=new TH1D("data","data",maxBin,0,maxBin);
+  int i2=0;
+  for(int i=0;i<smearingMatrix->GetNbinsX();i++)
+    {
+      //not one of the low count rows
+      if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
+	{
+	  MC_input->SetBinContent(i2+1,MC_input1->GetBinContent(i+1));
+	  MC_out->SetBinContent(i2+1,MC_out1->GetBinContent(i+1));
+	  data->SetBinContent(i2+1,data1->GetBinContent(i+1));
+	  int j2=0;
+	  for(int j=0;j<smearingMatrix->GetNbinsY();j++)
+	    { 
+	      if(find(lowCountRows.begin(),lowCountRows.end(),j)==lowCountRows.end())
+		{
+		  smearingMatrix->SetBinContent(i2+1,j2+1,smearingMatrix1->GetBinContent(i+1,j+1));
+		  j2++;
+		}
+	    }
+	  i2++;
+	}
+    }
+
   char buffer[300];
   sprintf(buffer,"statcof_%s",data->GetName());
   TH2D* statcovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
-  cout <<" input has " << MC_input->GetNbinsX();
+    cout <<" input has " << MC_input->GetNbinsX();
   cout <<" bins and output " << MC_out->GetNbinsX() <<" data: " << data->GetNbinsX() <<" smearing matrix " << smearingMatrix->GetNbinsX() <<" x " << smearingMatrix->GetNbinsY() <<endl;
   for(int i =0;i<MC_input->GetNbinsX();i++)
     {
-      cout <<MC_input->GetBinContent(i+1) <<" ";
+      //      cout <<MC_input->GetBinContent(i+1) <<" ";
     }
   cout <<endl;
   for(int i =0;i<MC_out->GetNbinsX();i++)
     {
-      cout <<MC_out->GetBinContent(i+1) <<" ";
+      //      cout <<MC_out->GetBinContent(i+1) <<" ";
 
     }
   cout <<endl<<endl;
   for(int i =0;i<data->GetNbinsX();i++)
     {
-      cout <<data->GetBinContent(i+1) <<" error: " << data->GetBinError(i+1)<<" ";
-  for(int j =0;j<data->GetNbinsX();j++)
-    {
-      statcovMatrix->SetBinContent(i+1,j+1,data->GetBinError(i+1)*data->GetBinError(j+1));
+      //      cout <<data->GetBinContent(i+1) <<" error: " << data->GetBinError(i+1)<<" ";
+      for(int j =0;j<data->GetNbinsX();j++)
+	{
+	  statcovMatrix->SetBinContent(i+1,j+1,data->GetBinError(i+1)*data->GetBinError(j+1));
+
+	}
     }
  
-    }
-  cout <<endl<<endl;
-  for(int i =0;i<smearingMatrix->GetNbinsX();i++)
+
+  cout <<endl<<"smearingMatrix: " <<endl;
+  //  double scalingFactor=100000000.0;
+  double scalingFactor=1.0;
+  for(int j =0;j<smearingMatrix->GetNbinsY();j++)
     {
 
-      for(int j =0;j<smearingMatrix->GetNbinsY();j++)
+      MC_out->SetBinContent(j+1,MC_out->GetBinContent(j+1)/scalingFactor);
+      MC_input->SetBinContent(j+1,MC_input->GetBinContent(j+1)/scalingFactor);
+      data->SetBinContent(j+1,data->GetBinContent(j+1)/scalingFactor);
+      statcovMatrix->SetBinContent(j+1,j+1,statcovMatrix->GetBinContent(j+1,j+1)/scalingFactor);
+      for(int i =0;i<smearingMatrix->GetNbinsX();i++)
 	{
-	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
+	  //	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
+	  	  smearingMatrix->SetBinContent(i+1,j+1,smearingMatrix->GetBinContent(i+1,j+1)/scalingFactor);
+	  if(i==j)
+	    {
+	      //      smearingMatrix->SetBinContent(i+1,j+1,50.0);
+	    }
+	  else
+	    {
+	      //	    smearingMatrix->SetBinContent(i+1,j+1,0.0);
+	    }
 	}
       cout <<endl;
     }
+  cout <<"smMatrixEnd"<<endl;
+  TCanvas cT("c1","c1",0,0,2000,2000);
+  cT.SetLogz();
+  smearingMatrix->Draw("colz");
+  cT.SaveAs("smTest123.png");
+  cT.SaveAs("smTest123.root");
   cout <<endl;
-
+  cout <<"--->"<<endl;
   int rank=MC_input->GetNbinsX();
   TSVDUnfold* f=new TSVDUnfold(data,statcovMatrix,MC_out,MC_input,smearingMatrix);
-  f->SetNormalize(false);
-
+  cout <<"2"<<endl;
+    f->SetNormalize(false);
+  //  f->SetNormalize(true);
+  cout<<"normalized, using rank "<< rank <<endl;
   TH1D* ret=f->Unfold(rank);
-  TH2D* uadetcov=f->GetAdetCovMatrix(100);
+  cout <<"use " <<rank <<" ranks " <<endl;
+  TH2D* uadetcov=f->GetAdetCovMatrix(10);
+  cout <<"4"<<endl;
   TH2D* utaucov= f->GetXtau();
   utaucov->Add(uadetcov);
+
   sprintf(buffer,"unfold_from_%s",data->GetName());
   cout <<" unfolding " << buffer <<endl;
   TH1D* ret2=(TH1D*)ret->Clone(buffer);
@@ -497,7 +622,21 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   (*d)->Draw();
   c.SetLogy();
   c.SaveAs(buffer);
-  return ret2;
+  sprintf(buffer,"%s_ret3",ret2->GetTitle());
+  TH1D* ret3=new TH1D(buffer,buffer,initialDimension,ret2->GetBinLowEdge(1),ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()));
+  int redCount=0;
+  for(int i=0;i<ret3->GetNbinsX();i++)
+    {
+      //not dropeed
+      if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
+	{
+
+	  ret3->SetBinContent(i+1,ret2->GetBinContent(redCount+1));
+	  redCount++;
+	}
+
+    }
+  return ret3;
 }
 
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
@@ -663,6 +802,8 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
 //just print a textfile with the bin content for the cross check
 void MultiPlotter::printDebug(plotType mPlotType)
 {
+
+  cout <<"print debug " <<endl;
   PlotResults* m_plotResults=plotResults;
 
   //  int numKinBin1=0;
@@ -723,7 +864,7 @@ void MultiPlotter::printDebug(plotType mPlotType)
 }
 
 
-void MultiPlotter::savePlots( plotType mPlotType)
+void MultiPlotter::savePlots( plotType mPlotType, bool print)
 {
   PlotResults* m_plotResults=plotResults;
   PlotResults* loc_plotResults=0;
@@ -732,6 +873,7 @@ void MultiPlotter::savePlots( plotType mPlotType)
   TTree *tree = new TTree("PlotTree","PlotTree");
   tree->Branch("PlotBranch","PlotResults",&loc_plotResults,32000,99);
 
+  cout <<"save plot after branch" <<endl;
   //  int numKinBin1=0;
   //  int numKinBin2=0;
   char buffer[200];
@@ -1046,6 +1188,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
      int numZBins1=binningZ[zIdx.first].size();
      int numZBins2=binningZ[zIdx.second].size();
+     //ini,rec bin 0 is for z_z binning, ini, rec 1 for zOnly
      int recBin0=z1Bin2*numZBins1*numKtBins+z1Bin1*numKtBins+kTBin1;
      int iniBin0=z2Bin2*numZBins1*numKtBins+z2Bin1*numKtBins+kTBin2;
      int recBin1=z1Bin1*numKtBins+kTBin1;
@@ -1057,6 +1200,9 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
        {
 	 backgroundCounts[0][pidBin][chargeBin]->Fill(recBin0);
 	 backgroundCounts[1][pidBin][chargeBin]->Fill(recBin1);
+	 //background events shouldn't contribute to smearing, since we subtract the bg
+	 //before we apply the smearing inversion
+	 continue;
        }
 
       xini[0][pidBin][chargeBin]->Fill(iniBin0);
@@ -1071,7 +1217,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
  }
 
 
-void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
+void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print)
 {
   //    cout <<"filling with " << hq->numHadQuads << " quads " << endl;
   //needed for the mean computation...
@@ -1106,22 +1252,24 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       for(int p =PiPi;p<UNKNOWN;p++)
 	{
 
-      int pidBin=(int)p;
+	  int pidBin=(int)p;
 
       //      int particleBin1=hp->particleType1[i];
       //      int particleBin2=hp->particleType2[i];
       //      int particleBin=hp->particleType[i];
 
-      float weight=0.0;
+	  float weight=0.0;
 
       //for the two alternative PID
-      float weight1=0.0;
-      float weight2=0.0;
+	  float weight1=0.0;
+	  float weight2=0.0;
       //to keep track of the uncertainty on the PID
-      float sys=0.0;
-      //don'te care for now...
+	  float sys=0.0;
+	  //don'te care for now...
+	  
+	  //      cout <<" pid: " << p <<endl;
 
-      //      cout <<" pid: " << p <<endl;
+
 
       switch(p)
 	{
@@ -1280,6 +1428,23 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
       labThetaBin1=getBin(binningLabTheta,hp->labTheta1[i]);
       labThetaBin2=getBin(binningLabTheta,hp->labTheta2[i]);
       //      cout <<"getting mass: " << hq->hp1.mass[i] <<endl;
+	  
+	  if(print)
+	    {
+	      if(hp->particleType[i]==PiPi && p==PiPi)
+		{
+		  cout <<" found pipi, z1 pipi: " << hp->z1_PiPi[i]<<" z2: "<< hp->z2_PiPi[i];
+		  cout <<" kt pipi: " << hp->kT_PiPi[i] <<" weight: " << hp->p_PiPi[i] <<endl;
+		  cout <<"hadron pType: " << hp->particleType[i];
+		  cout <<" z1: " << hp->z1[i] <<", z2: " <<hp->z2[i];
+		  cout <<" kt: "<< hp->kT[i]<<endl;
+		  
+
+		  }
+
+
+
+	    }
 	
       for(int bt=binType_z_z; bt<binType_end;bt++)
 	{
@@ -1287,8 +1452,11 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  int secondBin=*(binningMap[bt].second);
 	  float firstKin=*(meanMap[bt].first);
 	  float secondKin=*(meanMap[bt].second);
-	  //	  cout << "firstBin " << firstBin <<" secondBin: "<< secondBin << " firstKin " << firstKin <<" secondKin " << secondKin <<endl;
-	  //	  cout <<"chargeBin : " << chargeBin <<" bt: " << bt <<" pidBin: "<< pidBin <<endl;
+	      if(hp->particleType[i]==PiPi && p==PiPi && print)
+	    {
+	  	  cout << "firstBin " << firstBin <<" secondBin: "<< secondBin << " firstKin " << firstKin <<" secondKin " << secondKin <<endl;
+	  	  cout <<"chargeBin : " << chargeBin <<" bt: " << bt <<" pidBin: "<< pidBin <<endl;
+	    }
 	  if(bt<0 || chargeBin <0 || firstBin<0 || secondBin < 0)
 	    {
 	      //this gets called for all the woa events because they don't have thrust phi saved, 
@@ -1311,15 +1479,14 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	    }
 	  //	  	    cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
 	  //		    cout <<"weight: "<< weight <<endl;
-	  if(chargeBin==pairChargeLikesign && pidBin==PiPi && bt==binType_z_z)
-	    {
-	      //	      cout <<"filling in bin " << firstBin*(maxKinMap[pidBin][bt].second*numKtBins)+secondBin*numKtBins+kTBin<<endl;
-	    }
 
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
 	  counts1[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight1;
 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight2;
 	  uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*weight);
+
+
+
 
 	  if(isnan(sys*sys))
 	    {
@@ -1332,6 +1499,27 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event)
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);
 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*secondKin);
 	  meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*kT);
+
+
+	  if(chargeBin==pairChargeLikesign && pidBin==PiPi && bt==binType_z_z)
+	    {
+	      if(print)
+		{
+		      int resIdx=getResIdx(bt,pidBin,chargeBin,firstBin,secondBin);
+		      cout <<"residx: "<< resIdx<<endl;
+	      	      cout <<"filling in bin " << firstBin*(maxKinMap[pidBin][bt].second*numKtBins)+secondBin*numKtBins+kTBin<<endl;
+		      cout <<" firstBin:" << firstBin <<" secondBin: " << secondBin <<" kTBin: "<< kTBin<<endl;
+		      cout <<"counts : " << 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin];
+		      cout <<" counts2 : " << 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin];
+		      cout <<" mean1 : "<< 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin];
+		      cout <<" mean2 : "<< 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin];
+
+		}
+	    }
+
+
+
+
 	}
 	}
     }
