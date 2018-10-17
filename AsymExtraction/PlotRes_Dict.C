@@ -208,7 +208,7 @@ namespace {
     };
     static const char* includePaths[] = {
 "/Applications/root_v6.14.04/include",
-"/Users/avossen/Documents/myProjects/belle/AsymExtraction/",
+"/Users/avossen/Documents/myProjects/belle/ptSpect/AsymExtraction/",
 0
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(

@@ -559,7 +559,6 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   double scalingFactor=1.0;
   for(int j =0;j<smearingMatrix->GetNbinsY();j++)
     {
-
       MC_out->SetBinContent(j+1,MC_out->GetBinContent(j+1)/scalingFactor);
       MC_input->SetBinContent(j+1,MC_input->GetBinContent(j+1)/scalingFactor);
       data->SetBinContent(j+1,data->GetBinContent(j+1)/scalingFactor);
@@ -595,7 +594,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   cout<<"normalized, using rank "<< rank <<endl;
   TH1D* ret=f->Unfold(rank);
   cout <<"use " <<rank <<" ranks " <<endl;
-  TH2D* uadetcov=f->GetAdetCovMatrix(10);
+  TH2D* uadetcov=f->GetAdetCovMatrix(100);
   cout <<"4"<<endl;
   TH2D* utaucov= f->GetXtau();
   utaucov->Add(uadetcov);
@@ -614,8 +613,6 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 
     }
 
-
-
   sprintf(buffer,"debug_D_from%s.png",MC_input->GetName());
   cout <<"d: bins: "<< (*d)->GetNbinsX()<<endl;
   TCanvas c;
@@ -630,7 +627,6 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
       //not dropeed
       if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
 	{
-
 	  ret3->SetBinContent(i+1,ret2->GetBinContent(redCount+1));
 	  redCount++;
 	}
@@ -1057,7 +1053,8 @@ pair<int,int> MultiPlotter::pidBin2ZBinningIdx(int pidBin)
 //hp1 is the measured, hp2 the mc one, so we only check on hp1 if it is cut
 void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, bool accSmearing)
  {
-   bool addToBG=false;
+   bool mcCut=false;
+   bool accCut=false;
   //needed for the mean computation...
    if(hp1->numPairs!=hp2->numPairs)
      {
@@ -1070,10 +1067,15 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      }
   for(int i=0;i<hp1->numPairs;i++)
     {
+      //reset for each pair
+      mcCut=false;
+      accCut=false;
+      //accepted hadron pair cut, should still be in xini
       if(hp1->cut[i] )
 	{
 	  //	  	  cout <<"hadron pair cut" <<endl;
-	  continue;
+	  //	  continue;
+	  accCut=true;
 	}
       else
 	{
@@ -1084,7 +1086,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
       //the hp2 will be cut due to the z cut, so the test for -1 is superfluous
       if(hp2->cut[i] || hp2->z1[i]==-1)
 	{
-	  addToBG=true; 
+	  mcCut=true; 
 	}
       ////-----> need a check here if hadron pair 2 (the mc) was cut or has -1 entries (no match found)
       ///that would mean that the entry is 'background'
@@ -1196,7 +1198,9 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
       //      cout <<"ini bin: " << iniBin <<" recBin: " << recBin <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
       //      cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<" iniBin: "<< iniBin <<endl;
-     if(addToBG)
+
+     //if mc is cut and data is not. In principle we could also expect TSVD to deal with background, but its easy to remove and not clear if TSVD handels it correctly
+     if(mcCut && !accCut)
        {
 	 backgroundCounts[0][pidBin][chargeBin]->Fill(recBin0);
 	 backgroundCounts[1][pidBin][chargeBin]->Fill(recBin1);
@@ -1205,14 +1209,25 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 continue;
        }
 
-      xini[0][pidBin][chargeBin]->Fill(iniBin0);
-      bini[0][pidBin][chargeBin]->Fill(recBin0);
-      xini[1][pidBin][chargeBin]->Fill(iniBin1);
-      bini[1][pidBin][chargeBin]->Fill(recBin1);
-
-      //true observable on the y axis, reconstrubted on the x axis
-      kinematicSmearingMatrix[0][pidBin][chargeBin]->Fill(recBin0,iniBin0);
-      kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
+     //if mc is not cut 
+     if(!mcCut)
+       {
+	 //we fill xini even if the bini is cut. TSVDUnfold should then deal with the acc correction
+	 xini[0][pidBin][chargeBin]->Fill(iniBin0);
+	 xini[1][pidBin][chargeBin]->Fill(iniBin1);
+       }
+     //since we already bailed out for mcCut && !accCut before, this is implicitly for !accCut && !mcCut
+      if(!accCut)
+	{
+	  bini[0][pidBin][chargeBin]->Fill(recBin0);
+	  bini[1][pidBin][chargeBin]->Fill(recBin1);
+	  //true observable on the y axis, reconstrubted on the x axis
+	}
+      if(!accCut && !mcCut)
+	{
+	  kinematicSmearingMatrix[0][pidBin][chargeBin]->Fill(recBin0,iniBin0);
+	  kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
+	}
     }
  }
 

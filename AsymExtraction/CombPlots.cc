@@ -1,4 +1,4 @@
-
+ 
 #include "TLegend.h"
 #include <iostream>
 #include <fstream>
@@ -20,7 +20,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-
+  bool closureTest=true;
   bool m_useQt=false;
   //should have hadronPairArray where this is defined included
 #ifdef USE_QT
@@ -114,12 +114,9 @@ int main(int argc, char** argv)
 
   for(vector<string>::iterator itFlav=flavor.begin();itFlav!=flavor.end();itFlav++)
     {
-
       //woA plotter
       //do this first, so we can scale the smearing matrix with the factor from data/mc
       //maybe more transparent if we scale the endresult
-
-
 	  counter++;
 	  chAll=new TChain("PlotTree");
 	  chAll->Add((string(rootPath)+"/"+(woPlotterName)+"_*.root").c_str());
@@ -253,7 +250,7 @@ int main(int argc, char** argv)
 		  mXErr[j][i]=0.0;
 		}
 	    }
-
+	
 	  for(long i=0;i<nevents;i++)
 	    {
 	      //	  float locW[3]={0.0,0.0,0.0};
@@ -315,6 +312,7 @@ int main(int argc, char** argv)
 		    }
 		}
 	      //	  cout <<endl;
+	      //I guess this is where the magic happens
 	      pPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
 	      if(binType_z_z == plotResults->binningType)
 		{
@@ -326,6 +324,7 @@ int main(int argc, char** argv)
 		  cout <<endl;
 		}
 	    }
+	
 	  cout <<"save plot " <<endl;
 	  pPlotter->savePlots(plotType_2D);
 	  cout <<"print debug!" <<endl;
@@ -335,6 +334,7 @@ int main(int argc, char** argv)
 	  TDirectory* dir=gDirectory;
 
 	  //this could be created by just adding all smering files
+	  TFile* myOutputFile=new TFile("unfoldingOut.root","RECREATE");
 	  TFile* smearingFile=new TFile("smearing.root");
 	  //      for(int c=0;c<MultiPlotter::NumCharges;c++)
 	  TCanvas cnvs;
@@ -435,7 +435,7 @@ int main(int argc, char** argv)
 		      cnvs.SaveAs(buffer);
 		      //subtract the backgrund
 		      cout <<"subtracting background" <<endl;
-		      //		      bini->Add(bgCounts,-1);
+		      bini->Add(bgCounts,-1);
 
 		      cout <<"getting combined histo for b: "<< b <<" c: "<< c <<" p: "<< p <<endl;
 		      //get combined z/kT histogram for this charge, pid bin
@@ -466,64 +466,70 @@ int main(int argc, char** argv)
 			}
 		      cout <<"xini max: "<< max<<" avg: " << avg/((double)xini->GetNbinsX()) <<" count: "<< avg <<" integral: " << xini->Integral()<<endl;
 
-
-
-
 		      //no unfolding for now
 		      //	      TH1D* output=(TH1D*)combinedHisto->Clone("sth");
-		      //		      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
-		      //for closure test, bini is output....
-		      for(int t=0;t<combinedHisto->GetNbinsX();t++)
-			{
-			  combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
-			}
 		      TH1D* output;
-		       output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
-
+		      if(!closureTest)
+			{
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+		      //for closure test, bini is output....
+			}
+		      else
+			{
+			  for(int t=0;t<combinedHisto->GetNbinsX();t++)
+			    {
+			      combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
+			    }
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+			}
 		      ///-->just for tmp
 		       //		      output=combinedHisto;
 		      //output->Draw();
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
 
-		      ////---->need to scale with acceptance effect
-		      //these are counts that are in the woa, but not the reconstructed
-		      TH1D* accCut=pWoAPlotter->getHistogram(b,c,p);
-		      //scale by (xini+accCut)/xini
-		      for(int i=0;i<output->GetNbinsX();i++)
-			{
-			  if(xini->GetBinContent(i+1)>0)
-			    {
-
-			      float factor=(accCut->GetBinContent(i+1)+xini->GetBinContent(i+1))/(float)xini->GetBinContent(i+1);
-			      cout <<"xini: " << xini->GetBinContent(i+1) <<" accCut: "<< accCut->GetBinContent(i+1) <<endl;
-			      cout <<"acceptance factor bin: " << i+1 <<" " <<factor<<endl;
-			      //     output->SetBinContent(i+1,output->GetBinContent(i+1)*factor);
-			    }
-			}
-
 		      /////----->
-
-
-
 		      //	      (*d)->Draw();
 		      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
 		      //	      cnvs.SaveAs(buffer);
 		      //
+
+		      //this is only one array with the diagonal.....
 
 		      TH1D** sepKtZHistos_mcInput=pPlotter->convertUnfold2Plots(xini,b,c,p,"mcInput");
 		      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,b,c,p,"mcOut");
 		      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,b,c,p,"dataUnfold");
 		      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,b,c,p,"dataInput");
 		      //    TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(output,b,c,p,"allDataInput");
+
+
+		      //these are all z bins...
 		      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"allDataInput");
 
 		      TCanvas cnvs2;
 		      //need one canvas for the legend
 		      TLegend leg(0.0,0,1.0,1.0);
 		      pair<int,int> zIdx=pPlotter->pidBin2ZBinningIdx(p);
+
+
+
 		      int maxZ1=pPlotter->binningZ[zIdx.first].size();
 		      int maxZ2=pPlotter->binningZ[zIdx.second].size();
+
+
+		      //zs can be different due to PID (kaon, pion, proton have different numbers of z bins);
+		      TDirectory* tempDir=gDirectory;
+		      myOutputFile->cd();
+		      for(int iz1=0;iz1<maxZ1;iz1++)
+			{
+			  for(int iz2=0;iz1<maxZ2;iz2++)
+			    {
+			      sepAllKtZHistos[iz1][iz2]->Write();
+			    }
+			}
+		      tempDir->cd();
+
+
 		      int minMaxZ=maxZ1;
 		      saveToTxt(b,c,p,maxZ1,maxZ2,pPlotter->getNumKtBins(),sepAllKtZHistos);
 		      if(maxZ2<maxZ1)
@@ -574,15 +580,12 @@ int main(int argc, char** argv)
 		      leg.Draw();
 		      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.png",b,p,c);
 		      cnvs2.SaveAs(buffer);
-		      //	      sprintf("");
-
 		    }
 		}
 	    }
 	  dir->cd();
 	  smearingFile->Close();
 	  ///save the returned plots... put them on the same plot etc..
-
 	  for(int i=0;i<200;i++)
 	    {
 	      for(int j=0;j<3;j++)
