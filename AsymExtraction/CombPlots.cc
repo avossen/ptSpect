@@ -72,16 +72,14 @@ int main(int argc, char** argv)
 
 
   //
-  int minExp=12;
+  int minExp=0;
   //int minExp2=0;
   //  int maxExp=2;
   //  int maxExp2=200;
 
-
-
-  int maxExp=35;
-  int minExp2=55;
-  int maxExp2=69;
+  int maxExp=135;
+  int minExp2=0;
+  int maxExp2=169;
   // int minExp=0;
 
   char* rootPath=argv[1];
@@ -99,14 +97,12 @@ int main(int argc, char** argv)
   enum onOffRes{res_on,res_off,resEnd};
   //reduced asymmetries for charm, uds, all
 
-
-  
   setStyleOpts();
 
   //  vector< pair<string,TChain*> > vFitterNames;
   vector<string> vPlotterNames;
   vPlotterNames.push_back("Normal");
-  //    vPlotterNames.push_back("NormalWoA");
+  string woPlotterName("NormalWoA");
 
   vector<MultiPlotter*> vPlotters;
   TChain* chAll=0;
@@ -119,6 +115,78 @@ int main(int argc, char** argv)
   for(vector<string>::iterator itFlav=flavor.begin();itFlav!=flavor.end();itFlav++)
     {
 
+      //woA plotter
+      //do this first, so we can scale the smearing matrix with the factor from data/mc
+      //maybe more transparent if we scale the endresult
+
+
+	  counter++;
+	  chAll=new TChain("PlotTree");
+	  chAll->Add((string(rootPath)+"/"+(woPlotterName)+"_*.root").c_str());
+	  cout <<"adding : "<< (string(rootPath)+"/"+(woPlotterName)+"_*.root").c_str() <<endl;
+	  Int_t nevents=chAll->GetEntries();
+	  cout <<"Plotter Name: " << woPlotterName<<endl;
+	  string fullName=(woPlotterName)+string(dataMcNameAdd)+(*itFlav);
+	  //I guess this doesn't need an output path
+      MultiPlotter* pWoAPlotter=new MultiPlotter(m_useQt,const_cast<char*>("."),fullName.c_str(),string(""),0,false,false,false,false);	  
+
+	  cout <<" setting plotter name to:" << fullName <<endl;
+	  pWoAPlotter->setName(fullName);
+	  //has to be 0!!
+	  PlotResults* plotResults=0;
+
+	  chAll->SetBranchAddress("PlotBranch",&plotResults);
+
+	  for(long i=0;i<nevents;i++)
+	    {
+	      //	  float locW[3]={0.0,0.0,0.0};
+	      chAll->GetEntry(i);
+
+	      if(plotResults->exp<minExp ||(plotResults->on_res && (badOnRes.find(plotResults->exp)!=badOnRes.end())) ||(!plotResults->on_res && (badCont.find(plotResults->exp)!=badCont.end())))
+		continue;
+	      if(plotResults->exp>maxExp && plotResults->exp < minExp2)
+		continue;
+	      if(plotResults->exp>maxExp2)
+		continue;
+
+	      //entry doesn't exist yet
+	      if(expCounts.find(plotResults->exp)==expCounts.end())
+		{
+		  expCounts[plotResults->exp]=0;
+		}
+
+
+	      //for now only continuum:
+	      cout <<"onres? "<< endl;
+	      if(plotResults->on_res)
+		{
+		  cout <<" result is on resonance " <<endl;
+		  continue;
+		}
+
+	      //check if the  result we are reading right now is compatible with the 
+	      //flavor we are looking for
+	      if((*itFlav)==string("_charm"))
+		{
+		  if(!plotResults->isCharm)
+		    continue;
+		}
+	      if((*itFlav)==string("_uds"))
+		{
+		  if(plotResults->isCharm)
+		    continue;
+		}
+
+	      //	  cout <<"result index: "<< plotResults->resultIndex <<endl;
+
+
+
+	      //	  cout <<endl;
+	      pWoAPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
+	     
+	    }
+
+
       for(vector<string>::iterator it=vPlotterNames.begin();it!=vPlotterNames.end();it++)
 	{
 	  counter++;
@@ -129,15 +197,16 @@ int main(int argc, char** argv)
 	  cout <<"Plotter Name: " << *it<<endl;
 	  string fullName=(*it)+string(dataMcNameAdd)+(*itFlav);
 	  //I guess this doesn't need an output path
-	  MultiPlotter* pPlotter=new MultiPlotter(m_useQt,const_cast<char*>(""),fullName.c_str(),string(""),0,false,false,false,false);
+	  MultiPlotter* pPlotter=new MultiPlotter(m_useQt,const_cast<char*>("."),fullName.c_str(),string(""),0,false,false,false,false);
 
 	  cout <<" setting plotter name to:" << fullName <<endl;
 	  pPlotter->setName(fullName);
 	  vPlotters.push_back(pPlotter);
 	  //has to be 0!!
 	  PlotResults* plotResults=0;
+
 	  chAll->SetBranchAddress("PlotBranch",&plotResults);
-	  for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
+	  for(int binningType=binType_zOnly; binningType<binType_end;binningType++)
 	    {
 	      for(int pidBin=0;pidBin<3;pidBin++)
 		{
@@ -150,7 +219,6 @@ int main(int argc, char** argv)
 			      int resIdx=pPlotter->getResIdx(binningType,pidBin,chargeBin,firstBin,secondBin);
 			      if(binningType==binType_zOnly && chargeBin==unlikesign)
 				{
-				  //			  cout <<"resIdx is " << resIdx<<" firstBin: "<<firstBin<<" second: "<< secondBin<<endl;
 				  zOnlyResIdx.insert(resIdx);
 				}
 			      //		      pPlotter->plotResults[resIdx];
@@ -162,6 +230,7 @@ int main(int argc, char** argv)
 	    }
 
 	  //enough space for 100 exp * on/off resonance
+	  //this is for the run stability plots
 	  float** mX=allocateArray<float>(3,200);
 	  float** mY=allocateArray<float>(3,200);
 	  float** mXErr=allocateArray<float>(3,200);
@@ -211,6 +280,9 @@ int main(int argc, char** argv)
 		  cout <<" result is on resonance " <<endl;
 		  continue;
 		}
+
+	      //check if the  result we are reading right now is compatible with the 
+	      //flavor we are looking for
 	      if((*itFlav)==string("_charm"))
 		{
 		  if(!plotResults->isCharm)
@@ -233,18 +305,18 @@ int main(int argc, char** argv)
 		    }
 
 		}
-	      if(binType_labTheta_z == plotResults->binningType)
+	      if(binType_z_z == plotResults->binningType)
 		{
 		  cout <<"kt bins before : ";
 		  for(int i=0;i<10;i++)
 		    {
-		      cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" uncertainties: "<< pPlotter->plotResults[plotResults->resultIndex].kTUncertainties[i]<<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
+		      		      cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" uncertainties: "<< pPlotter->plotResults[plotResults->resultIndex].kTUncertainties[i]<<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
 		      cout <<"  rhs mean: " << plotResults->kTMeans[i] <<" ";
 		    }
 		}
 	      //	  cout <<endl;
 	      pPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
-	      if(binType_labTheta_z == plotResults->binningType)
+	      if(binType_z_z == plotResults->binningType)
 		{
 		  //	      cout <<"and then...  ";
 		  for(int i=0;i<10;i++)
@@ -254,15 +326,21 @@ int main(int argc, char** argv)
 		  cout <<endl;
 		}
 	    }
-
+	  cout <<"save plot " <<endl;
 	  pPlotter->savePlots(plotType_2D);
+	  cout <<"print debug!" <<endl;
+	  pPlotter->printDebug(plotType_2D);
+	  cout <<"done " <<endl;
 	  ///get smearing matrix, xini, bini
 	  TDirectory* dir=gDirectory;
+
+	  //this could be created by just adding all smering files
 	  TFile* smearingFile=new TFile("smearing.root");
 	  //      for(int c=0;c<MultiPlotter::NumCharges;c++)
 	  TCanvas cnvs;
 	  //z1_z2 binning (b==0) and onlyZ
 	  //      for(int b=0;b<2;b++)
+	
 	  for(int b=0;b<1;b++)
 	    {
 
@@ -270,52 +348,163 @@ int main(int argc, char** argv)
 		{
 		  //just do the pik
 		  //	  for(int p=0;p<9;p++)
-		  for(int p=1;p<2;p++)
+		  //		  for(int p=1;p<2;p++)
+		  for(int p=0;p<2;p++)
 		    //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
 		    {
 		      char buffer[500];
 		      sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		      TH2D* smearingMatrix=(TH2D*)smearingFile->Get(buffer);
+
+		      //check for max and average
+		      double max=-1;
+		      double avg=0;
+		      
+		      int smDimX=smearingMatrix->GetNbinsX();
+		      int smDimY=smearingMatrix->GetNbinsY();
+
+		      for(int ix=0;ix<smearingMatrix->GetNbinsX();ix++)
+			{
+			  for(int iy=0;iy<smearingMatrix->GetNbinsY();iy++)
+			    {
+			      double cont=smearingMatrix->GetBinContent(ix+1,iy+1);
+			      if(cont>max)
+				max=cont;
+			      avg+=cont;
+			      if(ix+1==iy+1)
+				{
+				  //			      smearingMatrix->SetBinContent(ix+1,iy+1,1.0);
+				}
+			      else
+				{
+				  //			      smearingMatrix->SetBinContent(ix+1,iy+1,0.0);
+				}
+			      
+			    }
+			}
+
+		      cout <<"sm max: "<< max<<endl;
+		      for(int ix=0;ix<smearingMatrix->GetNbinsX();ix++)
+			{
+			  for(int iy=0;iy<smearingMatrix->GetNbinsY();iy++)
+			    {
+			      double v=smearingMatrix->GetBinContent(ix+1,iy+1);
+			      //			      smearingMatrix->SetBinContent(ix+1,iy+1,v/max);
+			    }
+			}
+
+
+
+
+		      cout <<"smearing matrix average: " << avg/((double)smDimX*smDimY)<<" max: "<< max <<" avg from int: "<< smearingMatrix->Integral()/((double)smDimX*smDimY)<<endl;
 		      if(smearingMatrix->Integral()<10)
 			{
 			  cout <<" c: "<< c <<" p: "<< p << " integral: " << smearingMatrix->Integral()<<endl;
 			  continue;
 			}
+		      cnvs.SetLogz(true);
 		      smearingMatrix->Draw("colz");
 		      sprintf(buffer,"debug_smM_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
+		      cnvs.SetLogz(false);
 		      sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		      cout <<"trying to load " << buffer <<endl;
+
+
+		      //ormalize?
+
+
 
 		      TH1D* xini=(TH1D*)smearingFile->Get(buffer);
 		      xini->Draw();
 		      sprintf(buffer,"debug_xini_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
+
 		      sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		      cout <<"trying to load " << buffer <<endl;
 		      TH1D* bini=(TH1D*)smearingFile->Get(buffer);
 		      bini->Draw();
 		      sprintf(buffer,"debug_bini_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
+
+
+		      sprintf(buffer,"backgroundCounts_binning%d_pidBin%d_chargeBin%d",b,p,c);
+		      TH1D* bgCounts=(TH1D*)smearingFile->Get(buffer);
+		      sprintf(buffer,"debug_backgroundCounts_binning%d_pidBin%d_chargeBin%d.png",b,p,c);
+		      bgCounts->Draw();
+		      cnvs.SaveAs(buffer);
+		      //subtract the backgrund
+		      cout <<"subtracting background" <<endl;
+		      //		      bini->Add(bgCounts,-1);
+
+		      cout <<"getting combined histo for b: "<< b <<" c: "<< c <<" p: "<< p <<endl;
 		      //get combined z/kT histogram for this charge, pid bin
 		      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p);
 		      combinedHisto->Draw();
 		      sprintf(buffer,"debug_combinedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
 		      TH1D** d=new (TH1D*);
+		      max=-1;
+		      avg=0;
+		      for(int ix=0;ix<bini->GetNbinsX();ix++)
+			{
+			  double cont=bini->GetBinContent(ix+1);
+			  if(cont>max)
+			    max=cont;
+			  avg+=cont;
+			}
+		      cout <<"bini max: "<< max<<" avg: " << avg/((double)bini->GetNbinsX()) <<" count: "<< avg <<" integral: " << bini->Integral()<<endl;
+
+		      max=-1;
+		      avg=0;
+		      for(int ix=0;ix<xini->GetNbinsX();ix++)
+			{
+			  double cont=xini->GetBinContent(ix+1);
+			  if(cont>max)
+			    max=cont;
+			  avg+=cont;
+			}
+		      cout <<"xini max: "<< max<<" avg: " << avg/((double)xini->GetNbinsX()) <<" count: "<< avg <<" integral: " << xini->Integral()<<endl;
+
+
+
 
 		      //no unfolding for now
 		      //	      TH1D* output=(TH1D*)combinedHisto->Clone("sth");
-		      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+		      //		      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
 		      //for closure test, bini is output....
-		      //	      for(int t=0;t<combinedHisto->GetNbinsX();t++)
-		      //		{
-		      //		  combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1)+1);
-		      //		}
-		      //	      TH1D* output=pPlotter->unfold(smearingMatrix,xini,bini,bini,d);
-		      output->Draw();
+		      for(int t=0;t<combinedHisto->GetNbinsX();t++)
+			{
+			  combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
+			}
+		      TH1D* output;
+		       output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+
+		      ///-->just for tmp
+		       //		      output=combinedHisto;
+		      //output->Draw();
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
+
+		      ////---->need to scale with acceptance effect
+		      //these are counts that are in the woa, but not the reconstructed
+		      TH1D* accCut=pWoAPlotter->getHistogram(b,c,p);
+		      //scale by (xini+accCut)/xini
+		      for(int i=0;i<output->GetNbinsX();i++)
+			{
+			  if(xini->GetBinContent(i+1)>0)
+			    {
+
+			      float factor=(accCut->GetBinContent(i+1)+xini->GetBinContent(i+1))/(float)xini->GetBinContent(i+1);
+			      cout <<"xini: " << xini->GetBinContent(i+1) <<" accCut: "<< accCut->GetBinContent(i+1) <<endl;
+			      cout <<"acceptance factor bin: " << i+1 <<" " <<factor<<endl;
+			      //     output->SetBinContent(i+1,output->GetBinContent(i+1)*factor);
+			    }
+			}
+
+		      /////----->
+
+
 
 		      //	      (*d)->Draw();
 		      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
@@ -385,7 +574,6 @@ int main(int argc, char** argv)
 		      leg.Draw();
 		      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.png",b,p,c);
 		      cnvs2.SaveAs(buffer);
-
 		      //	      sprintf("");
 
 		    }
@@ -424,66 +612,6 @@ int main(int argc, char** argv)
 		}
 	    }
 
-
-	  //only want to plot for the real results
-	  if((*it)==string("NormalAccWeighted"))
-	    {
-	      cout<<"saving results vs exp" <<endl;
-	      TFile tmpFile("resVsExpAccWeighted.root","recreate");
-	      TGraphErrors tgA1(counter[0],mX[0],mY[0],mXErr[0],mYErr[0]);
-	      TH1D thA1("hIff","hIff",100,-10,10);
-	      TH1D thA2("hHand","hHand",100,-10,10);
-	      TH1D thA3("hG1T","hG1T",100,-10,10);
-	      for(int j=0;j<3;j++)
-		{
-		  for(int i=0;i<counter[j];i++)
-		    {
-		      if(mY[j][i]!=0 && mYErr[j][i]!=0)
-			{
-			  switch(j)
-			    {
-			    case 0:
-			      thA1.Fill(mY[j][i]/mYErr[j][i]);
-			      break;
-			    case 1:
-			      thA2.Fill(mY[j][i]/mYErr[j][i]);
-			      break;
-			    case 2:
-			      thA3.Fill(mY[j][i]/mYErr[j][i]);
-			      break;
-			    default:
-			      break;
-			    }
-			}
-		    }
-		}
-	      thA1.Write();
-	      thA2.Write();
-	      thA3.Write();
-	      tgA1.SetName("IffVsExp");
-	      TGraphErrors tgA2(counter[1],mX[1],mY[1],mXErr[1],mYErr[1]);
-	      tgA2.SetName("HandVsExp");
-	      TGraphErrors tgA3(counter[2],mX[2],mY[2],mXErr[2],mYErr[2]);
-	      tgA3.SetName("G1TVsExp");
-	      tgA1.Write();
-	      tgA2.Write();
-	      tgA3.Write();
-
-
-	      tmpFile.Write();
-	      tmpFile.Close();
-	      //	  cout <<"done " <<endl;
-	    }
-
-	  //only want to plot for the real results
-	  if((*it)==string("NormalWeighted"))
-	    {
-	      cout<<"saving results vs exp" <<endl;
-	      TFile tmpFile("resVsExpWeighted.root","recreate");
-	      tmpFile.Write();
-	      tmpFile.Close();
-	      //	  cout <<"done " <<endl;
-	    }
 
 	  for(map<int,int>::iterator itEx=expCounts.begin();itEx!=expCounts.end();itEx++)
 	    {
