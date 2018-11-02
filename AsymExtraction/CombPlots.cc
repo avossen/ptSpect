@@ -313,7 +313,14 @@ int main(int argc, char** argv)
 		}
 	      //	  cout <<endl;
 	      //I guess this is where the magic happens
+	      ////
+	      ///------>>>MAGIC<<<<----------
+	      ///
 	      pPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
+	      ////
+	      ///
+	      ///
+	      //
 	      if(binType_z_z == plotResults->binningType)
 		{
 		  //	      cout <<"and then...  ";
@@ -440,6 +447,10 @@ int main(int argc, char** argv)
 		      cout <<"getting combined histo for b: "<< b <<" c: "<< c <<" p: "<< p <<endl;
 		      //get combined z/kT histogram for this charge, pid bin
 		      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p);
+		      TH1D* combinedHistoUpperSys=pPlotter->getHistogram(b,c,p,1);
+		      TH1D* combinedHistoLowerSys=pPlotter->getHistogram(b,c,p,-1);
+
+
 		      combinedHisto->Draw();
 		      sprintf(buffer,"debug_combinedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
@@ -469,9 +480,13 @@ int main(int argc, char** argv)
 		      //no unfolding for now
 		      //	      TH1D* output=(TH1D*)combinedHisto->Clone("sth");
 		      TH1D* output;
+		      TH1D* outputHighSys;
+		      TH1D* outputLowSys;
 		      if(!closureTest)
 			{
 			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,d);
+			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,d);
 		      //for closure test, bini is output....
 			}
 		      else
@@ -485,8 +500,21 @@ int main(int argc, char** argv)
 		      ///-->just for tmp
 		       //		      output=combinedHisto;
 		      //output->Draw();
+
+
+
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
+
+		      ////---->now we should save the unfolded result into the plotResults again and save the whole plotter
+		      pPlotter->setHistogram(b,c,p,combinedHisto,combinedHistoUpperSys,combinedHistoLowerSys);
+
+		      ///---
+
+
+
+
+
 
 		      /////----->
 		      //	      (*d)->Draw();
@@ -497,15 +525,18 @@ int main(int argc, char** argv)
 		      //this is only one array with the diagonal.....
 
 		      TH1D** sepKtZHistos_mcInput=pPlotter->convertUnfold2Plots(xini,b,c,p,"mcInput");
+		      cout <<" got sepkt 1" <<endl;
 		      TH1D** sepKtZHistos_mcOutput=pPlotter->convertUnfold2Plots(bini,b,c,p,"mcOut");
+		      cout <<" got sepkt 2" <<endl;
 		      TH1D** sepKtZHistos=pPlotter->convertUnfold2Plots(output,b,c,p,"dataUnfold");
+		      cout <<" got sepkt 3" <<endl;
 		      TH1D** sepKtZHistosDataInput=pPlotter->convertUnfold2Plots(combinedHisto,b,c,p,"dataInput");
 		      //    TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(output,b,c,p,"allDataInput");
 
-
+		      cout <<" got sepkt " <<endl;
 		      //these are all z bins...
 		      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"allDataInput");
-
+		      cout <<" converted" <<endl;
 		      TCanvas cnvs2;
 		      //need one canvas for the legend
 		      TLegend leg(0.0,0,1.0,1.0);
@@ -515,23 +546,24 @@ int main(int argc, char** argv)
 
 		      int maxZ1=pPlotter->binningZ[zIdx.first].size();
 		      int maxZ2=pPlotter->binningZ[zIdx.second].size();
-
+		      cout <<" directory " <<endl;
 
 		      //zs can be different due to PID (kaon, pion, proton have different numbers of z bins);
 		      TDirectory* tempDir=gDirectory;
 		      myOutputFile->cd();
 		      for(int iz1=0;iz1<maxZ1;iz1++)
 			{
-			  for(int iz2=0;iz1<maxZ2;iz2++)
+			  for(int iz2=0;iz2<maxZ2;iz2++)
 			    {
 			      sepAllKtZHistos[iz1][iz2]->Write();
 			    }
 			}
 		      tempDir->cd();
-
+		      cout<<" before out to txt" <<endl;
 
 		      int minMaxZ=maxZ1;
 		      saveToTxt(b,c,p,maxZ1,maxZ2,pPlotter->getNumKtBins(),sepAllKtZHistos);
+		      cout <<"saved to txt" <<endl;
 		      if(maxZ2<maxZ1)
 			minMaxZ=maxZ2;
 		      if(minMaxZ>5)
@@ -585,6 +617,8 @@ int main(int argc, char** argv)
 	    }
 	  dir->cd();
 	  smearingFile->Close();
+	  myOutputFile->Write();
+	  myOutputFile->Close();
 	  ///save the returned plots... put them on the same plot etc..
 	  for(int i=0;i<200;i++)
 	    {

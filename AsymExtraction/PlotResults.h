@@ -22,6 +22,8 @@ class PlotResults   : public TObject
   float kTUncertainties1[maxKtBins];
   float kTUncertainties2[maxKtBins];
   float kTSysUncertainties[maxKtBins];
+  //in case we have asymmetric uncertainties after unfolding
+  float kTSysUncertaintiesLower[maxKtBins];
   float kTValues[maxKtBins];
   //using alternative pid methods
   float kTValues1[maxKtBins];

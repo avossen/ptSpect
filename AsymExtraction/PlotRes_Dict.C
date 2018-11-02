@@ -125,6 +125,7 @@ void PlotResults::Streamer(TBuffer &R__b)
       R__b.ReadStaticArray((float*)kTUncertainties1);
       R__b.ReadStaticArray((float*)kTUncertainties2);
       R__b.ReadStaticArray((float*)kTSysUncertainties);
+      R__b.ReadStaticArray((float*)kTSysUncertaintiesLower);
       R__b.ReadStaticArray((float*)kTValues);
       R__b.ReadStaticArray((float*)kTValues1);
       R__b.ReadStaticArray((float*)kTValues2);
@@ -153,6 +154,7 @@ void PlotResults::Streamer(TBuffer &R__b)
       R__b.WriteArray(kTUncertainties1, 30);
       R__b.WriteArray(kTUncertainties2, 30);
       R__b.WriteArray(kTSysUncertainties, 30);
+      R__b.WriteArray(kTSysUncertaintiesLower, 30);
       R__b.WriteArray(kTValues, 30);
       R__b.WriteArray(kTValues1, 30);
       R__b.WriteArray(kTValues2, 30);

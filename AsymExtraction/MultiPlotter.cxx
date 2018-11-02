@@ -71,10 +71,6 @@ void MultiPlotter::doPlots(bool print)
 			    plotResults[resIdx].meanKinBin1=0;
 			    plotResults[resIdx].meanKinBin2=0;
 			  }
-			
-
-			  
-
 
 		      plotResults[resIdx].firstKinBin=firstBin;
 		      plotResults[resIdx].secondKinBin=secondBin;
@@ -594,7 +590,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   cout<<"normalized, using rank "<< rank <<endl;
   TH1D* ret=f->Unfold(rank);
   cout <<"use " <<rank <<" ranks " <<endl;
-  TH2D* uadetcov=f->GetAdetCovMatrix(100);
+  TH2D* uadetcov=f->GetAdetCovMatrix(10);
   cout <<"4"<<endl;
   TH2D* utaucov= f->GetXtau();
   utaucov->Add(uadetcov);
@@ -635,11 +631,66 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   return ret3;
 }
 
+
+
+void MultiPlotter::setHistogram(int binning, int chargeType, int pidType, TH1D* histo, TH1D* upperSys, TH1D* lowerSys)
+{
+  int binningType=binType_z_z;
+  if(1==binning)
+    binningType=binType_zOnly;
+
+ PlotResults* m_plotResults=plotResults;
+
+
+  for(int i=0;i<maxKinMap[pidType][binningType].first;i++)
+    {
+      //      for(int j=0;j<maxKinMap[binningType].second;j++)
+      for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
+	{
+	  int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
+	  for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+	    {
+
+	  float val=0;
+	  float eVal=0;
+
+	  float sysUp=0;
+	  float sysDown=0;
+	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
+		{
+		 val= histo->GetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+		 eVal= histo->GetBinError(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+
+		 sysUp=upperSys->GetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+		 sysDown=lowerSys->GetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+
+
+		}
+	      else
+		{
+		  val=histo->GetBinContent(j*numKtBins+iKtBin+1);
+		  eVal=histo->GetBinError(j*numKtBins+iKtBin+1);
+		  sysUp=upperSys->GetBinContent(j*numKtBins+iKtBin+1);
+		  sysDown=lowerSys->GetBinContent(j*numKtBins+iKtBin+1);
+		}
+
+	      m_plotResults[resIdx].kTValues[iKtBin]=val;
+	      m_plotResults[resIdx].kTUncertainties[iKtBin]=eVal;
+	      //let's hope that the systematic uncertainties are symmetricxb
+
+	      m_plotResults[resIdx].kTSysUncertainties[iKtBin]=sysUp;
+	      m_plotResults[resIdx].kTSysUncertaintiesLower[iKtBin]=sysDown;
+	}
+
+    }
+
+}
+}
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
 
 //for now only for the zOnly binning--> changed to z1,z2 and zOnly (binning argument)
 //don't do the bin width normalization since we also don't do it for the xini, bini
-TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType)
+TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int addSys)
 {
   PlotResults* m_plotResults=plotResults;
   PlotResults* loc_plotResults=0;
