@@ -83,10 +83,28 @@ int main(int argc, char** argv)
   // int minExp=0;
 
   char* rootPath=argv[1];
+  char smearingFileName[400];
+  char smearingFileRawName[400];
+  if(argc>2)
+    {
+      sprintf(smearingFileName,"%s",argv[2]);
+    }
+  else{
+    sprintf(smearingFileName,"%s","smearing.root");
+      }
+  if(argc>3)
+    {
+      sprintf(smearingFileRawName,argv[3]);
+    }
+  else
+    {
+      sprintf(smearingFileRawName,"%s","smearing.root");
+    }
+
   char dataMcNameAdd[100];
   sprintf(dataMcNameAdd,"");
-  if(argc>2)
-    sprintf(dataMcNameAdd,"%s",argv[2]);
+  if(argc>4)
+    sprintf(dataMcNameAdd,"%s",argv[4]);
 
   srand(time(NULL));
   cout <<"Root path is: " << rootPath <<endl;
@@ -342,7 +360,8 @@ int main(int argc, char** argv)
 
 	  //this could be created by just adding all smering files
 	  TFile* myOutputFile=new TFile("unfoldingOut.root","RECREATE");
-	  TFile* smearingFile=new TFile("smearing.root");
+	  TFile* smearingFile=new TFile(smearingFileName);
+	  TFile* smearingFileRaw=new TFile(smearingFileRawName);
 	  //      for(int c=0;c<MultiPlotter::NumCharges;c++)
 	  TCanvas cnvs;
 	  //z1_z2 binning (b==0) and onlyZ
@@ -422,7 +441,7 @@ int main(int argc, char** argv)
 
 
 
-		      TH1D* xini=(TH1D*)smearingFile->Get(buffer);
+		      TH1D* xini=(TH1D*)smearingFileRaw->Get(buffer);
 		      xini->Draw();
 		      sprintf(buffer,"debug_xini_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
