@@ -585,11 +585,12 @@ struct HadronPairArray:public ReaderBase
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {
-
+	    cut[i]=1;
 	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  cout <<"cut on fid" <<endl;
-	cut[i]=1;
+	  {
+	    cout <<"cut on fid" <<endl;
 
+	  }
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    cout <<"hadron fid " <<endl;

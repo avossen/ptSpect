@@ -19,6 +19,8 @@ class PlotResults   : public TObject
   float meanKinBin2;
 
   float kTUncertainties[maxKtBins];
+  float kTUncertainties1[maxKtBins];
+  float kTUncertainties2[maxKtBins];
   float kTSysUncertainties[maxKtBins];
   float kTValues[maxKtBins];
   //using alternative pid methods
@@ -72,19 +74,25 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
       double intCount=0;
       for(int i=0;i<maxKtBins;i++)
 	{
-
 	  intRhsCount+=rhs.kTValues[i];
 	  intCount+= kTValues[i];
 	  
-
 	  if(kTValues[i]==0)
 	    kTMeans[i]=rhs.kTMeans[i];
 	  if(kTValues[i]!=0 && rhs.kTValues[i]!=0)
 	    {
+	      
 	      kTMeans[i]=1.0/(kTValues[i]+rhs.kTValues[i])*(kTMeans[i]*kTValues[i] + rhs.kTMeans[i]*rhs.kTValues[i]);
 	    }
 	  kTValues[i]+=rhs.kTValues[i];
+	  kTValues1[i]+=rhs.kTValues1[i];
+	  kTValues2[i]+=rhs.kTValues2[i];
+
+	  kTSysUncertainties[i]=sqrt(kTSysUncertainties[i]*kTSysUncertainties[i]+rhs.kTSysUncertainties[i]*rhs.kTSysUncertainties[i]);
 	  kTUncertainties[i]=sqrt(kTUncertainties[i]*kTUncertainties[i]+rhs.kTUncertainties[i]*rhs.kTUncertainties[i]);
+	  kTUncertainties1[i]=sqrt(kTUncertainties1[i]*kTUncertainties1[i]+rhs.kTUncertainties1[i]*rhs.kTUncertainties1[i]);
+	  kTUncertainties2[i]=sqrt(kTUncertainties2[i]*kTUncertainties2[i]+rhs.kTUncertainties2[i]*rhs.kTUncertainties2[i]);
+
 	}
       
       if(intCount==0)
@@ -97,6 +105,8 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	  meanKinBin1=1.0/(intCount+intRhsCount)*(meanKinBin1*intCount+rhs.meanKinBin1*intRhsCount);
 	  meanKinBin2=1.0/(intCount+intRhsCount)*(meanKinBin2*intCount+rhs.meanKinBin2*intRhsCount);
 	}
+
+
   isUds=rhs.isUds;
   isCharm=rhs.isCharm;
   isMC=rhs.isMC;

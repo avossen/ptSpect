@@ -32,6 +32,7 @@ enum TwoHadCharge{likesign,unlikesign, hadChargeEnd};//the unknown is for mc, wh
 enum TwoHadChargesOld{PN,PZ,ZN, NP, NZ,ZZ,cPP,PNNP,NN, ZP,PZZP, ZNNZ};
 //enum TwoHadCharge{PN, NP,PP,NN,PZ,ZP,ZN,NZ,ZZ,NA};//the unknown is for mc
 enum kMCFlags{mcFlagNone,mcFlagMC,mcFlagWoA,mcAsData};
+//same as in AnaDef.h
 enum TwoHadPType{PiPi, PiK, PiP, KPi, KK, KP, PPi, PK, PP,UNKNOWN, pidTypeEnd};//{PiPi,PiK,KPi,KK,UNKNOWN, hadTypeEnd};
 enum WeightingType{Simple,ThetaOpeningAngle,MZ};
 

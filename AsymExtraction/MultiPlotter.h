@@ -64,8 +64,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	    {
 	      pair<int,int> zIdx=pidBin2ZBinningIdx(p);
 	      //add one for outside acceptance
-	      maxSmearing[p][0]=numKtBins*binningZ[zIdx.first].size()*binningZ[zIdx.second].size()+1;
-	      maxSmearing[p][1]=numKtBins*binningZ[zIdx.first].size()+1;
+	      maxSmearing[p][0]=numKtBins*binningZ[zIdx.first].size()*binningZ[zIdx.second].size();
+	      maxSmearing[p][1]=numKtBins*binningZ[zIdx.first].size();
 
 	      cout <<" zidx.first: "<< zIdx.first <<" second; " <<  zIdx.second <<" num zbins1: " << binningZ[zIdx.first].size() <<" sedond: " << binningZ[zIdx.second].size() <<" numKt: "<< numKtBins <<endl;
 
@@ -142,16 +142,17 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //
     //    void setFitReuslt();
   unsigned int getNumKtBins(){return numKtBins;};
-    void addHadPairArray(HadronPairArray* hq, MEvent& event);
+  void addHadPairArray(HadronPairArray* hq, MEvent& event, bool print=false);
+  void addXiniEntry(HadronPairArray* hp2);
     void addSmearingEntry(HadronPairArray* hq1, HadronPairArray* hq2,bool accSmearing=false);
     void setBinningMap();
-    void doPlots();
-    void savePlots(plotType);
+    void doPlots(bool print=false);
+    void savePlots(plotType,bool print=false);
     void printDebug(plotType);
 
 
     //get the histogram that is to be unfolded. This is a 1D histogram binned in z1, (z2) and kT
-    TH1D* getHistogram(int binning, int chargeBin, int pidBin);
+    TH1D* getHistogram(int binning, int chargeBin, int pidBin, int histNum=0);
     //d is a return value
     TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d);
     TH1D** convertUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
@@ -172,6 +173,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       }
 
     void saveSmearingMatrix();
+    void saveXini();
     static const int NumCharges;
     static const int NumPIDs;
     pair<int,int> pidBin2ZBinningIdx(int pidBin);

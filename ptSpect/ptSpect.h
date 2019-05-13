@@ -87,6 +87,7 @@ public:
   int test;
   int zNums[4];
   double smpl_;
+  double onlyGen_;
   char rFileName[200];
 
   TH2D* thetaPhiLab;
@@ -100,6 +101,14 @@ public:
 
   TH1D* partEnergyInJet;
   TH1D* numPartInJet;
+
+  float zBorders[10];
+  float ptBorders[10];
+
+
+  long numPi0s[30];
+  long numEtas[30];
+
 
 
 static int getBin(const float* borders, int maxbin, float value)
@@ -311,6 +320,8 @@ extern "C" Module_descr *mdcl_ptSpect()
   dscr->define_param("smpl", "test parameter", &module->smpl_);
   //hopefully the int is the maximum lenght of the string...
   dscr->define_param("rfname","root file name","S",100,&module->rFileName);
+  dscr->define_param("onlyGen","onlyGen",&module->onlyGen_);
+
   //registers parameters of ipprofile...
   IpProfile::define_global(dscr);
   return dscr;

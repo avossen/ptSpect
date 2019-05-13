@@ -116,7 +116,7 @@ int main(int argc, char** argv)
     }
   else
     {
-      cout <<" real data.. adding: " << (string(rootPath)+"/*.root")<<endl;
+      //      cout <<" real data.. adding: " << (string(rootPath)+"/*.root")<<endl;
       chAll->Add((string(rootPath)+"/*.root").c_str());
     }
   if(chWoA)
@@ -204,6 +204,8 @@ int main(int argc, char** argv)
 
   cout <<"m_useqt: " << m_useQt <<endl;
   MultiPlotter smearingPlotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
+  //this one is essentially to save xini for the raw pythia
+  MultiPlotter smearingPlotterRaw(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotterRaw"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
   MultiPlotter plotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   //  MultiPlotter plotterMC(const_cast<char*>("NormalMC"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
   MultiPlotter plotterWoA(m_useQt,const_cast<char*>(basePath),const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
@@ -212,6 +214,7 @@ int main(int argc, char** argv)
 
 #ifdef USE_QT
   smearingPlotter.useQt=true;
+  smearingPlotterRaw.useQt=true;
   plotter.useQt=true;
   plotterWoA.useQt=true;
 #endif
@@ -219,6 +222,36 @@ int main(int argc, char** argv)
   plotter.setName("Normal");
   //  plotterMC.setName("NormalMC");
   plotterWoA.setName("NormalWoA");
+  if(chWoA)
+    {
+      Int_t neventsWoA=chWoA->GetEntries();
+      cout <<"we have " << neventsWoA <<" WoA events" <<endl;
+
+      for(long i=0;i<neventsWoA;i++)
+	{
+#ifdef MAX_EVENTS
+	  if(i>MAX_EVENTS)
+	    break;
+#endif
+	  if(!(i%10000))
+	    cout <<"processing woa event nr " << i << " of " << neventsWoA << "(" << 100*i/(float)neventsWoA<< "% )"<<endl;
+	  chWoA->GetEntry(i);
+	  pMyEventWoA->afterFill();
+	  
+	  if(pMyEventWoA->cutEvent)
+	    {
+	      continue;
+	    }
+	  //  cout <<"woa after fill " <<endl;
+	  pHadPairWoA->afterFill();
+	  //  cout <<"done " <<endl;
+	  //	  	  cout <<"adding woa had quad to plotter... " <<endl;
+	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
+	  smearingPlotterRaw.addXiniEntry(pHadPairWoA);
+	}
+    }
+  if(chWoA)
+    plotterWoA.doPlots();
 
   for(long i=0;i<nevents;i++)
     {
@@ -261,33 +294,9 @@ int main(int argc, char** argv)
 	}
     }
   if(isMC!=mcFlagNone)
-    smearingPlotter.saveSmearingMatrix();
-  if(chWoA)
     {
-      Int_t neventsWoA=chWoA->GetEntries();
-      cout <<"we have " << neventsWoA <<" WoA events" <<endl;
-
-      for(long i=0;i<neventsWoA;i++)
-	{
-#ifdef MAX_EVENTS
-	  if(i>MAX_EVENTS)
-	    break;
-#endif
-	  if(!(i%10000))
-	    cout <<"processing woa event nr " << i << " of " << nevents << "(" << 100*i/(float)neventsWoA<< "% )"<<endl;
-	  chWoA->GetEntry(i);
-	  pMyEventWoA->afterFill();
-	  
-	  if(pMyEventWoA->cutEvent)
-	    {
-	      continue;
-	    }
-	  //  cout <<"woa after fill " <<endl;
-	  pHadPairWoA->afterFill();
-	  //  cout <<"done " <<endl;
-	  //	  cout <<"adding had quad to plotter... " <<endl;
-	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
-	}
+      smearingPlotterRaw.saveXini();
+      smearingPlotter.saveSmearingMatrix();
     }
 
   if(isCharm)
@@ -305,10 +314,8 @@ int main(int argc, char** argv)
   else
     sprintf(buffer,"invMass_uds");
 
-
   plotter.doPlots();
-  if(chWoA)
-    plotterWoA.doPlots();
+
   cout <<" printing debug " <<endl;
   plotter.printDebug(plotType_2D);
   cout <<"done " <<endl;

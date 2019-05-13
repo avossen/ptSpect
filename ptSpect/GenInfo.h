@@ -491,7 +491,8 @@ namespace Belle {
 	  //  float minCosTheta=-0.511; //cuts for Martin's PID
 	  //  float maxCosTheta=0.842; //cuts for Martin's PID
 
-	  if(m_z<0.05 || cos(labTheta)<-0.511 || cos(labTheta)>0.842)
+	  //no fiducial cuts based on lab theta of particles for smearing correction
+	  if(m_z<0.05)// || cos(labTheta)<-0.511 || cos(labTheta)>0.842)
 	    {
 	      delete np;
 	      continue;

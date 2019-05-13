@@ -3,9 +3,14 @@
 
 //#define DEBUG_EVENT 15859
 #define DEBUG_EVENT2 -287880
+#define pi0Mass 0.1349766
+#define etaMass 0.548
 //this will be used for the ISR corrections
-const bool onlyGen=false;
+//const bool onlyGen=false;
+//const bool onlyGen=true;
 const bool PRINT=false;
+
+
 #include <iomanip>
 #include "TMatrixD.h"
 #include "ptSpect/mc.h"  //one central place to put the define mc
@@ -116,7 +121,7 @@ namespace Belle {
 
   using namespace std;
   // Constructor
-  ptSpect::ptSpect():smpl_(12345.),cPiPlus("PI+"), cPiNeg("PI-"),cPiZero("PI0"),cKPlus("K+"),cKNeg("K-")
+  ptSpect::ptSpect():onlyGen_(-1.0),smpl_(12345.),cPiPlus("PI+"), cPiNeg("PI-"),cPiZero("PI0"),cKPlus("K+"),cKNeg("K-")
   {
     strcpy(rFileName,"notInitialized.root");
     test=0;
@@ -142,6 +147,23 @@ namespace Belle {
 #ifdef XCHECK
     pXCheck=new ofstream("xcheck");
 #endif
+
+    zBorders[0]=0.3;
+    zBorders[1]=0.5;
+    zBorders[2]=0.7;
+    zBorders[3]=1.5;
+
+    ptBorders[0]=0.15;
+    ptBorders[1]=0.3;
+    ptBorders[2]=0.5;
+    ptBorders[3]=3.0;
+
+    for(int i=0;i<30;i++)
+      {
+	numEtas[i]=0;
+	numPi0s[i]=0;
+      }
+
     gROOT->SetStyle("Plain");
 
     thetaPhiLab=new TH2D("thetaPhiLab","thetaPhiLab",100,0,6.3,100,-3.15,3.15);
@@ -282,13 +304,14 @@ namespace Belle {
   // begin_run function
   void ptSpect::begin_run(BelleEvent* evptr, int* status)
   {
+    //    cout <<" in begin run... " <<endl;
     IpProfile::begin_run();
     eid::init_data();
 
     BeamEnergy::begin_run();
     double eler=BeamEnergy::E_LER();
     double eher=BeamEnergy::E_HER();
-    //    cout <<"got eler: " << eler <<" eher: " << eher<<endl;
+        cout <<"got eler: " << eler <<" eher: " << eher<<endl;
     if(eler <3.0 || eher <7.0 || eler > 5.0 || eher > 9.0)
       {
 	validRun=false;
@@ -316,6 +339,8 @@ namespace Belle {
   void ptSpect::hist_def()
   {
     Particle p;
+
+
 
     if(rFileName!=0)
       cout <<endl<<":::----- rFileName (handedness): " << rFileName <<endl<<endl;
@@ -533,8 +558,17 @@ namespace Belle {
   // event function
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
-    bool eventCut=false;
+    bool onlyGen=false;
+    if(onlyGen_>0.0)
+      {
+      onlyGen=true;
+      }
 
+
+    //    cout <<"value of onlygen: "<< onlyGen_ << ", onlyGen: " << onlyGen <<endl;
+
+    bool eventCut=false;
+    //      cout <<"in event " <<endl;
     if(onlyGen)
       {
 	eventCut=true;
@@ -619,6 +653,8 @@ namespace Belle {
     vector<float> v_pzG;
     vector<float> v_pGLab;
     vector<Hep3Vector> allParticlesBoosted;  
+    vector<Hep3Vector> boostedPi0s;
+    vector<Hep3Vector> boostedEtas;
     vector<int> allPB_particleClass;
     vector<int> allPB_particleCharge;
 
@@ -1110,9 +1146,90 @@ namespace Belle {
 	return;
       }
 
-    //    cout <<"done with charged particles " << endl;
+    //        cout <<"done with charged particles " << endl;
     Mdst_gamma_Manager& gamma_mgr=Mdst_gamma_Manager::get_manager();
     Mdst_ecl_aux_Manager& eclaux_mgr = Mdst_ecl_aux_Manager::get_manager();
+
+    //////---->just for the collins charm stuff
+
+    Mdst_pi0_Manager &pi0_mgr=Mdst_pi0_Manager::get_manager();
+    for(std::vector<Mdst_pi0>::const_iterator i =pi0_mgr.begin();i!=pi0_mgr.end();i++)
+      {
+	const Mdst_pi0& pi0=*i;
+	int id =(int)pi0.get_ID();
+	//	cout <<"pi0 children: " << pi0.nChildren()<<endl;
+
+	double px=pi0.px();
+	double py=pi0.py();
+	double pz=pi0.pz();
+
+
+	Mdst_ecl_aux &aux1 =eclaux_mgr(Panther_ID(pi0.gamma(0).ecl().get_ID()));
+	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
+	double e9oe25_1 =aux1.e9oe25();
+	Mdst_ecl_aux &aux2 =eclaux_mgr(Panther_ID(pi0.gamma(1).ecl().get_ID()));
+	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
+	double e9oe25_2 =aux2.e9oe25();
+	double mass=pi0.mass(); //mass before fitting ???
+	///	if(mass>0.15 || mass<0.12)
+	//almost the same as above...
+	float pLab=sqrt(px*px+py*py+pz*pz);
+	//      cout <<"pi0mass: "<< mass <<endl;≈
+
+	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
+	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
+	//	cout <<"pi0 gamma1: "<< g1Energy <<" gamma2: "<< g2Energy <<endl;
+       	if(g1Energy < 0.1 || g2Energy < 0.1)
+	  continue;
+
+
+	Hep3Vector h3Vect(px,py,pz);
+	float E=sqrt(mass*mass+h3Vect.mag2());
+	HepLorentzVector boostedVec(h3Vect,E);
+	boostedVec.boost(kinematics::CMBoost);
+
+
+	//	cout <<"testing diphoton mass: "<< mass <<endl;
+	if(fabs(mass-pi0Mass)<0.03)
+	  {
+	    //pi0
+	    boostedPi0s.push_back(boostedVec);
+	  }
+	if(fabs(mass-etaMass)<0.03)
+	  {
+	    //eta
+	    boostedEtas.push_back(boostedVec);
+	  }
+      }
+
+
+    /////-----
+
+
+    for(std::vector<Mdst_gamma>::const_iterator i =gamma_mgr.begin();i!=gamma_mgr.end();i++)
+      {
+	    float energy1=sqrt(i->px()*i->px()+i->py()*i->py()+i->pz()*i->pz());
+	    if(energy1<0.3)
+	      continue;
+	    HepLorentzVector h1(i->px(),i->py(),i->pz(),energy1);
+	for(std::vector<Mdst_gamma>::const_iterator j=i+1;j!=gamma_mgr.end();j++)
+	  {
+	    float energy2=sqrt(j->px()*j->px()+j->py()*j->py()+j->pz()*j->pz());
+	    if(energy2<0.3)
+	      continue;
+	    HepLorentzVector h2(j->px(),j->py(),j->pz(),energy2);
+	    HepLorentzVector etaCandidate=h1+h2;
+	    etaCandidate.boost(kinematics::CMBoost);
+	    float mass=etaCandidate.mag();
+	    if(fabs(mass-etaMass)<0.04)
+	      {
+	    //eta
+		boostedEtas.push_back(etaCandidate);
+	      }
+
+
+	  }
+      }
 
 
     //    cout <<"do gammas " <<endl;
@@ -1509,6 +1626,54 @@ namespace Belle {
 #else
      findHadronPairs();
 #endif
+     Hep3Vector axis=kinematics::thrustDirCM;
+     ////------ stuff for hairongs analysis
+     //     cout <<"found " << boostedPi0s.size() <<" pi0s and " << boostedEtas.size() <<" etas " <<endl;
+      for(int i=0;i<boostedPi0s.size();i++)
+	{
+	  Hep3Vector& vec=boostedPi0s[i];
+	  float thrustProj=axis.dot(vec);
+	  float pi0E=sqrt(vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()+pi0Mass*pi0Mass);
+	  float pi0Z=2*pi0E/10.5;
+	  if(pi0Z<0.2)
+	    continue;
+	  float pi0Pt=axis.perp(vec);
+	  //	  cout <<"pi0Z: "<< pi0Z<<" pt: " << pi0Pt <<endl;
+	  if(pi0Pt<1.5)
+	    {
+	      int zBin=getBin(zBorders,4,pi0Z);
+	      int ptBin=getBin(ptBorders,4,pi0Pt);
+	      //  cout <<"zBin: " << zBin <<" ptBin: "<< ptBin <<endl;
+	      numPi0s[zBin*4+ptBin]++;
+	    }
+     //     pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());
+	}
+
+      for(int i=0;i<boostedEtas.size();i++)
+	{
+	  Hep3Vector& vec=boostedEtas[i];
+	  float thrustProj=axis.dot(vec);
+	  float etaE=sqrt(vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()+pi0Mass*pi0Mass);
+	  float etaZ=2*etaE/10.5;
+	  if(etaZ<0.3)
+	    continue;
+	  float etaPt=axis.perp(vec);
+	  if(etaPt<1.5)
+	    {
+	      int zBin=getBin(zBorders,4,etaZ);
+	      int ptBin=getBin(ptBorders,4,etaPt);
+	      numEtas[zBin*4+ptBin]++;
+	    }
+	  //     pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());
+	}
+
+
+
+
+     ////----
+
+
+
 
 #ifdef SAVE_HISTOS
     saveHistos(allParticlesBoosted, allParticlesNonBoosted);
@@ -2185,7 +2350,16 @@ namespace Belle {
   // begin_run function
   void ptSpect::term()
   {
-          pTreeSaver->finalize();
+    for(int i=0;i<4;i++)
+      {
+	for(int j=0;j<4;j++)
+	  {
+	    cout << "zBin " << i <<" ptBin: "<< j << " numPi0s: "<<numPi0s[i*4+j]<<" numEtas: "<< numEtas[i*4+j]<<endl;
+	  }
+
+      }
+
+    pTreeSaver->finalize();
 
     histoD0Spect->Write();
     histoDStar->Write();
@@ -3508,8 +3682,8 @@ namespace Belle {
 #else
 	                    pidMatrixPositive[u][v][i][j]=mat(i,j);
 			    pidMatrixPositive2[u][v][i][j]=mat2(i,j);
-			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
-		    cout <<"loading 2" << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
+			    //			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
+			    //		    cout <<"loading 2" << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
 
 			    if(fabs(pidMatrixPositive2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0)
 			      {
@@ -3526,7 +3700,9 @@ namespace Belle {
 			   symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
 			   pidUncertPositive[u][v][i][j]=symUncert;
 			   if(isnan(symUncert))
-			     cout <<"poblem with pos symUncert!!!" <<endl;
+			     {
+			       cout <<"poblem with pos symUncert!!!" <<endl;
+			     }
 			   
 
 #endif

@@ -21,15 +21,36 @@ path add_condition main >:0:analysis
 path add_condition main <=:0:KILL
 path add_module analysis ${MODULE}
 module put_parameter ptSpect rfname\/home/belle/vossen/myProjects/ptSpect/mcEx55.root
-#module put_parameter fix_mdst Make_pi0_option\2
-#module put_parameter fix_mdst Make_pi0_lower_limit\-20.0
-#module put_parameter fix_mdst Make_pi0_upper_limit\25.0
+#module put_parameter ptSpect onlyGen\7
+module put_parameter fix_mdst Make_pi0_option\2
+module put_parameter fix_mdst Make_pi0_lower_limit\-20.0
+module put_parameter fix_mdst Make_pi0_upper_limit\25.0
 #module put_parameter fix_mdst Correct_ecl_option\1
 initialize
 nprocess set 0
 histogram define ${HBKFILE}
 
-process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001621-b20090127_0910.mdst 10000
+process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/04/all/0127/continuum/15/evtgen-uds-04-all-e000055r001585-b20090127_0910.mdst 10000
+
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001602-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001603-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001604-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001605-b20090127_0910.mdst 0 
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001606-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001607-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001609-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001610-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001611-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001619-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001620-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001621-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001626-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001627-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001631-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001632-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001633-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001634-b20090127_0910.mdst 0
+# process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001635-b20090127_0910.mdst 0
 #debug run
 #process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
 
