@@ -71,9 +71,6 @@ void MultiPlotter::doPlots(bool print)
 			    plotResults[resIdx].meanKinBin1=0;
 			    plotResults[resIdx].meanKinBin2=0;
 			  }
-			
-
-			  
 
 
 		      plotResults[resIdx].firstKinBin=firstBin;
@@ -461,8 +458,44 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 
 
 //mc_input is what is called xini in the tsvdunfold docu, MC_out is what is called bini
-TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d)
-{
+TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D** d)
+{  
+  int countThreshold=0;
+  vector<int> lowCountRows;
+  for(int ix=0;ix<smearingMatrix1->GetNbinsX();ix++)
+    {
+      int countX=0;
+      int countY=0;
+      for(int iy=0;iy<smearingMatrix1->GetNbinsY();iy++)
+	{
+	  countX+=smearingMatrix1->GetBinContent(ix+1,iy+1);
+	}
+      //this row has low counts, let's see if the column is small too
+      if(countX<=countThreshold)
+	{
+	  for(int iy=0;iy<smearingMatrix1->GetNbinsY();iy++)
+	    {
+	      //switch x and y to check column
+	      countY+=smearingMatrix1->GetBinContent(iy+1,ix+1);
+	    }
+	  if(countY<=countThreshold)
+	    {
+	      lowCountRows.push_back(ix);
+	    }
+	}
+      
+    }
+  
+  cout <<"found " << lowCountRows.size()<<" low count rows " <<endl;
+  for(int i=0;i<lowCountRows.size();i++)
+    {
+      cout <<lowCountRows[i]<<", ";
+    }
+  cout <<endl;
+
+
+  //smearingMatrix
+
   //  TH1D* xini=(TH1D*)file2.Get("xini");
   //  TH1D* bini=(TH1D*)file2.Get("bini");
   
@@ -474,25 +507,59 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   //      d->Fill(i%105);
   //
   //    }
+
+  //  int maxBin=99*10;
+  cout <<"bins in the beginning: "<< smearingMatrix1->GetNbinsX();
+  int initialDimension=smearingMatrix1->GetNbinsX();
+  int maxBin=initialDimension-lowCountRows.size();
+  cout <<" low countsRows size: "<< lowCountRows.size() <<" maxBins: "<< maxBin<<endl;
+  TH2D* smearingMatrix=new TH2D("tmpSm","tmpSm",maxBin,0,maxBin,maxBin,0,maxBin);
+  TH1D* MC_input=new TH1D("tmpMCIn","tmpMCIn",maxBin,0,maxBin);
+  TH1D* MC_out=new TH1D("tmpMCOut","tmpMCOut",maxBin,0,maxBin);
+  TH1D* data=new TH1D("data","data",maxBin,0,maxBin);
+  int i2=0;
+  for(int i=0;i<smearingMatrix->GetNbinsX();i++)
+    {
+      //not one of the low count rows
+      if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
+	{
+	  MC_input->SetBinContent(i2+1,MC_input1->GetBinContent(i+1));
+	  MC_out->SetBinContent(i2+1,MC_out1->GetBinContent(i+1));
+	  data->SetBinContent(i2+1,data1->GetBinContent(i+1));
+	  int j2=0;
+	  for(int j=0;j<smearingMatrix->GetNbinsY();j++)
+	    { 
+	      if(find(lowCountRows.begin(),lowCountRows.end(),j)==lowCountRows.end())
+		{
+		  smearingMatrix->SetBinContent(i2+1,j2+1,smearingMatrix1->GetBinContent(i+1,j+1));
+		  j2++;
+		}
+	    }
+	  i2++;
+	}
+    }
+
   char buffer[300];
   sprintf(buffer,"statcof_%s",data->GetName());
   TH2D* statcovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
-  cout <<" input has " << MC_input->GetNbinsX();
+    cout <<" input has " << MC_input->GetNbinsX();
   cout <<" bins and output " << MC_out->GetNbinsX() <<" data: " << data->GetNbinsX() <<" smearing matrix " << smearingMatrix->GetNbinsX() <<" x " << smearingMatrix->GetNbinsY() <<endl;
   for(int i =0;i<MC_input->GetNbinsX();i++)
     {
-      cout <<MC_input->GetBinContent(i+1) <<" ";
+      //      cout <<MC_input->GetBinContent(i+1) <<" ";
     }
   cout <<endl;
   for(int i =0;i<MC_out->GetNbinsX();i++)
     {
-      cout <<MC_out->GetBinContent(i+1) <<" ";
+      //      cout <<MC_out->GetBinContent(i+1) <<" ";
 
     }
   cout <<endl<<endl;
   for(int i =0;i<data->GetNbinsX();i++)
     {
+
       cout <<data->GetBinContent(i+1) <<" error: " << data->GetBinError(i+1)<<" ";
+
       for(int j =0;j<data->GetNbinsX();j++)
 	{
 	  statcovMatrix->SetBinContent(i+1,j+1,data->GetBinError(i+1)*data->GetBinError(j+1));
@@ -501,10 +568,12 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
     }
  
 
+
   cout <<endl<<"smearingMatrix: " <<endl;
-  double scalingFactor=1000000.0;
+  double scalingFactor=1.0;
   for(int j =0;j<smearingMatrix->GetNbinsY();j++)
     {
+
 
       MC_out->SetBinContent(j+1,MC_out->GetBinContent(j+1)/scalingFactor);
       MC_input->SetBinContent(j+1,MC_input->GetBinContent(j+1)/scalingFactor);
@@ -512,8 +581,10 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
       statcovMatrix->SetBinContent(j+1,j+1,statcovMatrix->GetBinContent(j+1,j+1)/scalingFactor);
       for(int i =0;i<smearingMatrix->GetNbinsX();i++)
 	{
-	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
+
+	  //	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
 	  smearingMatrix->SetBinContent(i+1,j+1,smearingMatrix->GetBinContent(i+1,j+1)/scalingFactor);
+
 	  if(i==j)
 	    {
 	      //      smearingMatrix->SetBinContent(i+1,j+1,50.0);
@@ -530,6 +601,9 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   cT.SetLogz();
   smearingMatrix->Draw("colz");
   cT.SaveAs("smTest123.png");
+
+  cT.SaveAs("smTest123.root");
+
   cout <<endl;
   cout <<"--->"<<endl;
   int rank=MC_input->GetNbinsX();
@@ -540,7 +614,9 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
   cout<<"normalized, using rank "<< rank <<endl;
   TH1D* ret=f->Unfold(rank);
   cout <<"use " <<rank <<" ranks " <<endl;
-  TH2D* uadetcov=f->GetAdetCovMatrix(100);
+
+  TH2D* uadetcov=f->GetAdetCovMatrix(10);
+
   cout <<"4"<<endl;
   TH2D* utaucov= f->GetXtau();
   utaucov->Add(uadetcov);
@@ -559,25 +635,92 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH
 
     }
 
-
-
   sprintf(buffer,"debug_D_from%s.png",MC_input->GetName());
   cout <<"d: bins: "<< (*d)->GetNbinsX()<<endl;
   TCanvas c;
   (*d)->Draw();
   c.SetLogy();
   c.SaveAs(buffer);
-  return ret2;
+  sprintf(buffer,"%s_ret3",ret2->GetTitle());
+  TH1D* ret3=new TH1D(buffer,buffer,initialDimension,ret2->GetBinLowEdge(1),ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()));
+  int redCount=0;
+  for(int i=0;i<ret3->GetNbinsX();i++)
+    {
+      //not dropeed
+      if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
+	{
+	  ret3->SetBinContent(i+1,ret2->GetBinContent(redCount+1));
+	  redCount++;
+	}
+
+    }
+  return ret3;
 }
 
+
+
+void MultiPlotter::setHistogram(int binning, int chargeType, int pidType, TH1D* histo, TH1D* upperSys, TH1D* lowerSys)
+{
+  int binningType=binType_z_z;
+  if(1==binning)
+    binningType=binType_zOnly;
+
+ PlotResults* m_plotResults=plotResults;
+
+
+  for(int i=0;i<maxKinMap[pidType][binningType].first;i++)
+    {
+      //      for(int j=0;j<maxKinMap[binningType].second;j++)
+      for(int j=0;j<maxKinMap[pidType][binningType].second;j++)
+	{
+	  int resIdx=getResIdx(binningType,pidType,chargeType,i,j);
+	  for(unsigned int iKtBin=0;iKtBin<numKtBins;iKtBin++)
+	    {
+
+	  float val=0;
+	  float eVal=0;
+
+	  float sysUp=0;
+	  float sysDown=0;
+	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
+		{
+		 val= histo->GetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+		 eVal= histo->GetBinError(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+
+		 sysUp=upperSys->GetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+		 sysDown=lowerSys->GetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1);
+
+
+		}
+	      else
+		{
+		  val=histo->GetBinContent(j*numKtBins+iKtBin+1);
+		  eVal=histo->GetBinError(j*numKtBins+iKtBin+1);
+		  sysUp=upperSys->GetBinContent(j*numKtBins+iKtBin+1);
+		  sysDown=lowerSys->GetBinContent(j*numKtBins+iKtBin+1);
+		}
+
+	      m_plotResults[resIdx].kTValues[iKtBin]=val;
+	      m_plotResults[resIdx].kTUncertainties[iKtBin]=eVal;
+	      //let's hope that the systematic uncertainties are symmetricxb
+
+	      m_plotResults[resIdx].kTSysUncertainties[iKtBin]=sysUp;
+	      m_plotResults[resIdx].kTSysUncertaintiesLower[iKtBin]=sysDown;
+	}
+
+    }
+
+}
+}
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
 
 //for now only for the zOnly binning--> changed to z1,z2 and zOnly (binning argument)
 //don't do the bin width normalization since we also don't do it for the xini, bini
-//hist num is just a parameter to keep the histogram names distinct
-TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int histNum)
+
+TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int addSys)
+
 {
-  cout <<"getting histo for binning: " << binning <<" charge: "<< chargeType <<" pidType: " << pidType <<endl;
+  //  cout <<"getting histo for binning: " << binning <<" charge: "<< chargeType <<" pidType: " << pidType <<endl;
   PlotResults* m_plotResults=plotResults;
   PlotResults* loc_plotResults=0;
   char buffer[200];
@@ -593,7 +736,7 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int h
 
   string binName=getBinName(binningType,pidType,chargeType,-1,-1);
   sprintf(buffer,"%s",binName.c_str());
-  sprintf(buffer1,"histo_%s_%d",buffer, histNum);
+  sprintf(buffer1,"histo_%s",buffer);
   TH1D* ret=new TH1D(buffer1,buffer1,maxSmearing[pidType][binning],0,maxSmearing[pidType][binning]);
   //  cout <<" getH: " << maxSmearing <<endl;
     cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
@@ -1038,7 +1181,8 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
 //hp1 is the measured, hp2 the mc one, so we only check on hp1 if it is cut
 void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, bool accSmearing)
  {
-   bool addToBG=false;
+   bool mcCut=false;
+   bool accCut=false;
   //needed for the mean computation...
    if(hp1->numPairs!=hp2->numPairs)
      {
@@ -1051,10 +1195,15 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      }
   for(int i=0;i<hp1->numPairs;i++)
     {
+      //reset for each pair
+      mcCut=false;
+      accCut=false;
+      //accepted hadron pair cut, should still be in xini
       if(hp1->cut[i] )
 	{
 	  //	  	  cout <<"hadron pair cut" <<endl;
-	  continue;
+	  //	  continue;
+	  accCut=true;
 	}
       else
 	{
@@ -1065,7 +1214,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
       //the hp2 will be cut due to the z cut, so the test for -1 is superfluous
       if(hp2->cut[i] || hp2->z1[i]==-1)
 	{
-	  addToBG=true; 
+	  mcCut=true; 
 	}
       ////-----> need a check here if hadron pair 2 (the mc) was cut or has -1 entries (no match found)
       ///that would mean that the entry is 'background'
@@ -1177,7 +1326,9 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
       //      cout <<"ini bin: " << iniBin <<" recBin: " << recBin <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
       //      cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<" iniBin: "<< iniBin <<endl;
-     if(addToBG)
+
+     //if mc is cut and data is not. In principle we could also expect TSVD to deal with background, but its easy to remove and not clear if TSVD handels it correctly
+     if(mcCut && !accCut)
        {
 	 backgroundCounts[0][pidBin][chargeBin]->Fill(recBin0);
 	 backgroundCounts[1][pidBin][chargeBin]->Fill(recBin1);
@@ -1186,14 +1337,25 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 continue;
        }
 
-      xini[0][pidBin][chargeBin]->Fill(iniBin0);
-      bini[0][pidBin][chargeBin]->Fill(recBin0);
-      xini[1][pidBin][chargeBin]->Fill(iniBin1);
-      bini[1][pidBin][chargeBin]->Fill(recBin1);
-
-      //true observable on the y axis, reconstrubted on the x axis
-      kinematicSmearingMatrix[0][pidBin][chargeBin]->Fill(recBin0,iniBin0);
-      kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
+     //if mc is not cut 
+     if(!mcCut)
+       {
+	 //we fill xini even if the bini is cut. TSVDUnfold should then deal with the acc correction
+	 xini[0][pidBin][chargeBin]->Fill(iniBin0);
+	 xini[1][pidBin][chargeBin]->Fill(iniBin1);
+       }
+     //since we already bailed out for mcCut && !accCut before, this is implicitly for !accCut && !mcCut
+      if(!accCut)
+	{
+	  bini[0][pidBin][chargeBin]->Fill(recBin0);
+	  bini[1][pidBin][chargeBin]->Fill(recBin1);
+	  //true observable on the y axis, reconstrubted on the x axis
+	}
+      if(!accCut && !mcCut)
+	{
+	  kinematicSmearingMatrix[0][pidBin][chargeBin]->Fill(recBin0,iniBin0);
+	  kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
+	}
     }
  }
 
@@ -1433,6 +1595,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  int secondBin=*(binningMap[bt].second);
 	  float firstKin=*(meanMap[bt].first);
 	  float secondKin=*(meanMap[bt].second);
+
 	  if(hp->particleType[i]==PiPi && p==PiPi && print)
 	    {
 	  	  cout << "firstBin " << firstBin <<" secondBin: "<< secondBin << " firstKin " << firstKin <<" secondKin " << secondKin <<endl;

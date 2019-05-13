@@ -1197,10 +1197,10 @@ vector<pair<float, float> >* fitTheSingle(int** counts, vector<float>& binningAn
       cout <<"pb, size of ret: " << ret->size()<<endl;
 	   
     }
-  delete mX;
-  delete mY;
-  delete mXErr;
-  delete mYErr;
+  delete[] mX;
+  delete[] mY;
+  delete[] mXErr;
+  delete[] mYErr;
   cout <<"size of ret: " << ret->size()<<endl;
   return ret;
 }

@@ -235,6 +235,7 @@ int main(int argc, char** argv)
 #endif
 	  if(!(i%10000))
 	    cout <<"processing woa event nr " << i << " of " << neventsWoA << "(" << 100*i/(float)neventsWoA<< "% )"<<endl;
+
 	  chWoA->GetEntry(i);
 	  pMyEventWoA->afterFill();
 	  
@@ -247,7 +248,9 @@ int main(int argc, char** argv)
 	  //  cout <<"done " <<endl;
 	  //	  	  cout <<"adding woa had quad to plotter... " <<endl;
 	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
+
 	  smearingPlotterRaw.addXiniEntry(pHadPairWoA);
+
 	}
     }
   if(chWoA)
@@ -298,6 +301,7 @@ int main(int argc, char** argv)
       smearingPlotterRaw.saveXini();
       smearingPlotter.saveSmearingMatrix();
     }
+
 
   if(isCharm)
     sprintf(buffer,"z1_charm.root");

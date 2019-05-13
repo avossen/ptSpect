@@ -143,7 +143,9 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //    void setFitReuslt();
   unsigned int getNumKtBins(){return numKtBins;};
   void addHadPairArray(HadronPairArray* hq, MEvent& event, bool print=false);
+
   void addXiniEntry(HadronPairArray* hp2);
+
     void addSmearingEntry(HadronPairArray* hq1, HadronPairArray* hq2,bool accSmearing=false);
     void setBinningMap();
     void doPlots(bool print=false);
@@ -152,7 +154,15 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 
 
     //get the histogram that is to be unfolded. This is a 1D histogram binned in z1, (z2) and kT
-    TH1D* getHistogram(int binning, int chargeBin, int pidBin, int histNum=0);
+
+    //addSys=0: don't add
+    //addSys=-1: add lower Sys, =1 higher sys
+
+    TH1D* getHistogram(int binning, int chargeBin, int pidBin, int addSys=0);
+    //set the unfolded results again
+    void setHistogram(int binning, int chargeBin, int pidBin, TH1D* histo, TH1D* histoUpperSys, TH1D* histoLowerSys);
+
+
     //d is a return value
     TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d);
     TH1D** convertUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
