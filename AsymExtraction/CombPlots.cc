@@ -20,7 +20,8 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  bool closureTest=true;
+  //  bool closureTest=true;
+  bool closureTest=false;
   bool m_useQt=false;
   //should have hadronPairArray where this is defined included
 #ifdef USE_QT
@@ -132,75 +133,6 @@ int main(int argc, char** argv)
 
   for(vector<string>::iterator itFlav=flavor.begin();itFlav!=flavor.end();itFlav++)
     {
-      //woA plotter
-      //do this first, so we can scale the smearing matrix with the factor from data/mc
-      //maybe more transparent if we scale the endresult
-	  counter++;
-	  chAll=new TChain("PlotTree");
-	  chAll->Add((string(rootPath)+"/"+(woPlotterName)+"_*.root").c_str());
-	  cout <<"adding : "<< (string(rootPath)+"/"+(woPlotterName)+"_*.root").c_str() <<endl;
-	  Int_t nevents=chAll->GetEntries();
-	  cout <<"Plotter Name: " << woPlotterName<<endl;
-	  string fullName=(woPlotterName)+string(dataMcNameAdd)+(*itFlav);
-	  //I guess this doesn't need an output path
-      MultiPlotter* pWoAPlotter=new MultiPlotter(m_useQt,const_cast<char*>("."),fullName.c_str(),string(""),0,false,false,false,false);	  
-
-	  cout <<" setting plotter name to:" << fullName <<endl;
-	  pWoAPlotter->setName(fullName);
-	  //has to be 0!!
-	  PlotResults* plotResults=0;
-
-	  chAll->SetBranchAddress("PlotBranch",&plotResults);
-
-	  for(long i=0;i<nevents;i++)
-	    {
-	      //	  float locW[3]={0.0,0.0,0.0};
-	      chAll->GetEntry(i);
-
-	      if(plotResults->exp<minExp ||(plotResults->on_res && (badOnRes.find(plotResults->exp)!=badOnRes.end())) ||(!plotResults->on_res && (badCont.find(plotResults->exp)!=badCont.end())))
-		continue;
-	      if(plotResults->exp>maxExp && plotResults->exp < minExp2)
-		continue;
-	      if(plotResults->exp>maxExp2)
-		continue;
-
-	      //entry doesn't exist yet
-	      if(expCounts.find(plotResults->exp)==expCounts.end())
-		{
-		  expCounts[plotResults->exp]=0;
-		}
-
-
-	      //for now only continuum:
-	      cout <<"onres? "<< endl;
-	      if(plotResults->on_res)
-		{
-		  cout <<" result is on resonance " <<endl;
-		  continue;
-		}
-
-	      //check if the  result we are reading right now is compatible with the 
-	      //flavor we are looking for
-	      if((*itFlav)==string("_charm"))
-		{
-		  if(!plotResults->isCharm)
-		    continue;
-		}
-	      if((*itFlav)==string("_uds"))
-		{
-		  if(plotResults->isCharm)
-		    continue;
-		}
-
-	      //	  cout <<"result index: "<< plotResults->resultIndex <<endl;
-
-
-
-	      //	  cout <<endl;
-	      pWoAPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
-	     
-	    }
-
 
       for(vector<string>::iterator it=vPlotterNames.begin();it!=vPlotterNames.end();it++)
 	{
@@ -269,6 +201,10 @@ int main(int argc, char** argv)
 		}
 	    }
 	
+
+	  ///////////up to hear semi-useful preparation-------
+
+
 	  for(long i=0;i<nevents;i++)
 	    {
 	      //	  float locW[3]={0.0,0.0,0.0};
@@ -329,6 +265,10 @@ int main(int argc, char** argv)
 		      cout <<"  rhs mean: " << plotResults->kTMeans[i] <<" ";
 		    }
 		}
+
+	      //
+	      //    above is hardly ever used
+	      ///
 	      //	  cout <<endl;
 	      //I guess this is where the magic happens
 	      ////
@@ -337,7 +277,7 @@ int main(int argc, char** argv)
 	      pPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
 	      ////
 	      ///
-	      ///
+	      ///--------->>>> END MAGIC <<<<<------------
 	      //
 	      if(binType_z_z == plotResults->binningType)
 		{
@@ -349,6 +289,10 @@ int main(int argc, char** argv)
 		  cout <<endl;
 		}
 	    }
+
+	  //////////////now we have all the results in our plotter, time to do something with it
+
+
 	
 	  cout <<"save plot " <<endl;
 	  pPlotter->savePlots(plotType_2D);
@@ -362,6 +306,7 @@ int main(int argc, char** argv)
 	  TFile* myOutputFile=new TFile("unfoldingOut.root","RECREATE");
 	  TFile* smearingFile=new TFile(smearingFileName);
 	  TFile* smearingFileRaw=new TFile(smearingFileRawName);
+	  cout <<"loaded smearingFile: "<< smearingFileName <<" and raw file: "<< smearingFileRawName <<endl;
 	  //      for(int c=0;c<MultiPlotter::NumCharges;c++)
 	  TCanvas cnvs;
 	  //z1_z2 binning (b==0) and onlyZ
@@ -428,6 +373,10 @@ int main(int argc, char** argv)
 			  cout <<" c: "<< c <<" p: "<< p << " integral: " << smearingMatrix->Integral()<<endl;
 			  continue;
 			}
+
+		      ////////nothing has happened so far other than us loading the smearing matrix
+
+
 		      cnvs.SetLogz(true);
 		      smearingMatrix->Draw("colz");
 		      sprintf(buffer,"debug_smM_binning%d_pid%d_charge_%d.png",b,p,c);
@@ -437,13 +386,16 @@ int main(int argc, char** argv)
 		      cout <<"trying to load " << buffer <<endl;
 
 
+
 		      //ormalize?
 
 
-
+		      cnvs.SetLogy();
 		      TH1D* xini=(TH1D*)smearingFileRaw->Get(buffer);
 		      xini->Draw();
 		      sprintf(buffer,"debug_xini_binning%d_pid%d_charge_%d.png",b,p,c);
+		      cnvs.SaveAs(buffer);
+		      sprintf(buffer,"debug_xini_binning%d_pid%d_charge_%d.pdf",b,p,c);
 		      cnvs.SaveAs(buffer);
 
 		      sprintf(buffer,"bini_binning%d_pidBin%d_chargeBin%d",b,p,c);
@@ -452,16 +404,20 @@ int main(int argc, char** argv)
 		      bini->Draw();
 		      sprintf(buffer,"debug_bini_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
+		      sprintf(buffer,"debug_bini_binning%d_pid%d_charge_%d.pdf",b,p,c);
+		      cnvs.SaveAs(buffer);
 
 
 		      sprintf(buffer,"backgroundCounts_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		      TH1D* bgCounts=(TH1D*)smearingFile->Get(buffer);
 		      sprintf(buffer,"debug_backgroundCounts_binning%d_pidBin%d_chargeBin%d.png",b,p,c);
 		      bgCounts->Draw();
+		      sprintf(buffer,"debug_backgroundCounts_binning%d_pidBin%d_chargeBin%d.pdf",b,p,c);
+		      bgCounts->Draw();
 		      cnvs.SaveAs(buffer);
 		      //subtract the backgrund
-		      cout <<"subtracting background" <<endl;
-		      bini->Add(bgCounts,-1);
+		      //		      cout <<"subtracting background" <<endl;--->now in xini
+		      ////		      bini->Add(bgCounts,-1);
 
 		      cout <<"getting combined histo for b: "<< b <<" c: "<< c <<" p: "<< p <<endl;
 		      //get combined z/kT histogram for this charge, pid bin
@@ -472,6 +428,8 @@ int main(int argc, char** argv)
 
 		      combinedHisto->Draw();
 		      sprintf(buffer,"debug_combinedH_binning%d_pid%d_charge_%d.png",b,p,c);
+		      cnvs.SaveAs(buffer);
+		      sprintf(buffer,"debug_combinedH_binning%d_pid%d_charge_%d.pdf",b,p,c);
 		      cnvs.SaveAs(buffer);
 		      TH1D** d=new (TH1D*);
 		      max=-1;
@@ -518,26 +476,19 @@ int main(int argc, char** argv)
 			}
 		      ///-->just for tmp
 		       //		      output=combinedHisto;
-		      //output->Draw();
-
-
+		      output->Draw();
 
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
+		      cnvs.SaveAs(buffer);
+		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.pdf",b,p,c);
 		      cnvs.SaveAs(buffer);
 
 		      ////---->now we should save the unfolded result into the plotResults again and save the whole plotter
 		      pPlotter->setHistogram(b,c,p,combinedHisto,combinedHistoUpperSys,combinedHistoLowerSys);
 
-		      ///---
-
-
-
-
-
-
 		      /////----->
 		      //	      (*d)->Draw();
-		      //	      sprintf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
+		      //	      sprinntf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
 		      //	      cnvs.SaveAs(buffer);
 		      //
 
@@ -555,6 +506,7 @@ int main(int argc, char** argv)
 		      cout <<" got sepkt " <<endl;
 		      //these are all z bins...
 		      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"allDataInput");
+		      TH1D*** sepAllKtZHistosUnfolded=pPlotter->convertAllUnfold2Plots(output,b,c,p,"allDataInput");
 		      cout <<" converted" <<endl;
 		      TCanvas cnvs2;
 		      //need one canvas for the legend
@@ -575,13 +527,15 @@ int main(int argc, char** argv)
 			  for(int iz2=0;iz2<maxZ2;iz2++)
 			    {
 			      sepAllKtZHistos[iz1][iz2]->Write();
+			      sepAllKtZHistosUnfolded[iz1][iz2]->Write();
 			    }
 			}
 		      tempDir->cd();
 		      cout<<" before out to txt" <<endl;
 
 		      int minMaxZ=maxZ1;
-		      saveToTxt(b,c,p,maxZ1,maxZ2,pPlotter->getNumKtBins(),sepAllKtZHistos);
+		      saveToTxt(b,c,p,maxZ1,maxZ2,pPlotter->getNumKtBins(),sepAllKtZHistos,"input");
+		      saveToTxt(b,c,p,maxZ1,maxZ2,pPlotter->getNumKtBins(),sepAllKtZHistosUnfolded,"output");
 		      cout <<"saved to txt" <<endl;
 		      if(maxZ2<maxZ1)
 			minMaxZ=maxZ2;
@@ -630,6 +584,8 @@ int main(int argc, char** argv)
 		      cnvs2.cd(minMaxZ+1);
 		      leg.Draw();
 		      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.png",b,p,c);
+		      cnvs2.SaveAs(buffer);
+		      sprintf(buffer,"unfoldedResult_binning_%d_pid_%d_charge_%d.pdf",b,p,c);
 		      cnvs2.SaveAs(buffer);
 		    }
 		}

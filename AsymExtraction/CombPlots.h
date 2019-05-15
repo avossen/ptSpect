@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void saveToTxt(int b,int c,int p,int maxZ1,int maxZ2,int numKtBins,TH1D*** sepKtZHistos)
+void saveToTxt(int b,int c,int p,int maxZ1,int maxZ2,int numKtBins,TH1D*** sepKtZHistos, const char* name)
 {
   if(maxZ1==0 || maxZ2==0|| numKtBins==0)
     {
@@ -17,7 +17,7 @@ void saveToTxt(int b,int c,int p,int maxZ1,int maxZ2,int numKtBins,TH1D*** sepKt
 
   ofstream f;
   char buffer[300];
-  sprintf(buffer,"out_binning_%d_charge_%d_pid_%d.txt",b,c,p);
+  sprintf(buffer,"out_%s_binning_%d_charge_%d_pid_%d.txt",name,b,c,p);
   f.open(buffer);
   f <<" " << p <<" " << c << " " <<b <<" " << maxZ1 <<" " << maxZ2 <<" " << numKtBins<<endl;
   cout <<"running maxZ1: "<< maxZ1 <<  " maxZ2: "<< maxZ2 <<endl;

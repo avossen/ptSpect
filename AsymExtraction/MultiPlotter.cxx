@@ -518,7 +518,8 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   TH1D* MC_out=new TH1D("tmpMCOut","tmpMCOut",maxBin,0,maxBin);
   TH1D* data=new TH1D("data","data",maxBin,0,maxBin);
   int i2=0;
-  for(int i=0;i<smearingMatrix->GetNbinsX();i++)
+  //  for(int i=0;i<smearingMatrix->GetNbinsX();i++)
+  for(int i=0;i<smearingMatrix1->GetNbinsX();i++)
     {
       //not one of the low count rows
       if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
@@ -527,7 +528,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 	  MC_out->SetBinContent(i2+1,MC_out1->GetBinContent(i+1));
 	  data->SetBinContent(i2+1,data1->GetBinContent(i+1));
 	  int j2=0;
-	  for(int j=0;j<smearingMatrix->GetNbinsY();j++)
+	  for(int j=0;j<smearingMatrix1->GetNbinsY();j++)
 	    { 
 	      if(find(lowCountRows.begin(),lowCountRows.end(),j)==lowCountRows.end())
 		{
@@ -634,7 +635,6 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
       //      cout <<"data: "<< data->GetBinContent(i+1) <<" unfolded: " << ret->GetBinContent(i+1) <<" mc out: "<< MC_out->GetBinContent(i+1) <<" mc in: "<< MC_input->GetBinContent(i+1)<<endl;
 
     }
-
   sprintf(buffer,"debug_D_from%s.png",MC_input->GetName());
   cout <<"d: bins: "<< (*d)->GetNbinsX()<<endl;
   TCanvas c;
@@ -643,12 +643,21 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   c.SaveAs(buffer);
   sprintf(buffer,"%s_ret3",ret2->GetTitle());
   TH1D* ret3=new TH1D(buffer,buffer,initialDimension,ret2->GetBinLowEdge(1),ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()));
+  cout <<"created ret3 with dim: "<< initialDimension<<" low edge: " << ret2->GetBinLowEdge(1) <<" high: " << ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()) <<endl;
   int redCount=0;
+
+  cout <<" original unfold: "<<endl;
+  for(int i=0;i<ret2->GetNbinsX();i++)
+    {
+      cout <<i<<"-->"<<ret2->GetBinContent(i+1)<<", "<<endl;
+    }
+
   for(int i=0;i<ret3->GetNbinsX();i++)
     {
       //not dropeed
       if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
 	{
+	  cout <<i+1 <<"("<<redCount+1<<")-->"<<ret2->GetBinContent(redCount+1)<<endl;
 	  ret3->SetBinContent(i+1,ret2->GetBinContent(redCount+1));
 	  redCount++;
 	}
