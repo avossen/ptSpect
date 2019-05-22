@@ -505,8 +505,9 @@ int main(int argc, char** argv)
 
 		      cout <<" got sepkt " <<endl;
 		      //these are all z bins...
-		      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"allDataInput");
-		      TH1D*** sepAllKtZHistosUnfolded=pPlotter->convertAllUnfold2Plots(output,b,c,p,"allDataInput");
+		      myOutputFile->cd();
+		      TH1D*** sepAllKtZHistos=pPlotter->convertAllUnfold2Plots(combinedHisto,b,c,p,"dataInput");
+		      TH1D*** sepAllKtZHistosUnfolded=pPlotter->convertAllUnfold2Plots(output,b,c,p,"unfolded");
 		      cout <<" converted" <<endl;
 		      TCanvas cnvs2;
 		      //need one canvas for the legend
@@ -521,7 +522,7 @@ int main(int argc, char** argv)
 
 		      //zs can be different due to PID (kaon, pion, proton have different numbers of z bins);
 		      TDirectory* tempDir=gDirectory;
-		      myOutputFile->cd();
+
 		      for(int iz1=0;iz1<maxZ1;iz1++)
 			{
 			  for(int iz2=0;iz2<maxZ2;iz2++)
