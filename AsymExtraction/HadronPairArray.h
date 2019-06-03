@@ -343,16 +343,13 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("z1_PiK");
 	    branchNames.push_back("z1_PiP");
 
-
 	    branchNames.push_back("z1_KPi");
 	    branchNames.push_back("z1_KK");
 	    branchNames.push_back("z1_KP");
 
-
 	    branchNames.push_back("z1_PPi");
 	    branchNames.push_back("z1_PK");
 	    branchNames.push_back("z1_PP");
-
 	    
 	    branchNames.push_back("z2_PiPi");
 	    branchNames.push_back("z2_PiK");
@@ -401,9 +398,6 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("ep_PPi");
 	    branchNames.push_back("ep_PK");
 	    branchNames.push_back("ep_PP");
-
-
-
 
 #ifdef USE_QT
 	    branchNames.push_back("qT_PiPi");
@@ -497,7 +491,7 @@ struct HadronPairArray:public ReaderBase
 
   }
 
-  void afterFill(int evtNr=0)
+  void afterFill(int evtNr=0, bool print=false)
   {
     if(evtNr==DEBUG_EVENT)
       {
@@ -578,13 +572,17 @@ struct HadronPairArray:public ReaderBase
 	z1_PiPi[i]=tmp;
       }
 
-	//	cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
-	//	cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
+    //    cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
+    //    cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	//	cout <<"hp after fill!" <<endl;
 
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {
+	if(print)
+	  {
+	    cout <<"hadron tag fiducial.." <<endl;
+	  }
 	    cut[i]=1;
 	if(p_PiPi[i]>0 && chargeType[i]==0)
 	  {
@@ -614,6 +612,10 @@ struct HadronPairArray:public ReaderBase
 	if(p_PiPi[i]>0 && chargeType[i]==0)
 	  {
 	    //	  cout <<"cut on kt" <<endl;
+	  }
+	if(print)
+	  {
+	    cout <<"cut due to kt cut .." <<endl;
 	  }
 	    cut[i]=1;
 	  }
@@ -648,7 +650,10 @@ struct HadronPairArray:public ReaderBase
 	  {
 	    //	  cout <<"cut on asym" <<endl;
 	  }
-
+	if(print)
+	  {
+	    cout <<"cut due to asymmetry cut.." <<endl;
+	  }
 	  cut[i]=1;
 
 	  //	  cout <<"cut asym " <<endl;
@@ -670,7 +675,10 @@ struct HadronPairArray:public ReaderBase
 	      {
 		//		cout <<"second z cut on fid "<< z2[i] <<endl;
 	      }
-
+	if(print)
+	  {
+	    cout <<"cut due to second z cut.." <<endl;
+	  }
 	    cut[i]=1;
 	  }
 
@@ -834,7 +842,10 @@ struct HadronPairArray:public ReaderBase
 	  {
 	    //	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
 	  }
-
+	if(print)
+	  {
+	    cout <<"cut due to z cut (-1).." <<endl;
+	  }
 	    cut[i]=1;
 	  }
 
@@ -852,7 +863,10 @@ struct HadronPairArray:public ReaderBase
 	  {
 	    //	  cout <<"wrong z on fid" <<endl;
 	  }
-
+	if(print)
+	  {
+	    cout <<"cut due to z cut (1).." <<endl;
+	  }
 	    cut[i]=1;
 	  }
 
@@ -867,7 +881,10 @@ struct HadronPairArray:public ReaderBase
 	  {
 	    //	  cout <<"upper z on fid" <<endl;
 	  }
-
+	if(print)
+	  {
+	    cout <<"cut due to z upper cut.." <<endl;
+	  }
 	    cut[i]=1;
 	  }
 
@@ -905,19 +922,24 @@ struct HadronPairArray:public ReaderBase
 	  }
 
 	//pairChargeLikesign==0
-	if(p_PiPi[i]>0 && chargeType[i]==0)
+		if(p_PiPi[i]>0 && chargeType[i]==0 && !cut[i] && print)
+	//	if(print)
 	  {
+
 	    //
-	    //	    cout << "looking at pair pipi with prob: " << p_PiPi[i] <<endl;
-	    //cout <<" z1: " <<z1[i] <<" z2: "<< z2[i] <<" qT: "<< kT[i] <<endl;
-	    //	    cout<<"Event " << evtNr;
-	    //  	    cout <<std::fixed;
-	    //	    	    cout.precision(3);
-		    //	       cout  << " qT " <<kT[i];
-		    //	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
-	    //	    cout <<endl;
-		//	cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
-	//cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+	    //	    	    cout << "looking at pair pipi with prob: " << p_PiPi[i] <<endl;
+	    //	    cout <<" z1: " <<z1[i] <<" z2: "<< z2[i] <<" kT: "<< kT[i] <<endl;
+	    	    cout<<"Event " << evtNr;
+		    if(cut[i])
+		      cout <<" (cut==1) ";
+		    cout <<" charge type : "<< chargeType[i];
+	      	    cout <<std::fixed;
+	    	    	    cout.precision(3);
+		    	       cout  << " kT " <<kT[i];
+		    	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
+	    	    cout <<endl;
+			cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
+	cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
 	  }
 	if(p_PiPi[i]>0.5 && z1[i] < 0.1 && z2[i] < 0.1 && chargeType[i]==0)
 	  {

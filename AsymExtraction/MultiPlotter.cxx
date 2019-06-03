@@ -1235,7 +1235,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
       //this is from MC, so there is no PID smearing, second hp is MC truth so we take that
       int pidBin=hp2->particleType[i];
-
+      //      cout <<"adding smearing entry for pid bin " << pidBin << " chargetype: "<< chargeBin<<endl;
       pair<int,int> zIdx2=pidBin2ZBinningIdx(pidBin);
       //      cout <<"pidBin: " << pidBin <<" chargeBin: " << chargeBin <<endl;
       //probably no matching particle
@@ -1254,12 +1254,19 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      switch(pidBin)
        {
        case PiPi:
+	 if(hp1->z1_PiPi[i] > 1.01 || hp2->z1_PiPi[i]>1.01)
+	   {
+	     cout <<"indeed a z that is too high: " << hp1->z1_PiPi[i] <<" or " << hp2->z2_PiPi[i] <<endl;
+	     continue;
+	   }
 	 kTBin1=getBin(binningKt,hp1->kT_PiPi[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiPi[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiPi[i]);
 	 break;
 
        case PiK:
+	 if(hp1->z1_PiK[i] > 1.01 || hp1->z2_PiK[i]>1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_PiK[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiK[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiK[i]);
@@ -1267,12 +1274,16 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case PiP:
+	 if(hp1->z1_PiP[i] > 1.01 || hp1->z2_PiP[i]> 1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_PiP[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiP[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiP[i]);
 
 	 break;
        case KPi:
+	 if(hp1->z1_KPi[i] > 1.01 || hp1->z2_KPi[i]>1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_KPi[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KPi[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KPi[i]);
@@ -1280,6 +1291,8 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case KK:
+	 if(hp1->z1_KK[i] > 1.01 || hp1->z2_KK[i]> 1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_KK[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KK[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KK[i]);
@@ -1287,12 +1300,16 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case KP:
+	 if(hp1->z1_KP[i] > 1.01 || hp1->z2_KP[i] > 1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_KP[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KP[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KP[i]);
 
 	 break;
        case PPi:
+	 if(hp1->z1_PPi[i] > 1.01 || hp1->z2_PPi[i]>1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_PPi[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PPi[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PPi[i]);
@@ -1300,6 +1317,8 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case PK:
+	 if(hp1->z1_PK[i] > 1.01 || hp1->z2_PK[i]> 1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_PK[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PK[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PK[i]);
@@ -1307,6 +1326,8 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case PP:
+	 if(hp1->z1_PP[i] > 1.01 || hp1->z2_PP[i]>1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_PP[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PP[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PP[i]);
