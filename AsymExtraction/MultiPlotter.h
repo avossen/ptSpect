@@ -142,6 +142,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //
     //    void setFitReuslt();
   unsigned int getNumKtBins(){return numKtBins;};
+
+  bool pidDependentCut(float z1, float z2, float kT, int pid);
   void addHadPairArray(HadronPairArray* hq, MEvent& event, bool print=false);
 
   void addXiniEntry(HadronPairArray* hp2);

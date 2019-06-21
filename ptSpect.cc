@@ -1,6 +1,4 @@
-
 //#define DEBUG_EVENT 287880//please no output
-
 //#define DEBUG_EVENT 15859
 #define DEBUG_EVENT2 -287880
 #define pi0Mass 0.1349766
@@ -389,9 +387,6 @@ namespace Belle {
     pTreeSaver->addArrayF("ep_PK");
     pTreeSaver->addArrayF("ep_PP");
 
-
-
-
     pTreeSaver->addArrayF("kT_PiPi");
     pTreeSaver->addArrayF("kT_PiK");
     pTreeSaver->addArrayF("kT_PiP");
@@ -401,6 +396,18 @@ namespace Belle {
     pTreeSaver->addArrayF("kT_PPi");
     pTreeSaver->addArrayF("kT_PK");
     pTreeSaver->addArrayF("kT_PP");
+
+    //dot products
+    pTreeSaver->addArrayF("dp_PiPi");
+    pTreeSaver->addArrayF("dp_PiK");
+    pTreeSaver->addArrayF("dp_PiP");
+    pTreeSaver->addArrayF("dp_KPi");
+    pTreeSaver->addArrayF("dp_KK");
+    pTreeSaver->addArrayF("dp_KP");
+    pTreeSaver->addArrayF("dp_PPi");
+    pTreeSaver->addArrayF("dp_PK");
+    pTreeSaver->addArrayF("dp_PP");
+
 
     pTreeSaver->addArrayF("qT_PiPi");
     pTreeSaver->addArrayF("qT_PiK");
@@ -2021,6 +2028,8 @@ namespace Belle {
   //probably (hopefully)  get teh similar result by just running over v_allParticles
   void ptSpect::findHadronPairs()
   {
+    float dotProduct[25];
+
     if(DEBUG_EVENT==kinematics::evtNr)
       {
 	cout <<"combining hadrons: "<< v_firstHemi.size() <<" second: "<< v_secondHemi.size() <<endl;
@@ -2040,8 +2049,12 @@ namespace Belle {
 		{
 		  for(int j=0;j<5;j++)
 		    {
+		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
 		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-			acceptPair=true;
+			{
+			  acceptPair=true;
+
+			}
 
 		      if(DEBUG_EVENT==kinematics::evtNr)
 			{
@@ -2061,7 +2074,7 @@ namespace Belle {
 	    //	    hp2->secondRun=true;
 	    hp->firstHadron=*it;
 	    hp->secondHadron=*it2;
-
+	    hp->setDotProducts(dotProduct);
 	    //	    hp2->firstHadron=*it2;
 	    //	    hp2->secondHadron=*it;
 	    
@@ -2101,12 +2114,13 @@ namespace Belle {
 		{
 		  for(int j=0;j<5;j++)
 		    {
-
+		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
 		      if(DEBUG_EVENT==kinematics::evtNr)
 			{
 			  cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
 			  cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-			}
+			
+}
 		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
 			acceptPair=true;
 		    }
@@ -2122,6 +2136,7 @@ namespace Belle {
 
 		hp->firstHadron=*it;
 		hp->secondHadron=*it2;
+		hp->setDotProducts(dotProduct);
 
 		//		hp2->firstHadron=*it2;
 		//		hp2->secondHadron=*it;
@@ -2158,6 +2173,7 @@ namespace Belle {
 		{
 		  for(int j=0;j<5;j++)
 		    {
+		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
 		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
 			acceptPair=true;
 		    }
@@ -2173,6 +2189,7 @@ namespace Belle {
 
 		hp->firstHadron=*it;
 		hp->secondHadron=*it2;
+		hp->setDotProducts(dotProduct);
 
 		//		hp2->firstHadron=*it2;
 		//		hp2->secondHadron=*it;

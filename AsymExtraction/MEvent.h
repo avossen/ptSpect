@@ -178,8 +178,8 @@ class MEvent:public ReaderBase
 	//charlotte has EVis < 11 GeV, I have E_miss defined as  10.5177-E_vis
 	if(E_miss<(10.5177-11.0))
       {
-	//	cout <<" e mis < 1 : "<< E_miss <<endl;
-	cutEvent=true;
+	//		cout <<" e mis < 1 : "<< E_miss <<endl;
+		cutEvent=true;
       }
     if(E_miss>maxMissingEnergy)
       {

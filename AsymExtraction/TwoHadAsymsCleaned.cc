@@ -277,13 +277,13 @@ int main(int argc, char** argv)
       //      cout <<"had pair data " <<endl;
 
 
-      //cout <<"reconstructed pair: " <<endl;
-      hadPair.afterFill(myEvent.evtNr);
+      //      cout <<"reconstructed pair: " <<endl;
+      hadPair.afterFill(myEvent.evtNr,false);
       //           cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	{
 	  //	  	    cout <<"filling mc pair " <<endl;
-	  //	  cout <<endl<<"generated pair: " << endl;
+	  //	  	  cout <<endl<<"generated pair: " << endl;
 	  hadPairMC->afterFill(myEvent.evtNr,false);
 	  //	    cout <<"done " <<endl;
 	}
@@ -297,6 +297,9 @@ int main(int argc, char** argv)
       plotter.addHadPairArray(&hadPair, myEvent);
       if(isMC!=mcFlagNone)
 	{
+
+	  //for x-check with Charlotte
+	  cout <<"runNumber: " << myEvent.runNr <<" eventNumber: "<< myEvent.evtNr <<endl;
 	  smearingPlotter.addSmearingEntry(&hadPair,hadPairMC);
 	}
     }
