@@ -826,18 +826,18 @@ struct HadronPairArray:public ReaderBase
 	if(z1[i]<zCut || z2[i]<zCut)
 	  {
 	    //	    cout <<"fail z cut of " << zCut << " : " << z1[i] <<" z2: "<< z2[i] <<endl;
-    if(evtNr==DEBUG_EVENT)
-      {
-	cout <<"fail z cut " <<endl;
-      }
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    //	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
-	  }
-
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"fail z cut " <<endl;
+	      }
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+		//	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
+	      }
+	    
 	    cut[i]=1;
 	  }
-
+	
 	if(z1[i]<=0 || z1[i] >1.1|| z2[i]<=0 || z2[i] >1.1)
 	  {
 	    //	    if(particleType[i]==0 && chargeType[i]==0)

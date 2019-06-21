@@ -1,8 +1,8 @@
 
 //#define DEBUG_EVENT 287880//please no output
 
-//#define DEBUG_EVENT 15859
-#define DEBUG_EVENT2 -287880
+#define DEBUG_EVENT 3
+#define DEBUG_EVENT2 3
 #define pi0Mass 0.1349766
 #define etaMass 0.548
 //this will be used for the ISR corrections
@@ -69,7 +69,7 @@ using namespace std;
 #define PY_B 521
 
 //#define SAVE_HISTOS
-//#define XCHECK
+#define XCHECK
 
 #define D0Mass 1.865
 #define D0Width 0.6
