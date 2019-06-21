@@ -1,5 +1,4 @@
 //#define DEBUG_EVENT 8035//please no output
-
 #ifndef HADRONPAIR_H
 #define HADRONPAIR_H
 #include "event/BelleEvent.h"
@@ -32,6 +31,7 @@ class HadronPair
       hadPType2=AnaDef::SH_TypeUnknown;
 
     };
+  float m_dotProduct[25];
   bool secondRun;
   bool thrustMethod;
   Particle* firstHadron;
@@ -152,7 +152,13 @@ class HadronPair
 
   AnaDef::SingleHadType hadPType1;
   AnaDef::SingleHadType hadPType2;
-
+  float setDotProducts(float* dp)
+  {
+    for(int i=0;i<25;i++)
+      {
+	m_dotProduct[i]=dp[i];
+      }
+  }
 
   //compute PID weights based on the original classification
   void computePIDWeights()

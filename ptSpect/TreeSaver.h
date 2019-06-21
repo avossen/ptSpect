@@ -518,6 +518,18 @@ public:
 	      dataF.push_back(pair->kT_PK);	  
 	      dataF.push_back(pair->kT_PP);
 
+	      dataF.push_back(pair->dotProduct[pionIdx*5+pionIdx);
+	      dataF.push_back(pair->dotProduct[pionIdx*5+kaonIdx);
+	      dataF.push_back(pair->dotProduct[pionIdx*5+protonIdx);
+
+	      dataF.push_back(pair->dotProduct[kaonIdx*5+pionIdx);
+	      dataF.push_back(pair->dotProduct[kaonIdx*5+kaonIdx);
+	      dataF.push_back(pair->dotProduct[kaonIdx*5+protonIdx);
+
+	      dataF.push_back(pair->dotProduct[protonIdx*5+pionIdx);
+	      dataF.push_back(pair->dotProduct[protonIdx*5+kaonIdx);
+	      dataF.push_back(pair->dotProduct[protonIdx*5+protonIdx);
+
 
 	      dataF.push_back(pair->qT_PiPi);
 	      dataF.push_back(pair->qT_PiK);	  

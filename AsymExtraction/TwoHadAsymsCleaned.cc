@@ -275,15 +275,19 @@ int main(int argc, char** argv)
       //      cout <<"normal quad after fill" <<endl;
       //           cout<<" data after fill " <<endl;
       //      cout <<"had pair data " <<endl;
-      hadPair.afterFill(myEvent.evtNr);
+
+
+      //      cout <<"reconstructed pair: " <<endl;
+      hadPair.afterFill(myEvent.evtNr,false);
       //           cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	{
 	  //	  	    cout <<"filling mc pair " <<endl;
-	  hadPairMC->afterFill();
+	  //	  	  cout <<endl<<"generated pair: " << endl;
+	  hadPairMC->afterFill(myEvent.evtNr,false);
 	  //	    cout <<"done " <<endl;
 	}
- 
+      //      cout <<endl<<endl;
       for(int i=0;i<hadPair.numPairs;i++)
 	{
 	  z1.Fill(hadPair.z1[i]);
@@ -293,6 +297,9 @@ int main(int argc, char** argv)
       plotter.addHadPairArray(&hadPair, myEvent);
       if(isMC!=mcFlagNone)
 	{
+
+	  //for x-check with Charlotte
+	  cout <<"runNumber: " << myEvent.runNr <<" eventNumber: "<< myEvent.evtNr <<endl;
 	  smearingPlotter.addSmearingEntry(&hadPair,hadPairMC);
 	}
     }

@@ -432,7 +432,7 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 	  binWidthFactor*=binWidthFactorZ1*binWidthFactorZ2;
 	  //the first one is z2, so the array size is multiplied with the max z1 bns
 	  ///see : 
-	  int combBin=zBin2*binningZ[zIdx.first].size()*numKtBins + zBin1*numKtBins + kTBin;
+	  int combBin=zBin1*binningZ[zIdx.second].size()*numKtBins + zBin2*numKtBins + kTBin;
 	  if(binning==1)//onlyZ
 	    combBin=zBin1*numKtBins+kTBin;
 	  //	  cout<<endl <<"combBin : " << combBin<<endl;
@@ -864,8 +864,8 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int a
 	      //have to add one due to histos counting from 1
 	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
 		{
-		  ret->SetBinContent(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1,binContent);
-		  ret->SetBinError(j*maxKinMap[pidType][binningType].first*numKtBins+i*numKtBins+iKtBin+1,binUncertainty);
+		  ret->SetBinContent(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binContent);
+		  ret->SetBinError(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binUncertainty);
 		}
 	      else
 		{
@@ -1149,7 +1149,8 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
 
       //this is from MC, so there is no PID smearing, second hp is MC truth so we take that
       int pidBin=hp2->particleType[i];
-
+      if(hp2->cut[i] || pidDependentCut(hp2->z1[i],hp2->z2[i],hp2->kT[i],pidBin))
+	continue;
       pair<int,int> zIdx2=pidBin2ZBinningIdx(pidBin);
       //            cout <<"pidBin: " << pidBin <<" chargeBin: " << chargeBin <<endl;
       //probably no matching particle
@@ -1176,7 +1177,7 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
      int numZBins1=binningZ[zIdx.first].size();
      int numZBins2=binningZ[zIdx.second].size();
      //ini,rec bin 0 is for z_z binning, ini, rec 1 for zOnly
-     int iniBin0=z2Bin2*numZBins1*numKtBins+z2Bin1*numKtBins+kTBin2;
+     int iniBin0=z2Bin1*numZBins2*numKtBins+z2Bin2*numKtBins+kTBin2;
      int iniBin1=z2Bin1*numKtBins+kTBin2;
 
       //      cout <<"ini bin: " << iniBin <<" recBin: " << recBin <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
@@ -1202,40 +1203,22 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      {
        //       cout <<"same size " <<endl;
      }
-  for(int i=0;i<hp1->numPairs;i++)
+   for(int i=0;i<hp1->numPairs;i++)
     {
       //reset for each pair
       mcCut=false;
       accCut=false;
-      //accepted hadron pair cut, should still be in xini
-      if(hp1->cut[i] )
-	{
-	  //	  	  cout <<"hadron pair cut" <<endl;
-	  //	  continue;
-	  accCut=true;
-	}
-      else
-	{
-	  //	  cout <<"hadron pair survived " <<endl;
-	}
 
-      //reconstructed pair but no mc pair
-      //the hp2 will be cut due to the z cut, so the test for -1 is superfluous
-      if(hp2->cut[i] || hp2->z1[i]==-1)
-	{
-	  mcCut=true; 
-	}
       ////-----> need a check here if hadron pair 2 (the mc) was cut or has -1 entries (no match found)
       ///that would mean that the entry is 'background'
-
+      int pidBin=hp2->particleType[i];
       int chargeBin=hp2->chargeType[i];
       //      int particleBin1=hp->particleType1[i];
       //      int particleBin2=hp->particleType2[i];
       //      int particleBin=hp->particleType[i];
 
-      //this is from MC, so there is no PID smearing, second hp is MC truth so we take that
-      int pidBin=hp2->particleType[i];
 
+      //      cout <<"adding smearing entry for pid bin " << pidBin << " chargetype: "<< chargeBin<<endl;
       pair<int,int> zIdx2=pidBin2ZBinningIdx(pidBin);
       //      cout <<"pidBin: " << pidBin <<" chargeBin: " << chargeBin <<endl;
       //probably no matching particle
@@ -1251,28 +1234,82 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
      int  z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1[i]);
      int z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2[i]);
 
+     float pidZ1=hp2->z1[i];
+     float pidZ2=hp2->z2[i];
+     float pidKt=hp2->kT[i];
+
+      //this is from MC, so there is no PID smearing, second hp is MC truth so we take that
+
+      //accepted hadron pair cut, should still be in xini
+      if(hp1->cut[i])
+	{
+	  //	  	  cout <<"hadron pair cut" <<endl;
+	  //	  continue;
+	  accCut=true;
+	}
+      else
+	{
+	  //	  cout <<"hadron pair survived " <<endl;
+	}
+
+
+      //reconstructed pair but no mc pair
+      //the hp2 will be cut due to the z cut, so the test for -1 is superfluous
+      if(hp2->cut[i] || hp2->z1[i]==-1)
+	{
+	  mcCut=true; 
+	}
+
+
      switch(pidBin)
        {
        case PiPi:
+	 if(hp1->z1_PiPi[i] > 1.01 || hp1->z2_PiPi[i]>1.01)
+	   {
+	     cout <<"indeed a z that is too high: " << hp1->z1_PiPi[i] <<" or " << hp2->z2_PiPi[i] <<endl;
+	     continue;
+	   }
 	 kTBin1=getBin(binningKt,hp1->kT_PiPi[i]);
+	 pidZ1=hp1->z1_PiPi[i];
+	 pidZ2=hp1->z2_PiPi[i];
+	 pidKt=hp1->kT_PiPi[i];
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiPi[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiPi[i]);
+
 	 break;
 
        case PiK:
+	 if(hp1->z1_PiK[i] > 1.01 || hp1->z2_PiK[i]>1.01)
+	   continue;
 	 kTBin1=getBin(binningKt,hp1->kT_PiK[i]);
+	 pidZ1=hp1->z1_PiK[i];
+	 pidZ2=hp1->z2_PiK[i];
+	 pidKt=hp1->kT_PiK[i];
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiK[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiK[i]);
 
 	 break;
 
        case PiP:
+	 if(hp1->z1_PiP[i] > 1.01 || hp1->z2_PiP[i]> 1.01)
+	   continue;
+	 pidZ1=hp1->z1_PiP[i];
+	 pidZ2=hp1->z2_PiP[i];
+	 pidKt=hp1->kT_PiP[i];
+
 	 kTBin1=getBin(binningKt,hp1->kT_PiP[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PiP[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PiP[i]);
 
 	 break;
        case KPi:
+	 if(hp1->z1_KPi[i] > 1.01 || hp1->z2_KPi[i]>1.01)
+	   continue;
+
+	 pidZ1=hp1->z1_KPi[i];
+	 pidZ2=hp1->z2_KPi[i];
+	 pidKt=hp1->kT_KPi[i];
+
 	 kTBin1=getBin(binningKt,hp1->kT_KPi[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KPi[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KPi[i]);
@@ -1280,6 +1317,12 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case KK:
+	 if(hp1->z1_KK[i] > 1.01 || hp1->z2_KK[i]> 1.01)
+	   continue;
+	 pidZ1=hp1->z1_KK[i];
+	 pidZ2=hp1->z2_KK[i];
+	 pidKt=hp1->kT_KK[i];
+
 	 kTBin1=getBin(binningKt,hp1->kT_KK[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KK[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KK[i]);
@@ -1287,12 +1330,26 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case KP:
+	 if(hp1->z1_KP[i] > 1.01 || hp1->z2_KP[i] > 1.01)
+	   continue;
+
+	 pidZ1=hp1->z1_KP[i];
+	 pidZ2=hp1->z2_KP[i];
+	 pidKt=hp1->kT_KP[i];
+
 	 kTBin1=getBin(binningKt,hp1->kT_KP[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_KP[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_KP[i]);
 
 	 break;
        case PPi:
+	 if(hp1->z1_PPi[i] > 1.01 || hp1->z2_PPi[i]>1.01)
+	   continue;
+
+	 pidZ1=hp1->z1_PPi[i];
+	 pidZ2=hp1->z2_PPi[i];
+	 pidKt=hp1->kT_PPi[i];
+
 	 kTBin1=getBin(binningKt,hp1->kT_PPi[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PPi[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PPi[i]);
@@ -1300,6 +1357,13 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case PK:
+	 if(hp1->z1_PK[i] > 1.01 || hp1->z2_PK[i]> 1.01)
+	   continue;
+
+	 pidZ1=hp1->z1_PK[i];
+	 pidZ2=hp1->z2_PK[i];
+	 pidKt=hp1->kT_PK[i];
+
 	 kTBin1=getBin(binningKt,hp1->kT_PK[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PK[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PK[i]);
@@ -1307,6 +1371,12 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        case PP:
+	 if(hp1->z1_PP[i] > 1.01 || hp1->z2_PP[i]>1.01)
+	   continue;
+
+	 pidZ1=hp1->z1_PP[i];
+	 pidZ2=hp1->z2_PP[i];
+	 pidKt=hp1->kT_PP[i];
 	 kTBin1=getBin(binningKt,hp1->kT_PP[i]);
 	 z1Bin1=getBin(binningZ[zIdx2.first],hp1->z1_PP[i]);
 	 z1Bin2=getBin(binningZ[zIdx2.second],hp1->z2_PP[i]);
@@ -1314,28 +1384,53 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        }
+     if(pidDependentCut(pidZ1,pidZ2,pidKt,pidBin))
+       {
+	 accCut=true;
+       }
+     //for mc, the z1, z2 already use the correct pid
+     if(pidDependentCut(hp2->z1[i],hp2->z2[i],hp2->kT[i],pidBin))
+       {
+	 mcCut=true;
+       }
 
-      //      cout <<"kt: " << kT <<" bin: "<< kTBin<<endl;
 
-     //     cout <<" first (mc) z: "<< hp1->z1[i] <<endl;
-     //          cout <<" first (mc) z2: "<< hp1->z2[i] <<endl;
+     //     cout <<"kt (data): " << hp1->kT[i] << " pid: " << pidKt << " bin: "<< kTBin1<<endl;
+     //     cout <<"kt (mc): " << hp2->kT[i] <<" bin: "<< kTBin2<<endl;
+
+
+     //     cout <<" first (data) z: "<< hp1->z1[i] <<endl;
+     //     cout <<" first (data) z2: "<< hp1->z2[i] <<endl;
      
-     //          cout <<" second (mc) z: "<< hp2->z1[i] <<endl;
-	  //          cout <<" second (mc) z2: "<< hp2->z2[i] <<endl;
+     //     cout <<" second  (mc) z: "<< hp2->z1[i] << " pid: " << pidZ1 <<endl;
+     //     cout <<" second  (mc) z2: "<< hp2->z2[i] << " pid: " << pidZ2 <<endl;
       ///let's only use the first z bin...
      pair<int,int> zIdx=pidBin2ZBinningIdx(pidBin);
 
      int numZBins1=binningZ[zIdx.first].size();
      int numZBins2=binningZ[zIdx.second].size();
      //ini,rec bin 0 is for z_z binning, ini, rec 1 for zOnly
-     int recBin0=z1Bin2*numZBins1*numKtBins+z1Bin1*numKtBins+kTBin1;
-     int iniBin0=z2Bin2*numZBins1*numKtBins+z2Bin1*numKtBins+kTBin2;
+     int recBin0=z1Bin1*numZBins2*numKtBins+z1Bin2*numKtBins+kTBin1;
+     int iniBin0=z2Bin1*numZBins2*numKtBins+z2Bin2*numKtBins+kTBin2;
      int recBin1=z1Bin1*numKtBins+kTBin1;
      int iniBin1=z2Bin1*numKtBins+kTBin2;
 
-      //      cout <<"ini bin: " << iniBin <<" recBin: " << recBin <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
-      //      cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<" iniBin: "<< iniBin <<endl;
 
+     if(z1Bin1==z1Bin2==z2Bin1==z2Bin2 && chargeBin==0 && pidBin==0)
+       {
+	 //	 cout <<"looking at diagonal : " <<endl;
+	 //	 cout <<"ini bin0: " << iniBin0 <<" recBin0: " << recBin0 <<" z1Bin1: " << z1Bin1 << " z1Bin2: "<< z1Bin2 <<" kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 <<" z2Bin2: "<< z2Bin2<< " kTBin2: " << kTBin2<<endl;
+	 //	 cout <<"kt (data): " << hp1->kT[i] << " pid: " << pidKt << " bin: "<< kTBin1<<endl;
+	 //	 cout <<"kt (mc): " << hp2->kT[i] <<" bin: "<< kTBin2<<endl;
+	 //	 cout <<"ini bin0: " << iniBin0 <<" recBin0: " << recBin0 <<" z1Bin1: " << z1Bin1 << " z1Bin2: "<< z1Bin2 <<" kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 <<" z2Bin2: "<< z2Bin2<< " kTBin2: " << kTBin2<<endl;
+	 //	 cout <<"ini bin1: " << iniBin1 <<" recBin1: " << recBin1 <<" z1Bin1: " << z1Bin1 << " kTBin1: " << kTBin1 << " z2bin1: " << z2Bin1 << " kTBin2: " << kTBin2<<endl;
+	 //	 cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<endl<<endl;;
+	 //          cout <<" first (data) z: "<< hp1->z1[i] <<endl;
+	  //          cout <<" first (data) z2: "<< hp1->z2[i] <<endl;
+     
+	  //          cout <<" second  (mc) z: "<< hp2->z1[i] << " pid: " << pidZ1 <<endl;
+	  //          cout <<" second  (mc) z2: "<< hp2->z2[i] << " pid: " << pidZ2 <<endl;
+       }
      //if mc is cut and data is not. In principle we could also expect TSVD to deal with background, but its easy to remove and not clear if TSVD handels it correctly
      if(mcCut && !accCut)
        {
@@ -1358,15 +1453,103 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	{
 	  bini[0][pidBin][chargeBin]->Fill(recBin0);
 	  bini[1][pidBin][chargeBin]->Fill(recBin1);
+
 	  //true observable on the y axis, reconstrubted on the x axis
 	}
       if(!accCut && !mcCut)
 	{
+	  if(recBin1==0 && iniBin1==0 && pidBin==0)
+	    {
+	      //	      cout <<"rec 1D both zero, recBin0: " << recBin0 << " iniBin0: "<< iniBin0 <<endl;
+	      //	      cout << "lowest Diag entry 2D: "<< 	  kinematicSmearingMatrix[0][pidBin][chargeBin]->GetBinContent(1,1);
+	      //	      cout << "lowest Diag entry 1D: "<< 	  kinematicSmearingMatrix[1][pidBin][chargeBin]->GetBinContent(1,1);
+	    }
+	  //for x-check with charlotte
+	  //	  if(pidBin==0 && chargeBin==0 && iniBin0==3 && recBin0==4)
+	  if(pidBin==0 && chargeBin==0)
+	    {
+	      cout <<std::fixed;
+	      cout.precision(3);
+	      cout <<" MC Truth: z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
+	      cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
+	      cout <<"Reconstructed: z1: " << pidZ1 <<" z2: "<< pidZ2<< " kT: "<< pidKt << " bin: ";
+	      cout <<z1Bin1<<"*"<<numZBins2<<"*"<<numKtBins<<"+"<<z1Bin2<<"*"<<numKtBins<<"+"<<kTBin1<<"="<<recBin0<<endl;
+	    }
+
+
 	  kinematicSmearingMatrix[0][pidBin][chargeBin]->Fill(recBin0,iniBin0);
 	  kinematicSmearingMatrix[1][pidBin][chargeBin]->Fill(recBin1,iniBin1);
+	  if(recBin1==0 && iniBin1==0)
+	    {
+	      //	      cout << " after fill lowest Diag entry 2D: "<< 	  kinematicSmearingMatrix[0][pidBin][chargeBin]->GetBinContent(1,1);
+	      //	      cout << "lowest Diag entry 1D: "<< 	  kinematicSmearingMatrix[1][pidBin][chargeBin]->GetBinContent(1,1)<<endl;
+	    }
 	}
     }
  }
+
+
+bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
+{
+  float z1Cut=0.05;
+  float z2Cut=0.05;
+  switch(pidBin)
+    {
+    case PiPi:
+      z1Cut=zCutPi;
+      z2Cut=zCutPi;
+      break;
+    case PiK:
+      z1Cut=zCutPi;
+      z2Cut=zCutPK;
+      break;
+
+    case PiP:
+      z1Cut=zCutPi;
+      z2Cut=zCutPK;
+      break;
+
+    case KPi:
+      z1Cut=zCutPK;
+      z2Cut=zCutPi;
+      break;
+
+    case KK:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    case KP:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    case PPi:
+      z1Cut=zCutPK;
+      z2Cut=zCutPi;
+      break;
+
+    case PK:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    case PP:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    default:
+      //      cout <<"wrong pid in pid dependent cuts!!!: "<< pidBin<<endl;
+      return true;
+
+    }
+  if(z1 < z1Cut || z2< z2Cut || kT > 5.31145668)
+    {
+      return true;
+    }
+  return false;
+}
 
 
 void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print)
@@ -1422,15 +1605,14 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  //      cout <<" pid: " << p <<endl;
 
 
-
       switch(p)
 	{
 	case PiPi:
 	  this->z1=hp->z1_PiPi[i];
 	  this->z2=hp->z2_PiPi[i];
-	  if(z1 < zCutPi || z2< zCutPi)
-	    continue;
 	  this->kT=hp->kT_PiPi[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
 
 	  weight1=hp->p_PiPi[i];
 	  weight2=hp->p_PiPi2[i];
@@ -1443,10 +1625,11 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case PiK:
 	  this->z1=hp->z1_PiK[i];
 	  this->z2=hp->z2_PiK[i];
-
-	  if(z1 < zCutPi || z2< zCutPK)
-	    continue;
 	  this->kT=hp->kT_PiK[i];
+	  if(pidDependentCut(z1,z2,kT,p))
+	    continue;
+
+
 
 	  weight1=hp->p_PiK[i];
 	  weight2=hp->p_PiK2[i];
@@ -1458,9 +1641,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case PiP:
 	  this->z1=hp->z1_PiP[i];
 	  this->z2=hp->z2_PiP[i];
-	  if(z1 < zCutPi || z2< zCutPK)
-	    continue;
 	  this->kT=hp->kT_PiP[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
+
 	  weight1=hp->p_PiP[i];
 	  weight2=hp->p_PiP2[i];
 	  weight=(weight1+weight2)/2;
@@ -1470,9 +1654,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case KPi:
 	  this->z1=hp->z1_KPi[i];
 	  this->z2=hp->z2_KPi[i];
-	  if(z1 < zCutPK || z2< zCutPi)
-	    continue;
 	  this->kT=hp->kT_KPi[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	     continue;
 
 	  weight1=hp->p_KPi[i];
 	  weight2=hp->p_KPi2[i];
@@ -1483,9 +1667,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case KK:
 	  this->z1=hp->z1_KK[i];
 	  this->z2=hp->z2_KK[i];
-	  if(z1 < zCutPK || z2< zCutPK)
-	    continue;
 	  this->kT=hp->kT_KK[i];
+
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
 	  weight1=hp->p_KK[i];
 	  weight2=hp->p_KK2[i];
 	  weight=(weight1+weight2)/2;
@@ -1495,9 +1680,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case KP:
 	  this->z1=hp->z1_KP[i];
 	  this->z2=hp->z2_KP[i];
-	  if(z1 < zCutPK || z2< zCutPK)
-	    continue;
 	  this->kT=hp->kT_KP[i];
+
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
 	  weight1=hp->p_KP[i];
 	  weight2=hp->p_KP2[i];
 	  weight=(weight1+weight2)/2;
@@ -1508,9 +1694,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case PPi:
 	  this->z1=hp->z1_PPi[i];
 	  this->z2=hp->z2_PPi[i];
-	  if(z1 < zCutPK || z2< zCutPi)
-	    continue;
 	  this->kT=hp->kT_KPi[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
 	  weight1=hp->p_PPi[i];
 	  weight2=hp->p_PPi2[i];
 	  weight=(weight1+weight2)/2;
@@ -1520,9 +1706,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case PK:
 	  this->z1=hp->z1_PK[i];
 	  this->z2=hp->z2_PK[i];
-	  if(z1 < zCutPK || z2< zCutPK)
-	    continue;
 	  this->kT=hp->kT_PK[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
 	  weight1=hp->p_PK[i];
 	  weight2=hp->p_PK2[i];
 	  weight=(weight1+weight2)/2;
@@ -1535,9 +1721,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PP[i];
 	  this->z2=hp->z2_PP[i];
 	  this->kT=hp->kT_PP[i];
-	  if(z1 < zCutPK || z2< zCutPK)
-	    continue;
 
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	    continue;
 	  weight1=hp->p_PP[i];
 	  weight2=hp->p_PP2[i];
 	  weight=(weight1+weight2)/2;
