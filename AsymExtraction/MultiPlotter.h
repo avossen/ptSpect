@@ -143,6 +143,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //    void setFitReuslt();
   unsigned int getNumKtBins(){return numKtBins;};
 
+  bool cutOnDotProduct(HadronPairArray* hp, int index, int pidBin);
   bool pidDependentCut(float z1, float z2, float kT, int pid);
   void addHadPairArray(HadronPairArray* hq, MEvent& event, bool print=false);
 
@@ -246,6 +247,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     float z1;
     float z2;
     float kT;
+    float dotProduct;
 
     float labTheta1;
     float labTheta2;
