@@ -1149,6 +1149,7 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
 
       //this is from MC, so there is no PID smearing, second hp is MC truth so we take that
       int pidBin=hp2->particleType[i];
+      //cut on dot product should not be necessary for MC truth
       if(hp2->cut[i] || pidDependentCut(hp2->z1[i],hp2->z2[i],hp2->kT[i],pidBin))
 	continue;
       pair<int,int> zIdx2=pidBin2ZBinningIdx(pidBin);
@@ -1384,11 +1385,12 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	 break;
 
        }
-     if(pidDependentCut(pidZ1,pidZ2,pidKt,pidBin))
+     if(pidDependentCut(pidZ1,pidZ2,pidKt,pidBin)|| cutOnDotProduct(hp1,i,pidBin))
        {
 	 accCut=true;
        }
-     //for mc, the z1, z2 already use the correct pid
+     //for mc, the z1, z2 already use the correct pid, might be a good idea to 
+     //check on the dot product, but mc dot product not yet in tree (should be though)
      if(pidDependentCut(hp2->z1[i],hp2->z2[i],hp2->kT[i],pidBin))
        {
 	 mcCut=true;
@@ -1487,6 +1489,68 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	}
     }
  }
+
+
+bool MultiPlotter::cutOnDotProduct(HadronPairArray* hp, int index, int pidBin)
+{
+  
+  
+  switch(pidBin)
+    {
+    case PiPi:
+      if(hp->dp_PiPi[index]<0)
+	return false;
+      break;
+    case PiK:
+      if(hp->dp_PiK[index]<0)
+	return false;
+      break;
+
+    case PiP:
+      if(hp->dp_PiP[index]<0)
+	return false;
+      break;
+
+    case KPi:
+      if(hp->dp_KPi[index]<0)
+	return false;
+      break;
+
+    case KK:
+      if(hp->dp_KK[index]<0)
+	return false;
+      break;
+
+    case KP:
+      if(hp->dp_KP[index]<0)
+	return false;
+      break;
+
+    case PPi:
+      if(hp->dp_PPi[index]<0)
+	return false;
+      break;
+
+    case PK:
+      if(hp->dp_PK[index]<0)
+	return false;
+      break;
+
+    case PP:
+      if(hp->dp_PP[index]<0)
+	return false;
+      break;
+
+    default:
+      //      cout <<"wrong pid in pid dependent cuts!!!: "<< pidBin<<endl;
+      return true;
+
+    }
+
+  return true;
+}
+
+
 
 
 bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
@@ -1611,7 +1675,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PiPi[i];
 	  this->z2=hp->z2_PiPi[i];
 	  this->kT=hp->kT_PiPi[i];
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_PiPi[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 
 	  weight1=hp->p_PiPi[i];
@@ -1626,7 +1691,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PiK[i];
 	  this->z2=hp->z2_PiK[i];
 	  this->kT=hp->kT_PiK[i];
-	  if(pidDependentCut(z1,z2,kT,p))
+	  this->dotProduct=hp->dp_PiK[i];
+	  if(pidDependentCut(z1,z2,kT,p) || dotProduct>0.0)
 	    continue;
 
 
@@ -1642,7 +1708,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PiP[i];
 	  this->z2=hp->z2_PiP[i];
 	  this->kT=hp->kT_PiP[i];
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_PiP[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 
 	  weight1=hp->p_PiP[i];
@@ -1655,7 +1722,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_KPi[i];
 	  this->z2=hp->z2_KPi[i];
 	  this->kT=hp->kT_KPi[i];
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_KPi[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p)|| dotProduct >0.0)
 	     continue;
 
 	  weight1=hp->p_KPi[i];
@@ -1668,8 +1736,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_KK[i];
 	  this->z2=hp->z2_KK[i];
 	  this->kT=hp->kT_KK[i];
-
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_KK[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 	  weight1=hp->p_KK[i];
 	  weight2=hp->p_KK2[i];
@@ -1681,8 +1749,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_KP[i];
 	  this->z2=hp->z2_KP[i];
 	  this->kT=hp->kT_KP[i];
-
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_KP[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 	  weight1=hp->p_KP[i];
 	  weight2=hp->p_KP2[i];
@@ -1695,7 +1763,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PPi[i];
 	  this->z2=hp->z2_PPi[i];
 	  this->kT=hp->kT_KPi[i];
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_PPi[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 	  weight1=hp->p_PPi[i];
 	  weight2=hp->p_PPi2[i];
@@ -1707,7 +1776,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PK[i];
 	  this->z2=hp->z2_PK[i];
 	  this->kT=hp->kT_PK[i];
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_PK[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct >0.0)
 	    continue;
 	  weight1=hp->p_PK[i];
 	  weight2=hp->p_PK2[i];
@@ -1721,8 +1791,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->z1=hp->z1_PP[i];
 	  this->z2=hp->z2_PP[i];
 	  this->kT=hp->kT_PP[i];
-
-	  if(pidDependentCut(this->z1,this->z2,this->kT,p))
+	  this->dotProduct=hp->dp_PP[i];
+	  if(pidDependentCut(this->z1,this->z2,this->kT,p)|| dotProduct > 0.0)
 	    continue;
 	  weight1=hp->p_PP[i];
 	  weight2=hp->p_PP2[i];

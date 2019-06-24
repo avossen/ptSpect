@@ -65,13 +65,8 @@ struct HadronPairArray:public ReaderBase
   float ep_PK[Max_ArrSize];
   float ep_PP[Max_ArrSize];
 
-
-
-
   float kT_PiPi[Max_ArrSize];
   float kT_PiK[Max_ArrSize];
-
-
   float kT_PiP[Max_ArrSize];
   float kT_KPi[Max_ArrSize];
 
@@ -80,6 +75,17 @@ struct HadronPairArray:public ReaderBase
   float kT_PPi[Max_ArrSize];
   float kT_PK[Max_ArrSize];
   float kT_PP[Max_ArrSize];
+
+  float dp_PiPi[Max_ArrSize];
+  float dp_PiK[Max_ArrSize];
+  float dp_PiP[Max_ArrSize];
+  float dp_KPi[Max_ArrSize];
+
+  float dp_KK[Max_ArrSize];
+  float dp_KP[Max_ArrSize];
+  float dp_PPi[Max_ArrSize];
+  float dp_PK[Max_ArrSize];
+  float dp_PP[Max_ArrSize];
 
 
   float qT_PiPi[Max_ArrSize];
@@ -267,6 +273,17 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(kT_PK);
 	    branchPointers.push_back(kT_PP);
 
+	    branchPointers.push_back(dp_PiPi);
+	    branchPointers.push_back(dp_PiK);
+	    branchPointers.push_back(dp_PiP);
+	    
+	    branchPointers.push_back(dp_KPi);
+	    branchPointers.push_back(dp_KK);
+	    branchPointers.push_back(dp_KP);
+
+	    branchPointers.push_back(dp_PPi);
+	    branchPointers.push_back(dp_PK);
+	    branchPointers.push_back(dp_PP);
 
 
 	    //different solution: replace kT with qT ifdef USE_QT
@@ -426,6 +443,19 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("kT_PPi");
 	    branchNames.push_back("kT_PK");
 	    branchNames.push_back("kT_PP");
+
+
+	    branchNames.push_back("dp_PiPi");
+	    branchNames.push_back("dp_PiK");
+	    branchNames.push_back("dp_PiP");
+	    
+	    branchNames.push_back("dp_KPi");
+	    branchNames.push_back("dp_KK");
+	    branchNames.push_back("dp_KP");
+	    
+	    branchNames.push_back("dp_PPi");
+	    branchNames.push_back("dp_PK");
+	    branchNames.push_back("dp_PP");
 #endif
 	  }
 
