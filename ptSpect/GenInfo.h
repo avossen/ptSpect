@@ -335,7 +335,6 @@ namespace Belle {
 
 	    float cmsPhi1=dynamic_cast<ParticleInfo&>(pair->firstHadron->userInfo()).cmsPhi;
 	    float cmsPhi2=dynamic_cast<ParticleInfo&>(pair->secondHadron->userInfo()).cmsPhi;
-
 	
 	
 	    tData.dataF.push_back(labTheta1);

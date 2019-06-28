@@ -119,17 +119,13 @@ struct HadronPairArray:public ReaderBase
   float z2_PiK[Max_ArrSize];
   float z2_PiP[Max_ArrSize];
 
-
   float z2_KPi[Max_ArrSize];
   float z2_KK[Max_ArrSize];
   float z2_KP[Max_ArrSize];
 
-
   float z2_PPi[Max_ArrSize];
   float z2_PK[Max_ArrSize];
   float z2_PP[Max_ArrSize];
-
-
 
   float labTheta1[Max_ArrSize];
   float labTheta2[Max_ArrSize];
@@ -152,7 +148,7 @@ struct HadronPairArray:public ReaderBase
 
 
   float kT[Max_ArrSize];
-
+  float dp[Max_ArrSize];
   float qT[Max_ArrSize];
 
   float hadDiffTheta[Max_ArrSize];
@@ -168,7 +164,6 @@ struct HadronPairArray:public ReaderBase
 
   int chargeType2[Max_ArrSize];
   int particleType2[Max_ArrSize];
-
 
   int cut[Max_ArrSize];
 
@@ -304,7 +299,6 @@ struct HadronPairArray:public ReaderBase
 
 	  }
 
-
 	branchPointers.push_back(labTheta1);
 	branchPointers.push_back(labTheta2);
 
@@ -330,6 +324,8 @@ struct HadronPairArray:public ReaderBase
 	//	branchPointers.push_back(qT);
 	//#else
 	branchPointers.push_back(kT);
+	if(mMCFlag!=mcFlagWoA)
+	  branchPointers.push_back(dp);
 	//#endif
 
 	branchPointers.push_back(hadDiffTheta);
@@ -462,23 +458,26 @@ struct HadronPairArray:public ReaderBase
 	branchNames.push_back("labTheta1"+addendum);
 	branchNames.push_back("labTheta2"+addendum);
 
-	branchNames.push_back("labPhi2"+addendum);
+	branchNames.push_back("labPhi1"+addendum);
 	branchNames.push_back("labPhi2"+addendum);
 
 	branchNames.push_back("cmsTheta1"+addendum);
 	branchNames.push_back("cmsTheta2"+addendum);
-	branchNames.push_back("cmsPhi2"+addendum);
+	branchNames.push_back("cmsPhi1"+addendum);
 	branchNames.push_back("cmsPhi2"+addendum);
 
 	branchNames.push_back("thrustProj1"+addendum);
 	branchNames.push_back("thrustProj2"+addendum);
 
-	//qt name exists as _mc and _mcWoa (unlike kT which is called just kt in the woa tree)
+	//qt name exists as _mc and _mcWoa (unlike kT which is called just kt in the woa tree (not anymore true) )
 #ifdef USE_QT
 	  branchNames.push_back("qT"+addendum);
 #else
 	    branchNames.push_back("kT"+addendum);
 #endif
+
+	if(mMCFlag!=mcFlagWoA)
+	    branchNames.push_back("dp"+addendum);
 	//only for non mc...and woa (so no addendum in the other cases..)
 	///-->should be changed now, since we added qT_mc
 	//	if(mMCFlag==mcFlagWoA)
