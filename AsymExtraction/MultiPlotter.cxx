@@ -1160,11 +1160,9 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
 	continue;
 
      int kTBin2=getBin(binningKt,hp2->kT[i]);
-
      //       cout <<" kt data " << hp1->kT[i] << " kit mc: "<< hp2->kT[i] << " data PiPi " << hp1->kT_PiPi[i] << " mc " << hp2->kT_PiPi[i] <<endl;
      int  z2Bin1=getBin(binningZ[zIdx2.first],hp2->z1[i]);
      int z2Bin2=getBin(binningZ[zIdx2.second],hp2->z2[i]);
-
       //      cout <<"kt: " << kT <<" bin: "<< kTBin<<endl;
 
      //     cout <<" first (mc) z: "<< hp1->z1[i] <<endl;
@@ -1185,6 +1183,19 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
       //      cout <<"pidBin: "<< pidBin <<" chargeBin " << chargeBin <<" iniBin: "<< iniBin <<endl;
       xini[0][pidBin][chargeBin]->Fill(iniBin0);
       xini[1][pidBin][chargeBin]->Fill(iniBin1);
+
+//      if(pidBin==0 && chargeBin==0 && (iniBin0==7 || iniBin0==1084 || iniBin0==1083|| iniBin0==1080))
+//	{
+//	  cout <<std::fixed;
+//	  cout.precision(3);
+//	  cout <<"Generated : z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
+//	  cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
+//	  cout << "lab theta hadron1: " << hp2->labTheta1[i] << " hadron2: "<< hp2->labTheta2[i] << " lab phi 1: "<< hp2->labPhi1[i] << ", phi2: "<< hp2->labPhi2[i] <<endl;
+//	  //	  cout << "cms theta hadron1: " << hp2->cmsTheta1[i] << " hadron2: "<< hp2->cmsTheta2[i] << " cms phi 1: "<< hp2->cmsPhi1[i] << " "<< hp2->cmsPhi2[i] <<endl;
+//
+//
+//	}
+
 
     }
 }
@@ -1256,7 +1267,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
       //reconstructed pair but no mc pair
       //the hp2 will be cut due to the z cut, so the test for -1 is superfluous
-      if(hp2->cut[i] || hp2->z1[i]==-1)
+      if(hp2->cut[i] || hp2->z1[i]==-1 || hp2->dp[i]>0)
 	{
 	  mcCut=true; 
 	}
@@ -1468,14 +1479,14 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	    }
 	  //for x-check with charlotte
 	  //	  if(pidBin==0 && chargeBin==0 && iniBin0==3 && recBin0==4)
-	  if(pidBin==0 && chargeBin==0)
+	  if(pidBin==0 && chargeBin==0 && iniBin0==102 && recBin0==3)
 	    {
-	      cout <<std::fixed;
-	      cout.precision(3);
-	      cout <<" MC Truth: z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
-	      cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
-	      cout <<"Reconstructed: z1: " << pidZ1 <<" z2: "<< pidZ2<< " kT: "<< pidKt << " bin: ";
-	      cout <<z1Bin1<<"*"<<numZBins2<<"*"<<numKtBins<<"+"<<z1Bin2<<"*"<<numKtBins<<"+"<<kTBin1<<"="<<recBin0<<endl;
+	     	      cout <<std::fixed;
+	     	      cout.precision(3);
+	     	      cout <<" MC Truth: z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
+	     	      cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
+	     	      cout <<"Reconstructed: z1: " << pidZ1 <<" z2: "<< pidZ2<< " kT: "<< pidKt << " bin: ";
+		      cout <<z1Bin1<<"*"<<numZBins2<<"*"<<numKtBins<<"+"<<z1Bin2<<"*"<<numKtBins<<"+"<<kTBin1<<"="<<recBin0<<endl;
 	    }
 
 

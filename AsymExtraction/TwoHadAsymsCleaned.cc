@@ -248,7 +248,7 @@ int main(int argc, char** argv)
 	  //  cout <<"done " <<endl;
 	  //	  	  cout <<"adding woa had quad to plotter... " <<endl;
 	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
-
+	  cout <<"runNumber: " << pMyEventWoA->runNr <<" eventNumber: "<< pMyEventWoA->evtNr <<endl;
 	  smearingPlotterRaw.addXiniEntry(pHadPairWoA);
 
 	}
