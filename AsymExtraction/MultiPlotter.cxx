@@ -1206,6 +1206,10 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
    bool mcCut=false;
    bool accCut=false;
   //needed for the mean computation...
+   if(evtNr==DEBUG_EVENT)
+     {
+       cout <<"looking at " << hp1->numPairs <<" hadron pairs" <<endl;
+     }
    if(hp1->numPairs!=hp2->numPairs)
      {
        cout <<" smearing  hadron pairs not the same size: "<< hp1->numPairs <<", to " << hp2->numPairs <<endl;
@@ -1234,8 +1238,16 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
       pair<int,int> zIdx2=pidBin2ZBinningIdx(pidBin);
       //      cout <<"pidBin: " << pidBin <<" chargeBin: " << chargeBin <<endl;
       //probably no matching particle
+      if(evtNr==DEBUG_EVENT)
+	{
+	  cout << " pid bin: " << pidBin <<" charge bin: " << chargeBin  <<endl;
+	}
+
       if(pidBin<0) 
 	continue;
+
+
+
 
      int kTBin1=getBin(binningKt,hp1->kT[i]);
      int kTBin2=getBin(binningKt,hp2->kT[i]);
@@ -1479,10 +1491,10 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	    }
 	  //for x-check with charlotte
 	  //	  if(pidBin==0 && chargeBin==0 && iniBin0==3 && recBin0==4)
-	  if(pidBin==0 && chargeBin==0 && iniBin0==102 && recBin0==3)
+	  if(pidBin==0 && chargeBin==0 )//&& iniBin0==102 && recBin0==3)
 	    {
 	     	      cout <<std::fixed;
-	     	      cout.precision(3);
+	     	      cout.precision(5);
 	     	      cout <<" MC Truth: z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
 	     	      cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
 	     	      cout <<"Reconstructed: z1: " << pidZ1 <<" z2: "<< pidZ2<< " kT: "<< pidKt << " bin: ";

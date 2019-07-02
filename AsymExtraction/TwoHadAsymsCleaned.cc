@@ -140,6 +140,7 @@ int main(int argc, char** argv)
   if(dataMCFlag==mcFlagMC)
     cout <<"mc Flag!! " <<endl;
   HadronPairArray hadPair(chAll,dataMCFlag);
+  hadPair.zOrdered=true;
 
   kMCFlags hadMCFlag=dataMCFlag;
   if(isMC==mcAsData)
@@ -149,8 +150,13 @@ int main(int argc, char** argv)
     }
 
   HadronPairArray* hadPairMC;
+
   if(isMC!=mcFlagNone)
-    hadPairMC=new HadronPairArray(chAll,hadMCFlag);
+    {
+      hadPairMC=new HadronPairArray(chAll,hadMCFlag);
+      hadPairMC->followFlip=true;
+      hadPairMC->relatedHP=&hadPair;
+    }
 
   cout <<"done with had pairs....." <<endl;
   kMCFlags mEventDataMCFlag=dataMCFlag;
@@ -249,6 +255,7 @@ int main(int argc, char** argv)
 	  //	  	  cout <<"adding woa had quad to plotter... " <<endl;
 	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
 	  cout <<"runNumber: " << pMyEventWoA->runNr <<" eventNumber: "<< pMyEventWoA->evtNr <<endl;
+	  smearingPlotterRaw.evtNr=pMyEventWoA->evtNr;
 	  smearingPlotterRaw.addXiniEntry(pHadPairWoA);
 
 	}
@@ -300,6 +307,7 @@ int main(int argc, char** argv)
 
 	  //for x-check with Charlotte
 	  cout <<"runNumber: " << myEvent.runNr <<" eventNumber: "<< myEvent.evtNr <<endl;
+	  smearingPlotter.evtNr=myEvent.evtNr;
 	  smearingPlotter.addSmearingEntry(&hadPair,hadPairMC);
 	}
     }
