@@ -155,7 +155,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void savePlots(plotType,bool print=false);
     void printDebug(plotType);
 
-
+    //needs to be set for debug purposes
+    int evtNr;
     //get the histogram that is to be unfolded. This is a 1D histogram binned in z1, (z2) and kT
 
     //addSys=0: don't add

@@ -587,10 +587,7 @@ namespace Belle {
 	    return;
 	  }
       }
-
-
     const double m_pi0=0.1349766;
-
     vector<float> v_drH1;
     vector<float> v_drH2;
     if(!validRun)

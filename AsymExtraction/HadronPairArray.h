@@ -1,4 +1,4 @@
-#define DEBUG_EVENT 60233
+#define DEBUG_EVENT 119394
 
 #ifndef HADRON_PAIR_ARRAY_H
 #define HADRON_PAIR_ARRAY_H
@@ -147,6 +147,14 @@ struct HadronPairArray:public ReaderBase
   TH2D* kinematicSmearingMatrix;
 
 
+  //keep track of z ordering for x-check, so it is the same for truth
+  bool zOrdered;
+  bool followFlip;
+
+  HadronPairArray* relatedHP;
+
+  bool flip[Max_ArrSize];
+  bool flip_PiPi[Max_ArrSize];
   float kT[Max_ArrSize];
   float dp[Max_ArrSize];
   float qT[Max_ArrSize];
@@ -173,7 +181,8 @@ struct HadronPairArray:public ReaderBase
 
  HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(1.1), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0)//kTCut(5.31145668)
   {
-
+    zOrdered=false;
+    followFlip=false;
 #ifdef USE_QT
     //qT can have up to sqrt(s), and it can be even bigger if we assume the wrong particles...
     kTCut=35.52;
@@ -530,6 +539,10 @@ struct HadronPairArray:public ReaderBase
       }
     for(int i=0;i<numPairs;i++)
       {
+	if(evtNr==DEBUG_EVENT)
+	  {
+	    cout <<"looking at pair with z1: " << z1[i] << " z2: " << z2[i] << " kt: " << kT[i] <<endl;
+	  }
 	cut[i]=0;
 	if(isnan(ep_PiPi[i]))
 	  {
@@ -537,50 +550,50 @@ struct HadronPairArray:public ReaderBase
 	    cut[i]=1;
 	  }
 
-    if(isnan(ep_PiK[i]))
-      {
-      cout <<"eppik nan" <<endl;
+	if(isnan(ep_PiK[i]))
+	  {
+	    cout <<"eppik nan" <<endl;
 	    cut[i]=1;
 	  }
 
 
-    if(isnan(ep_KPi[i]))
-      {
-      cout <<"epKpi nan" <<endl;
+	if(isnan(ep_KPi[i]))
+	  {
+	    cout <<"epKpi nan" <<endl;
 	    cut[i]=1;
 	  }
 
-    if(isnan(ep_KK[i]))
-      {
-      cout <<"epKK nan" <<endl;
-	    cut[i]=1;
-	  }
-
-
-    if(isnan(ep_PiP[i]))
-      {
-      cout <<"epPiP nan" <<endl;
+	if(isnan(ep_KK[i]))
+	  {
+	    cout <<"epKK nan" <<endl;
 	    cut[i]=1;
 	  }
 
 
-    if(isnan(ep_PPi[i]))
-      {
-      cout <<"epPPi nan" <<endl;
+	if(isnan(ep_PiP[i]))
+	  {
+	    cout <<"epPiP nan" <<endl;
 	    cut[i]=1;
 	  }
 
 
-    if(isnan(ep_KP[i]))
-      {
-
-      cout <<"epKP nan" <<endl;
+	if(isnan(ep_PPi[i]))
+	  {
+	    cout <<"epPPi nan" <<endl;
 	    cut[i]=1;
 	  }
 
-    if(isnan(ep_PK[i]))
-      {
-      cout <<"epPK nan" <<endl;
+
+	if(isnan(ep_KP[i]))
+	  {
+
+	    cout <<"epKP nan" <<endl;
+	    cut[i]=1;
+	  }
+
+	if(isnan(ep_PK[i]))
+	  {
+	    cout <<"epPK nan" <<endl;
 	    cut[i]=1;
 	  }
 
@@ -588,44 +601,46 @@ struct HadronPairArray:public ReaderBase
 
 	//	cout <<"looking at p_pipi: "<< p_PiPi[i] << " and " << p_PiPi2[i]<<" e: "<< ep_PiPi[i]<<endl;
 
-    //for the benefit of the xcheck, debug
-    if(z1[i]< z2[i])
-      {
-	float tmp=z2[i];
-	z2[i]=z1[i];
-	z1[i]=tmp;
-      }
+	//for the benefit of the xcheck, debug
+	if(z1[i]< z2[i] && (zOrdered || (followFlip && relatedHP->flip[i]) ))
+	  {
+	    float tmp=z2[i];
+	    z2[i]=z1[i];
+	    z1[i]=tmp;
+	    flip[i]=true;
+	  }
 
-    if(z1_PiPi[i]< z2_PiPi[i])
-      {
-	float tmp=z2_PiPi[i];
-	z2_PiPi[i]=z1_PiPi[i];
-	z1_PiPi[i]=tmp;
-      }
+	if(z1_PiPi[i]< z2_PiPi[i] && (zOrdered || (followFlip && relatedHP->flip_PiPi[i])) )
+	  {
+	    float tmp=z2_PiPi[i];
+	    z2_PiPi[i]=z1_PiPi[i];
+	    z1_PiPi[i]=tmp;
+	    flip_PiPi[i]=true;
+	  }
 
-    //    cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
-    //    cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
+	//    cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
+	//    cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	//	cout <<"hp after fill!" <<endl;
 
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {
-	if(print)
-	  {
-	    cout <<"hadron tag fiducial.." <<endl;
-	  }
+	    if(print)
+	      {
+		cout <<"hadron tag fiducial.." <<endl;
+	      }
 	    cut[i]=1;
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    cout <<"cut on fid" <<endl;
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+		cout <<"cut on fid" <<endl;
 
-	  }
-	if(evtNr==DEBUG_EVENT)
-	  {
-	    cout <<"hadron fid " <<endl;
-	  }
+	      }
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"hadron fid " <<endl;
+	      }
 	
-	cout <<"cut hadon fid cut " <<endl;
+	    cout <<"cut hadon fid cut " <<endl;
 	  }
 	if(kT_PiPi[i]>kTCut || kT_PiK[i]>kTCut || kT_PiP[i]>kTCut || kT_KPi[i]>kTCut || kT_KK[i]>kTCut || kT_KP[i]>kTCut || kT_PPi[i]>kTCut || kT_PK[i]>kTCut || kT_PPi[i]>kTCut)
 	  {
@@ -634,20 +649,20 @@ struct HadronPairArray:public ReaderBase
 #endif
 	    //	     cout <<"kt cut, : "<< kT_PiPi[i] <<" pik: "<< kT_PiK[i] <<" kpi: "<< kT_KPi[i] << " KK: " << kT_KK[i] <<" PiP: " << kT_PiP[i] << " KP: "<< kT_KP[i] <<" PPi: "<< kT_PPi[i];
 	    //	    cout <<" PK: " << kT_PK[i] << " PP: " << kT_PP[i] <<endl;
-    if(evtNr==DEBUG_EVENT)
-      {
-	cout <<"kt cut " <<endl;
-      }
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"kt cut " <<endl;
+	      }
 
 
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    //	  cout <<"cut on kt" <<endl;
-	  }
-	if(print)
-	  {
-	    cout <<"cut due to kt cut .." <<endl;
-	  }
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+		//	  cout <<"cut on kt" <<endl;
+	      }
+	    if(print)
+	      {
+		cout <<"cut due to kt cut .." <<endl;
+	      }
 	    cut[i]=1;
 	  }
 
@@ -677,20 +692,20 @@ struct HadronPairArray:public ReaderBase
 	if(asymFlag && asymmetryFlag){
 
 
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    //	  cout <<"cut on asym" <<endl;
-	  }
-	if(print)
-	  {
-	    cout <<"cut due to asymmetry cut.." <<endl;
-	  }
+	  if(p_PiPi[i]>0 && chargeType[i]==0)
+	    {
+	      //	  cout <<"cut on asym" <<endl;
+	    }
+	  if(print)
+	    {
+	      cout <<"cut due to asymmetry cut.." <<endl;
+	    }
 	  cut[i]=1;
 
 	  //	  cout <<"cut asym " <<endl;
 	}
 
-       if(particleType1[i]!=0 || particleType2[i]!=0)
+	if(particleType1[i]!=0 || particleType2[i]!=0)
 	  {
 	    //	    cut[i]=1;
 	  }
@@ -706,11 +721,11 @@ struct HadronPairArray:public ReaderBase
 	      {
 		//	
 	      }
-	if(print)
-	  {
-	    cout <<"second z cut on fid "<< z2[i] <<endl;
-	    cout <<"cut due to second z cut.." <<endl;
-	  }
+	    if(print)
+	      {
+		cout <<"second z cut on fid "<< z2[i] <<endl;
+		cout <<"cut due to second z cut.." <<endl;
+	      }
 	    cut[i]=1;
 	  }
 
@@ -723,22 +738,22 @@ struct HadronPairArray:public ReaderBase
 	if(mMCFlag==mcFlagMC)
 	  {
 	    //	    cout <<"mc mother Gen1: " << motherGenId1[i] <<" mother gen 2 : " << motherGenId2[i]<<endl;
-	      //	    if(abs(motherGenId1[i]) >3 || abs(motherGenId2[i]) > 3)
+	    //	    if(abs(motherGenId1[i]) >3 || abs(motherGenId2[i]) > 3)
 	    //
 
 	    //	    cout <<"testing mothergen " <<endl;
 	    //	    if(!(motherGenId1[i]==10022 && motherGenId2[i] == 10022))
-	      {
-		//		cout <<"mother gen id not uds : " << motherGenId1[i] <<" and " << motherGenId2[i] <<endl;
-		//		cut[i]=1;
-		//		cout <<"done " <<endl;
-	      }
-	      //	    else
-	      {
-		//		cout <<"hadron comes from uds..." <<endl;
-	      }
+	    {
+	      //		cout <<"mother gen id not uds : " << motherGenId1[i] <<" and " << motherGenId2[i] <<endl;
+	      //		cut[i]=1;
+	      //		cout <<"done " <<endl;
+	    }
+	    //	    else
+	    {
+	      //		cout <<"hadron comes from uds..." <<endl;
+	    }
 	  }
-
+      
 
 	//in the woa we do not split up into the different combinations and weights, since we know the truth, so do this here with weights 1 and 0
 	if(mMCFlag==mcFlagWoA || mMCFlag==mcFlagMC)
@@ -866,18 +881,18 @@ struct HadronPairArray:public ReaderBase
 	if(z1[i]<zCut || z2[i]<zCut)
 	  {
 	    //	    cout <<"fail z cut of " << zCut << " : " << z1[i] <<" z2: "<< z2[i] <<endl;
-    if(evtNr==DEBUG_EVENT)
-      {
-	cout <<"fail z cut " <<endl;
-      }
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    //	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
-	  }
-	if(print)
-	  {
-	    cout <<"cut due to z cut (-1).." <<endl;
-	  }
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"fail z cut " <<endl;
+	      }
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+		//	  cout <<"fail z on fid "<< z1[i] <<" and : " << z2[i]  <<endl;
+	      }
+	    if(print)
+	      {
+		cout <<"cut due to z cut (-1).." <<endl;
+	      }
 	    cut[i]=1;
 	  }
 
@@ -886,37 +901,37 @@ struct HadronPairArray:public ReaderBase
 	    //	    if(particleType[i]==0 && chargeType[i]==0)
 	    //	      cout <<" cut due to wrong z: " << z[i] <<endl;
 	    //	    cout <<"wrong z " <<endl;
-    if(evtNr==DEBUG_EVENT)
-      {
-	cout <<"wrong z  " <<endl;
-      }
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"wrong z  " <<endl;
+	      }
 
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    //	  cout <<"wrong z on fid" <<endl;
-	  }
-	if(print)
-	  {
-	    cout <<"cut due to z cut (1).." <<endl;
-	  }
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+		//	  cout <<"wrong z on fid" <<endl;
+	      }
+	    if(print)
+	      {
+		cout <<"cut due to z cut (1).." <<endl;
+	      }
 	    cut[i]=1;
 	  }
 
 	if(z1[i] >zUpperCut|| z2[i] >zUpperCut)
 	  {
 	    //	    cout <<" upper z cut " << endl;
-    if(evtNr==DEBUG_EVENT)
-      {
-	cout <<"upper z " <<endl;
-      }
-	if(p_PiPi[i]>0 && chargeType[i]==0)
-	  {
-	    //	  cout <<"upper z on fid" <<endl;
-	  }
-	if(print)
-	  {
-	    cout <<"cut due to z upper cut.." <<endl;
-	  }
+	    if(evtNr==DEBUG_EVENT)
+	      {
+		cout <<"upper z " <<endl;
+	      }
+	    if(p_PiPi[i]>0 && chargeType[i]==0)
+	      {
+		//	  cout <<"upper z on fid" <<endl;
+	      }
+	    if(print)
+	      {
+		cout <<"cut due to z upper cut.." <<endl;
+	      }
 	    cut[i]=1;
 	  }
 
@@ -929,8 +944,8 @@ struct HadronPairArray:public ReaderBase
 	if(isnan(z1[i])|| isnan(z2[i]))
 	  {
 
-	   cut[i]=1;
-	     cout <<"nan!" <<endl;
+	    cut[i]=1;
+	    cout <<"nan!" <<endl;
 	  }
 
 	if(mMCFlag==mcFlagWoA && cut[i]==0)
@@ -954,31 +969,41 @@ struct HadronPairArray:public ReaderBase
 	  }
 
 	//pairChargeLikesign==0
-		if(p_PiPi[i]>0 && chargeType[i]==0 && !cut[i] && print)
-	//	if(print)
+	if(p_PiPi[i]>0 && chargeType[i]==0 && !cut[i] && print)
+	  //	if(print)
 	  {
 
 	    //
 	    //	    	    cout << "looking at pair pipi with prob: " << p_PiPi[i] <<endl;
 	    //	    cout <<" z1: " <<z1[i] <<" z2: "<< z2[i] <<" kT: "<< kT[i] <<endl;
 	    //	    	    cout<<"Event " << evtNr;
-		    if(cut[i])
-		      {
-		      cout <<" (cut==1) ";
-		      }
-		    //		    cout <<" charge type : "<< chargeType[i];
-		    //	      	    cout <<std::fixed;
-		    //	    	    	    cout.precision(3);
-		    //		    	       cout  << " kT " <<kT[i];
-		    //		    	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
-		    //	    	    cout <<endl;
-		    //			cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
-			//	cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+	    if(cut[i])
+	      {
+		cout <<" (cut==1) ";
+	      }
+	    //		    cout <<" charge type : "<< chargeType[i];
+	    //	      	    cout <<std::fixed;
+	    //	    	    	    cout.precision(3);
+	    //		    	       cout  << " kT " <<kT[i];
+	    //		    	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
+	    //	    	    cout <<endl;
+
+	    			cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
+	    	cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+
 	  }
 	if(p_PiPi[i]>0.5 && z1[i] < 0.1 && z2[i] < 0.1 && chargeType[i]==0)
 	  {
 	    //	    cout <<"cut? " << cut[i] <<endl;
 	  }
+	    if(DEBUG_EVENT==evtNr)
+	      {
+		cout <<" charge type : "<< chargeType[i] <<endl;
+	    			cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
+	    	cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+	      }
+    if(DEBUG_EVENT==evtNr)
+      cout <<"cut? " << cut[i] <<endl;
       }
     //    cout <<"---------"<<endl;
 
@@ -993,7 +1018,7 @@ struct HadronPairArray:public ReaderBase
   //assign +- randomly, i.e. change direction of R randomly to check for false asymmetries
   void setElement(int pairCounter,HadronPairArray& hp,int index);
   void print();
-  protected:
+ protected:
   void setSingleElement(int pairCounter,HadronPairArray& hp,int index);
 
 
