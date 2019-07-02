@@ -87,7 +87,8 @@ class HadronPair
 
   double mass; //inv mass of two hadron system
   float kT;
-
+  //dot product
+  float dp;
 
   double kT_PiPi;
   double kT_PiK;
@@ -563,12 +564,17 @@ class HadronPair
 
   void getZ_Kt(float &z1, float & z2, float& kT, float& qT)
   {
+
+    //the way we do it here, the dotproducts have to be set before compute is called, not quite elegant...
+    //also note, that the only use of this field is more MC, which we
+    //set by hand anyways in the treesaver. So important to check that compute is not called after the manual set and then overrides...
     switch(hadPType)
       {
       case AnaDef::PiPi:
 	z1=z1_PiPi;
 	z2=z2_PiPi;
 	kT=kT_PiPi;
+	dp=m_dotProduct[pionIdx*5+pionIdx];
 	qT=qT_PiPi;
 	break;
 
@@ -577,6 +583,7 @@ class HadronPair
 	z2=z2_PiK;
 	kT=kT_PiK;
 	qT=qT_PiK;
+	dp=m_dotProduct[pionIdx*5+kaonIdx];
 	break;
 
       case AnaDef::PiP:
@@ -584,6 +591,7 @@ class HadronPair
 	z2=z2_PiP;
 	kT=kT_PiP;
 	qT=qT_PiP;
+	dp=m_dotProduct[pionIdx*5+protonIdx];
 	break;
 
       case AnaDef::KPi:
@@ -591,12 +599,14 @@ class HadronPair
 	z2=z2_KPi;
 	kT=kT_KPi;
 	qT=qT_KPi;
+	dp=m_dotProduct[kaonIdx*5+pionIdx];
 	break;
       case AnaDef::KK:
 	z1=z1_KK;
 	z2=z2_KK;
 	kT=kT_KK;
 	qT=qT_KK;
+	dp=m_dotProduct[kaonIdx*5+kaonIdx];
 	break;
 
       case AnaDef::KP:
@@ -604,6 +614,7 @@ class HadronPair
 	z2=z2_KP;
 	kT=kT_KP;
 	qT=qT_KP;
+	dp=m_dotProduct[kaonIdx*5+protonIdx];
 	break;
 
 
@@ -612,6 +623,7 @@ class HadronPair
 	z2=z2_PPi;
 	kT=kT_PPi;
 	qT=qT_PPi;
+	dp=m_dotProduct[protonIdx*5+pionIdx];
 	break;
 
 
@@ -620,6 +632,7 @@ class HadronPair
 	z2=z2_PK;
 	kT=kT_PK;
 	qT=qT_PiK;
+	dp=m_dotProduct[protonIdx*5+kaonIdx];
 	break;
 
       case AnaDef::PP:
@@ -627,6 +640,7 @@ class HadronPair
 	z2=z2_PP;
 	kT=kT_PP;
 	qT=qT_PP;
+	dp=m_dotProduct[protonIdx*5+protonIdx];
 	break;
 
       default:

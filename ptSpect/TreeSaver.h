@@ -41,7 +41,9 @@ saving to root trees
 //#define NUM_F_FIELDS 25 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 ////-->with the jet stuff, subtract 8
 //#define NUM_F_FIELDS 8 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
-#define NUM_F_FIELDS 16 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
+
+///added the dp_mc
+#define NUM_F_FIELDS 17 //without the data that is only saved for no mc. Once we add qT_mc this will go up by one
 //6-->10 with the genIds..
 #define NUM_I_FIELDS 6
 
@@ -262,7 +264,7 @@ public:
 	//might consider flip here
 	pinf.thrustProj=axis.dot(boostedVec.vect())/(axis.mag()*boostedVec.vect().mag());
 
-	//turns out that the ones where z is -1 are all the electron/muon 
+	//turns out that the ones whpere z is -1 are all the electron/muon 
 	//compinations
 	if(!(geantID==lc_pi0 || geantID==lc_piPlus || geantID==lc_kPlus || geantID ==lc_pPlus))
 	  {
@@ -325,7 +327,8 @@ public:
 	  else
 	    hp.compute();
 	}
-
+      //now set the dotproduct after the fact
+      hp.dp=hp.firstHadron->p().vect().dot(hp.secondHadron->p().vect());
 
       if(!validType)
 	{
@@ -518,17 +521,17 @@ public:
 	      dataF.push_back(pair->kT_PK);	  
 	      dataF.push_back(pair->kT_PP);
 
-	      dataF.push_back(pair->dotProduct[pionIdx*5+pionIdx);
-	      dataF.push_back(pair->dotProduct[pionIdx*5+kaonIdx);
-	      dataF.push_back(pair->dotProduct[pionIdx*5+protonIdx);
+	      dataF.push_back(pair->m_dotProduct[pionIdx*5+pionIdx]);
+	      dataF.push_back(pair->m_dotProduct[pionIdx*5+kaonIdx]);
+	      dataF.push_back(pair->m_dotProduct[pionIdx*5+protonIdx]);
 
-	      dataF.push_back(pair->dotProduct[kaonIdx*5+pionIdx);
-	      dataF.push_back(pair->dotProduct[kaonIdx*5+kaonIdx);
-	      dataF.push_back(pair->dotProduct[kaonIdx*5+protonIdx);
+	      dataF.push_back(pair->m_dotProduct[kaonIdx*5+pionIdx]);
+	      dataF.push_back(pair->m_dotProduct[kaonIdx*5+kaonIdx]);
+	      dataF.push_back(pair->m_dotProduct[kaonIdx*5+protonIdx]);
 
-	      dataF.push_back(pair->dotProduct[protonIdx*5+pionIdx);
-	      dataF.push_back(pair->dotProduct[protonIdx*5+kaonIdx);
-	      dataF.push_back(pair->dotProduct[protonIdx*5+protonIdx);
+	      dataF.push_back(pair->m_dotProduct[protonIdx*5+pionIdx]);
+	      dataF.push_back(pair->m_dotProduct[protonIdx*5+kaonIdx]);
+	      dataF.push_back(pair->m_dotProduct[protonIdx*5+protonIdx]);
 
 
 	      dataF.push_back(pair->qT_PiPi);
@@ -617,6 +620,7 @@ public:
 	  dataF.push_back(dynamic_cast<ParticleInfo&>(pair->secondHadron->userInfo()).thrustProj);
 
 	  dataF.push_back(pair->kT);
+	  dataF.push_back(pair->dp);
 	  dataF.push_back(pair->diffTheta);
 	  dataF.push_back(pair->diffPhi);
 			  

@@ -7,6 +7,7 @@
 #define etaMass 0.548
 //this will be used for the ISR corrections
 //const bool onlyGen=false;
+
 //const bool onlyGen=true;
 const bool PRINT=false;
 
@@ -465,7 +466,7 @@ namespace Belle {
     pTreeSaver->addArrayF("thrustProj1");
     pTreeSaver->addArrayF("thrustProj2");
     pTreeSaver->addArrayF("kT");
-
+    pTreeSaver->addArrayF("dp");
     pTreeSaver->addArrayF("HadDiffTheta");
     pTreeSaver->addArrayF("HadDiffPhi");
     pTreeSaver->addArrayF("qT");
@@ -491,6 +492,8 @@ namespace Belle {
     pTreeSaver->addArrayF("thrustProj1_mc");
     pTreeSaver->addArrayF("thrustProj2_mc");
     pTreeSaver->addArrayF("kT_mc");
+    //dot product
+    pTreeSaver->addArrayF("dp_mc");
     pTreeSaver->addArrayF("HadDiffTheta_mc");
     pTreeSaver->addArrayF("HadDiffPhi_mc");
     pTreeSaver->addArrayF("qT_mc");
@@ -577,6 +580,19 @@ namespace Belle {
     //    cout <<"value of onlygen: "<< onlyGen_ << ", onlyGen: " << onlyGen <<endl;
 
     bool eventCut=false;
+    int evtNr;
+    int runNr;
+    /////for xcheck
+
+    if(Belle_event_Manager::get_manager().begin()==Belle_event_Manager::get_manager().end())
+      return;
+
+    evtNr=Belle_event_Manager::get_manager().begin()->EvtNo();
+    runNr=Belle_event_Manager::get_manager().begin()->RunNo();
+
+    kinematics::runNr=runNr;
+    kinematics::evtNr=evtNr;
+
     //      cout <<"in event " <<endl;
     if(onlyGen)
       {
@@ -600,15 +616,6 @@ namespace Belle {
 	eventCut=true;
 	//	return;
       }
-    int evtNr;
-    int runNr;
-    /////for xcheck
-
-    evtNr=Belle_event_Manager::get_manager().begin()->EvtNo();
-    runNr=Belle_event_Manager::get_manager().begin()->RunNo();
-
-    kinematics::runNr=runNr;
-    kinematics::evtNr=evtNr;
     if(evtNr==DEBUG_EVENT)
       {
 	cout <<"looking at debug event " <<endl;
@@ -2052,6 +2059,7 @@ namespace Belle {
 		  for(int j=0;j<5;j++)
 		    {
 		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+		      //		      cout <<"dot prodcut (1) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
 		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
 			{
 			  acceptPair=true;
@@ -2117,6 +2125,7 @@ namespace Belle {
 		  for(int j=0;j<5;j++)
 		    {
 		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+		      //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
 		      if(DEBUG_EVENT==kinematics::evtNr)
 			{
 			  cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
@@ -2176,6 +2185,7 @@ namespace Belle {
 		  for(int j=0;j<5;j++)
 		    {
 		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+		      //		      cout <<"dot prodcut (3) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
 		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
 			acceptPair=true;
 		    }
