@@ -156,6 +156,7 @@ int main(int argc, char** argv)
       hadPairMC=new HadronPairArray(chAll,hadMCFlag);
       hadPairMC->followFlip=true;
       hadPairMC->relatedHP=&hadPair;
+      hadPairMC->zOrdered=false;
     }
 
   cout <<"done with had pairs....." <<endl;
@@ -177,6 +178,7 @@ int main(int argc, char** argv)
     {
       pMyEventWoA=new MEvent(chWoA,mcFlagWoA);
       pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
+      pHadPairWoA->zOrdered=true;
     }
 
 

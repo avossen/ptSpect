@@ -602,7 +602,9 @@ struct HadronPairArray:public ReaderBase
 	//	cout <<"looking at p_pipi: "<< p_PiPi[i] << " and " << p_PiPi2[i]<<" e: "<< ep_PiPi[i]<<endl;
 
 	//for the benefit of the xcheck, debug
-	if(z1[i]< z2[i] && (zOrdered || (followFlip && relatedHP->flip[i]) ))
+	    flip[i]=false;
+	    flip_PiPi[i]=false;
+	if((z1[i]< z2[i] && zOrdered) || (followFlip && relatedHP->flip[i]) )
 	  {
 	    float tmp=z2[i];
 	    z2[i]=z1[i];
@@ -610,7 +612,7 @@ struct HadronPairArray:public ReaderBase
 	    flip[i]=true;
 	  }
 
-	if(z1_PiPi[i]< z2_PiPi[i] && (zOrdered || (followFlip && relatedHP->flip_PiPi[i])) )
+	if((z1_PiPi[i]< z2_PiPi[i] && zOrdered) || (followFlip && relatedHP->flip_PiPi[i])) 
 	  {
 	    float tmp=z2_PiPi[i];
 	    z2_PiPi[i]=z1_PiPi[i];
