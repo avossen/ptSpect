@@ -1493,12 +1493,12 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 	  //	  if(pidBin==0 && chargeBin==0 && iniBin0==3 && recBin0==4)
 	  if(pidBin==0 && chargeBin==0 )//&& iniBin0==102 && recBin0==3)
 	    {
-	     	      cout <<std::fixed;
-	     	      cout.precision(5);
-	     	      cout <<" MC Truth: z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
-	     	      cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
-	     	      cout <<"Reconstructed: z1: " << pidZ1 <<" z2: "<< pidZ2<< " kT: "<< pidKt << " bin: ";
-		      cout <<z1Bin1<<"*"<<numZBins2<<"*"<<numKtBins<<"+"<<z1Bin2<<"*"<<numKtBins<<"+"<<kTBin1<<"="<<recBin0<<endl;
+//	     	      cout <<std::fixed;
+//	     	      cout.precision(5);
+//	     	      cout <<" MC Truth: z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
+//	     	      cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
+//	     	      cout <<"Reconstructed: z1: " << pidZ1 <<" z2: "<< pidZ2<< " kT: "<< pidKt << " bin: ";
+//		      cout <<z1Bin1<<"*"<<numZBins2<<"*"<<numKtBins<<"+"<<z1Bin2<<"*"<<numKtBins<<"+"<<kTBin1<<"="<<recBin0<<endl;
 	    }
 
 

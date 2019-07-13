@@ -256,7 +256,7 @@ int main(int argc, char** argv)
 	  //  cout <<"done " <<endl;
 	  //	  	  cout <<"adding woa had quad to plotter... " <<endl;
 	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
-	  cout <<"runNumber: " << pMyEventWoA->runNr <<" eventNumber: "<< pMyEventWoA->evtNr <<endl;
+	  //	  cout <<"runNumber: " << pMyEventWoA->runNr <<" eventNumber: "<< pMyEventWoA->evtNr <<endl;
 	  smearingPlotterRaw.evtNr=pMyEventWoA->evtNr;
 	  smearingPlotterRaw.addXiniEntry(pHadPairWoA);
 
@@ -308,7 +308,7 @@ int main(int argc, char** argv)
 	{
 
 	  //for x-check with Charlotte
-	  cout <<"runNumber: " << myEvent.runNr <<" eventNumber: "<< myEvent.evtNr <<endl;
+	  //	  cout <<"runNumber: " << myEvent.runNr <<" eventNumber: "<< myEvent.evtNr <<endl;
 	  smearingPlotter.evtNr=myEvent.evtNr;
 	  smearingPlotter.addSmearingEntry(&hadPair,hadPairMC);
 	}

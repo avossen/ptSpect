@@ -126,15 +126,15 @@ namespace Belle {
   {
     strcpy(rFileName,"notInitialized.root");
     test=0;
-        for(int i=0;i<4;i++)
+    for(int i=0;i<4;i++)
       {
 	//	zVals[i]=0;
       }
 
-	//    histoD0Spect=new TH1D("d0spect","d0spect",1000,0,3.0);
-	//    histoDStar=new TH1D("dStarspect","dStarspect",300,1.8,5.0);
-	//    histoPiSlowMom=new TH1D("piSlow","piSlow",100,0,3.0);
-	//    histoRecDStarSpectToD0Pi=new TH1D("RecdStarSpectD0Pi","RecdStarSpectToD0Pi",300,1.8,2.2);
+    //    histoD0Spect=new TH1D("d0spect","d0spect",1000,0,3.0);
+    //    histoDStar=new TH1D("dStarspect","dStarspect",300,1.8,5.0);
+    //    histoPiSlowMom=new TH1D("piSlow","piSlow",100,0,3.0);
+    //    histoRecDStarSpectToD0Pi=new TH1D("RecdStarSpectD0Pi","RecdStarSpectToD0Pi",300,1.8,2.2);
   }  
   ofstream* pXCheck;
   // Destructor
@@ -312,7 +312,7 @@ namespace Belle {
     BeamEnergy::begin_run();
     double eler=BeamEnergy::E_LER();
     double eher=BeamEnergy::E_HER();
-        cout <<"got eler: " << eler <<" eher: " << eher<<endl;
+    cout <<"got eler: " << eler <<" eher: " << eher<<endl;
     if(eler <3.0 || eher <7.0 || eler > 5.0 || eher > 9.0)
       {
 	validRun=false;
@@ -573,7 +573,7 @@ namespace Belle {
     bool onlyGen=false;
     if(onlyGen_>0.0)
       {
-      onlyGen=true;
+	onlyGen=true;
       }
 
 
@@ -706,7 +706,7 @@ namespace Belle {
 	if(!enoughSVDHits(chr_it))
 	  {
 	    //	    cout <<" cut track with naive momentum: "<< (*chr_it).p(0)<<", " << (*chr_it).p(1) <<", " << (*chr_it).p(2)<<endl;
-	     continue;
+	    continue;
 	  }
 	double m_mass=m_pi;
 	int massHyp=pionIdx;
@@ -788,24 +788,24 @@ namespace Belle {
 	    m_mass=m_muon;
 	    massHyp=muonIdx;
 	    isLepton=true;
-		  if(charge>0)
-		    {
-		      strcpy(ptypName,"MU+");
-		      lundPC=13;
-		    }
-		  else
-		    {
-		      strcpy(ptypName,"MU-");
-		      lundPC=-13;
-		    }
+	    if(charge>0)
+	      {
+		strcpy(ptypName,"MU+");
+		lundPC=13;
+	      }
+	    else
+	      {
+		strcpy(ptypName,"MU-");
+		lundPC=-13;
+	      }
 
-		  //	    m_histos.hPidMu->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
+	    //	    m_histos.hPidMu->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
 	  }
 	if(mu_id>0.9&& e_id>e_cut)
 	  {
 	    if(DEBUG_EVENT==evtNr)
 	      {
-			      cout <<"is electron" <<endl;
+		cout <<"is electron" <<endl;
 	      }
 	    //	    m_histos.hPidEPi->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_pi());
 	    m_mass=m_e;
@@ -829,85 +829,85 @@ namespace Belle {
 	if(!isLepton)
 	  {
 	    if(atcKPi>0.6 && atcKPi < 1.0 && atcKP >0.2 && atcKP < 1.0 && atcPiP<1.0 && atcPiP>0.0) //kaon
-		{
-		  m_mass=m_k;
-		  massHyp=kaonIdx;
-		  isPionKaon=true;
-		  if(charge>0)
-		    {
-		      strcpy(ptypName,"K+");
-		      lundPC=321;
-		    }
-		  else
-		    {
-		      strcpy(ptypName,"K-");
-		      lundPC=-321;
-		    }
-	if(DEBUG_EVENT==evtNr)
-	  {
-		cout <<"is kaon "<< e_id <<" mu_id: "<< mu_id <<" atcKPi: "<< atcKPi << " atcKP: "<< atcKP <<" atcPiP: "<< atcPiP <<endl;
-	    //cout <<"pid kpi: " << atcKPiAlt <<" pid KP: " << atcKPAlt << " e_id: " << e_id << " mu_id: " << mu_id <<endl;
-	  }
+	      {
+		m_mass=m_k;
+		massHyp=kaonIdx;
+		isPionKaon=true;
+		if(charge>0)
+		  {
+		    strcpy(ptypName,"K+");
+		    lundPC=321;
+		  }
+		else
+		  {
+		    strcpy(ptypName,"K-");
+		    lundPC=-321;
+		  }
+		if(DEBUG_EVENT==evtNr)
+		  {
+		    cout <<"is kaon "<< e_id <<" mu_id: "<< mu_id <<" atcKPi: "<< atcKPi << " atcKP: "<< atcKP <<" atcPiP: "<< atcPiP <<endl;
+		    //cout <<"pid kpi: " << atcKPiAlt <<" pid KP: " << atcKPAlt << " e_id: " << e_id << " mu_id: " << mu_id <<endl;
+		  }
 
-	//		  m_histos.hPidK->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_pi());
-		}
-	      else
-		{
-		  if(atcKP<0.2 && atcKP <1.0 && atcPiP<0.2 && atcPiP<1.0)
+		//		  m_histos.hPidK->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_pi());
+	      }
+	    else
+	      {
+		if(atcKP<0.2 && atcKP <1.0 && atcPiP<0.2 && atcPiP<1.0)
+		  {
+		    m_mass=m_pr;
+		    massHyp=protonIdx;
+		    //			m_histos.hPidPr->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_p());
+		    //			m_histos.hPidPrPi->Fill(chr_it->trk().pid_p(),chr_it->trk().pid_pi());
+
+		    isProton=true;
+		    if(charge>0)
 		      {
-			m_mass=m_pr;
-			massHyp=protonIdx;
-			//			m_histos.hPidPr->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_p());
-			//			m_histos.hPidPrPi->Fill(chr_it->trk().pid_p(),chr_it->trk().pid_pi());
+			strcpy(ptypName,"P+");
+			lundPC=2212;
+		      }
+		    else
+		      {
+			//from decay dec, still negative charge...
+			strcpy(ptypName,"AP+");
+			lundPC=-2212;
+		      }
+		  }
+		else  //pion
+		  {
+		    //default mass assignment if nothing is found is pion anywasy....
+		    //			if(atcKPi<0.3)
+		    if(atcKPi<0.6)
+		      {
+			massHyp=pionIdx;
+			m_mass=m_pi;
 
-			isProton=true;
+			if(evtNr==DEBUG_EVENT)
+			  {
+			    cout <<"setting massHyp positively to " << massHyp <<endl;
+			  }
+
+
+
+			isPionKaon=true;
 			if(charge>0)
 			  {
-			    strcpy(ptypName,"P+");
-			    lundPC=2212;
+			    strcpy(ptypName,"PI+");
+			    lundPC=211;
 			  }
 			else
 			  {
-			    //from decay dec, still negative charge...
-			    strcpy(ptypName,"AP+");
-			    lundPC=-2212;
+			    strcpy(ptypName,"PI-");
+			    lundPC=-211;
 			  }
+			/*		      m_histos.hPidPi->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_pi());
+					      m_histos.hPidPiMu->Filpl(chr_it->trk().pid_pi(),chr_it->trk().pid_mu());
+					      m_histos.hPidPiE->Fill(chr_it->trk().pid_pi(),chr_it->trk().pid_e());
+					      m_histos.hPidPiPr->Fill(chr_it->trk().pid_pi(),chr_it->trk().pid_p());*/
+
 		      }
-		    else  //pion
-		      {
-			//default mass assignment if nothing is found is pion anywasy....
-			//			if(atcKPi<0.3)
-			if(atcKPi<0.6)
-			    {
-			      massHyp=pionIdx;
-			      m_mass=m_pi;
-
-	if(evtNr==DEBUG_EVENT)
-	  {
-	    cout <<"setting massHyp positively to " << massHyp <<endl;
-	  }
-
-
-
-			      isPionKaon=true;
-			      if(charge>0)
-				{
-				  strcpy(ptypName,"PI+");
-				  lundPC=211;
-				}
-			      else
-				{
-				  strcpy(ptypName,"PI-");
-				  lundPC=-211;
-				}
-			      /*		      m_histos.hPidPi->Fill(chr_it->trk().pid_K(),chr_it->trk().pid_pi());
-				m_histos.hPidPiMu->Filpl(chr_it->trk().pid_pi(),chr_it->trk().pid_mu());
-				m_histos.hPidPiE->Fill(chr_it->trk().pid_pi(),chr_it->trk().pid_e());
-				m_histos.hPidPiPr->Fill(chr_it->trk().pid_pi(),chr_it->trk().pid_p());*/
-
-			    }
-		      }
-		}
+		  }
+	      }
 	  }
 	Hep3Vector tmpv(chr_it->p(0),chr_it->p(1),chr_it->p(2));
 	if(DEBUG_EVENT==evtNr)
@@ -950,7 +950,7 @@ namespace Belle {
 	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	      {
 		cout <<"dz cut: " << fabs(dz) <<endl;
-    	    cout <<" cut track due to vertex.. z" <<endl;
+		cout <<" cut track due to vertex.. z" <<endl;
 	      }
 	   
 	    continue;//used to be 4
@@ -974,10 +974,10 @@ namespace Belle {
 	  {
 	    nonBoostedVec[i]=HepLorentzVector(h3Vect,E[i]);
 	    boostedVec[i]=HepLorentzVector(h3Vect,E[i]);
-	      if(i==massHyp)
-		{
-		  //(*pXCheck) <<" before boost px: "<<    boostedVec[i].px() <<", y: "<< boostedVec[i].py() <<"pz: "<< boostedVec[i].pz() <<" e: "<< boostedVec[i].e() <<endl;
-		}
+	    if(i==massHyp)
+	      {
+		//(*pXCheck) <<" before boost px: "<<    boostedVec[i].px() <<", y: "<< boostedVec[i].py() <<"pz: "<< boostedVec[i].pz() <<" e: "<< boostedVec[i].e() <<endl;
+	      }
 	    boostedVec[i].boost(kinematics::CMBoost);
 	    if(i==massHyp)
 	      {
@@ -992,7 +992,7 @@ namespace Belle {
 
 	    if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	      {
-		      cout <<"removing pt=: " << h3Vect.perp() <<endl;
+		cout <<"removing pt=: " << h3Vect.perp() <<endl;
 	      }
 	    //	      cout <<"removing pt=: " << h3Vect.perp() <<endl;
 	    //	    (*pXCheck) <<" cut due to min pt " << endl;
@@ -1005,7 +1005,7 @@ namespace Belle {
 	iChTrks++;
 	if(DEBUG_EVENT==evtNr|| DEBUG_EVENT2==evtNr)
 	  {
-	    	  cout <<"charged z: " << m_z<<endl;
+	    cout <<"charged z: " << m_z<<endl;
 	  }
 	//just use min p cut
 	if(m_z[massHyp]<cuts::minZThrust)
@@ -1090,7 +1090,7 @@ namespace Belle {
 	    //	    (*pXCheck) <<" cut duecos theata " << endl;
 	    if(DEBUG_EVENT==evtNr)
 	      {
-			cout << "CUT cos theta: " << cos(h3Vect.theta()) <<"charge: " << charge <<endl;
+		cout << "CUT cos theta: " << cos(h3Vect.theta()) <<"charge: " << charge <<endl;
 	      }
 	    //	    cout << "CUT cos theta: " << cos(h3Vect.theta()) <<"charge: " << charge <<endl;
 	    continue;
@@ -1105,9 +1105,9 @@ namespace Belle {
       
 	//has to be in parantheses
        	p->userInfo(ParticleInfo());
-       ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
+	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(p->userInfo());
       
-       pinf.idAs=massHyp;
+	pinf.idAs=massHyp;
 	pinf.charge=charge;
        	pinf.labMom=labMom;
 	for(int i=0;i<5;i++)
@@ -1117,7 +1117,7 @@ namespace Belle {
 	    pinf.boostedLorentzVec[i]=boostedVec[i];
 	  }
 	////need to set the PID matrices
-		pinf.labTheta=h3Vect.theta();
+	pinf.labTheta=h3Vect.theta();
 
 	if(setHadronPIDProbs(&pinf, labMom)<0)
 	  {
@@ -1132,12 +1132,12 @@ namespace Belle {
 	    return;
 	  }
 
-		pinf.cmsTheta=boostedVec[massHyp].theta();
+	pinf.cmsTheta=boostedVec[massHyp].theta();
 	//	cout <<"theta lab:" << h3Vect.theta() <<"cms: "<< boostedVec.theta()<<endl;
 	//	cout <<"theta phi:" << h3Vect.phi() <<"cms: "<< boostedVec.phi()<<endl;
 
-		pinf.labPhi=h3Vect.phi();
-		pinf.cmsPhi=boostedVec[massHyp].phi();
+	pinf.labPhi=h3Vect.phi();
+	pinf.cmsPhi=boostedVec[massHyp].phi();
 	Ptype& m_pt=p->pType();
 	//is it ok, to leave the default error matrix?
 	p->momentum().momentum(boostedVec[massHyp]);
@@ -1152,7 +1152,7 @@ namespace Belle {
     //    exitEvent();
     //    return;
     ////do this after we collected the reconstructed particles, so we know what we don't have to save
-      pTreeSaver->saveGenInfo(v_allParticles, eventCut);
+    pTreeSaver->saveGenInfo(v_allParticles, eventCut);
     if(eventCut)
       {
 	exitEvent();
@@ -1221,10 +1221,10 @@ namespace Belle {
 
     for(std::vector<Mdst_gamma>::const_iterator i =gamma_mgr.begin();i!=gamma_mgr.end();i++)
       {
-	    float energy1=sqrt(i->px()*i->px()+i->py()*i->py()+i->pz()*i->pz());
-	    if(energy1<0.3)
-	      continue;
-	    HepLorentzVector h1(i->px(),i->py(),i->pz(),energy1);
+	float energy1=sqrt(i->px()*i->px()+i->py()*i->py()+i->pz()*i->pz());
+	if(energy1<0.3)
+	  continue;
+	HepLorentzVector h1(i->px(),i->py(),i->pz(),energy1);
 	for(std::vector<Mdst_gamma>::const_iterator j=i+1;j!=gamma_mgr.end();j++)
 	  {
 	    float energy2=sqrt(j->px()*j->px()+j->py()*j->py()+j->pz()*j->pz());
@@ -1236,7 +1236,7 @@ namespace Belle {
 	    float mass=etaCandidate.mag();
 	    if(fabs(mass-etaMass)<0.04)
 	      {
-	    //eta
+		//eta
 		boostedEtas.push_back(etaCandidate);
 	      }
 
@@ -1263,7 +1263,7 @@ namespace Belle {
 	if(gam.ecl().quality()!=0)
 	  {
 	    //	    cout <<"loosing photon due to  quality " <<endl;
-	  continue;
+	    continue;
 	  }
 	//ratio of energy in 3x3 cluster compared to 5x5 cluster in emcal
 	double e9oe25 =aux.e9oe25();
@@ -1277,7 +1277,7 @@ namespace Belle {
 	if(gammaE<cuts::minGammaEBarrel)
 	  {
 	    //	    cout <<" loosing photon in barrel due to energy cut " << gammaE<<endl;
-	  continue;
+	    continue;
 	  }
 	float photTheta= photVec.theta();
 	photTheta=180*(photTheta/TMath::Pi());
@@ -1300,7 +1300,7 @@ namespace Belle {
 	allParticlesNonBoosted.push_back(photVec);
 	//photon
 	allPB_particleClass.push_back(-1);
-       allParticlesBoosted.push_back(boostedVec.vect());
+	allParticlesBoosted.push_back(boostedVec.vect());
 	nonBoostedE.push_back(gammaE);
 
 	allPB_E.push_back(boostedVec.e());
@@ -1312,20 +1312,20 @@ namespace Belle {
 
     //    cout <<allParticlesBoosted.size() <<" particles in jet and thrust computation " << endl;
     //    if(allParticlesBoosted.size()!=nonBoostedE.size())
-      //      cout <<"e not the same size! " <<endl;
-      for(int i=0;i<allParticlesNonBoosted.size();i++)
-	{
-	  Hep3Vector& vec=allParticlesNonBoosted[i];
-	  //	  cout <<"------> in lab frame Px, Py, Pz, E: " << vec.x()<<" "<< vec.y() <<" " << vec.z() <<" " << nonBoostedE[i]<<endl;
-	}
-      for(int i=0;i<allParticlesBoosted.size();i++)
-	{
-	  //	  cout <<"Px: " << allParticlesBoosted[i].x()<<" Py: " << allParticlesBoosted[i].y()<<" "<< allParticlesBoosted[i].z()  <<endl;
-	  Hep3Vector& vec=allParticlesBoosted[i];
-	  //	  cout <<"------> in CM frame Px, Py, Pz, E: " << vec.x()<<" "<< vec.y() <<" " << vec.z() <<" " << allPB_E[i]<< " mass_hyp: " << allPB_particleClass[i] <<endl;
-	}
+    //      cout <<"e not the same size! " <<endl;
+    for(int i=0;i<allParticlesNonBoosted.size();i++)
+      {
+	Hep3Vector& vec=allParticlesNonBoosted[i];
+	//	  cout <<"------> in lab frame Px, Py, Pz, E: " << vec.x()<<" "<< vec.y() <<" " << vec.z() <<" " << nonBoostedE[i]<<endl;
+      }
+    for(int i=0;i<allParticlesBoosted.size();i++)
+      {
+	//	  cout <<"Px: " << allParticlesBoosted[i].x()<<" Py: " << allParticlesBoosted[i].y()<<" "<< allParticlesBoosted[i].z()  <<endl;
+	Hep3Vector& vec=allParticlesBoosted[i];
+	//	  cout <<"------> in CM frame Px, Py, Pz, E: " << vec.x()<<" "<< vec.y() <<" " << vec.z() <<" " << allPB_E[i]<< " mass_hyp: " << allPB_particleClass[i] <<endl;
+      }
 
-      ////-----> look for Ds
+    ////-----> look for Ds
 
     //find possible Ks..
     Mdst_vee2_Manager &vee2_m=Mdst_vee2_Manager::get_manager();
@@ -1370,116 +1370,116 @@ namespace Belle {
 
 
 
-/////    reconstructD0();
-/////    //    if(chargedDCandidates.size()>0 || D0Candidates.size()>0)
-/////    //      cout <<"we have "  << D0Candidates.size() <<" D0s before fit" <<endl;
-/////    vector<Particle*> tempParticles;
-/////    for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
-/////      {
-/////	double confLevel;
-/////	//		cout <<"mass before d0 mit: "<< (*itD)->p().mag()<<endl;
-/////	///	if(false)
-/////	if(!doKmVtxFit2(*(*itD),  confLevel,0))
-/////	  {
-/////	    //	    	    cout <<"removing D0 due to bad fit " << endl;
-/////	    delete *itD;
-/////	  }
-/////	else
-/////	  {
-/////	    //	    cout <<"D0 fit is good " << endl;
-/////	    tempParticles.push_back(*itD);
-/////	    //	    	    cout <<"mass  d0 mit: "<< (*itD)->p().mag()<<endl;
-/////	  }
-/////	
-/////      }
-/////    D0Candidates.clear();
-/////    
-/////    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
-/////      {
-/////	D0Candidates.push_back(*itD);
-/////      }
-/////    tempParticles.clear();
-/////
-/////    reconstructChargedD();
-/////    //    if(chargedDCandidates.size()>0)
-/////      //    cout <<"we have " << chargedDCandidates.size() <<" before fit " <<endl;
-/////    for(vector<Particle*>::iterator itD=chargedDCandidates.begin();itD!=chargedDCandidates.end();itD++)
-/////      {
-/////	double confLevel;
-/////	//	if(false)
-/////    	if(!doKmVtxFit2(*(*itD),  confLevel,0))
-/////	  {
-/////	    //	    printD();
-/////	    //	    	    cout <<" no good charged D " <<endl;
-/////	    //	    cout <<"removing charged D due to bad fit " << endl;
-/////	    delete *itD;
-/////	  }
-/////	else
-/////	  {
-/////	    //    cout <<"good fit for charged D " << endl;
-/////	    //	    cout <<" good charged D " << endl;
-/////	    tempParticles.push_back(*itD);
-/////	  }
-/////      }
-/////    chargedDCandidates.clear();
-/////
-/////    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
-/////      {
-/////	chargedDCandidates.push_back(*itD);
-/////      }
-/////    tempParticles.clear();
-/////    //    if(chargedDCandidates.size()>0 || D0Candidates.size()>0)
-/////    //      cout <<"we have " << chargedDCandidates.size() <<" charged and " << D0Candidates.size() <<" D0s after fit" <<endl;
-/////    reconstructDStar();
-/////    for(vector<Particle*>::iterator itD=DStarCandidates.begin();itD!=DStarCandidates.end();itD++)
-/////      {
-/////	double confLevel;
-/////	//	cout <<" d star before: "<<	(*itD)->p().mag() <<endl;
-/////	//in principle mass-vertex constrained fit here (not just mass...)
-/////	if(!doKmVtxFit2(*(*itD),  confLevel,0))
-/////	  {
-/////	    //	    	    cout <<" no good dstar .. " <<endl;
-/////	    delete *itD;
-/////	  }
-/////	else
-/////	  {
-/////	    //	          if(kinematics::DStarDecay==2){
-/////		    //		    cout <<"found good dstar in correct decay " <<endl;
-/////	    //		  }
-/////	    //	    	      cout <<"found good dstar .." <<endl;
-/////	    tempParticles.push_back(*itD);
-/////	    //	cout <<" d star after: "<<	(*itD)->p().mag() <<endl;
-/////	  }
-/////
-/////      }
-/////
-/////    DStarCandidates.clear();
-/////    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
-/////      {
-/////	DStarCandidates.push_back(*itD);
-/////      }
-/////    tempParticles.clear();
-/////
-/////      /////----> end look for Ds
+    /////    reconstructD0();
+    /////    //    if(chargedDCandidates.size()>0 || D0Candidates.size()>0)
+    /////    //      cout <<"we have "  << D0Candidates.size() <<" D0s before fit" <<endl;
+    /////    vector<Particle*> tempParticles;
+    /////    for(vector<Particle*>::iterator itD=D0Candidates.begin();itD!=D0Candidates.end();itD++)
+    /////      {
+    /////	double confLevel;
+    /////	//		cout <<"mass before d0 mit: "<< (*itD)->p().mag()<<endl;
+    /////	///	if(false)
+    /////	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+    /////	  {
+    /////	    //	    	    cout <<"removing D0 due to bad fit " << endl;
+    /////	    delete *itD;
+    /////	  }
+    /////	else
+    /////	  {
+    /////	    //	    cout <<"D0 fit is good " << endl;
+    /////	    tempParticles.push_back(*itD);
+    /////	    //	    	    cout <<"mass  d0 mit: "<< (*itD)->p().mag()<<endl;
+    /////	  }
+    /////	
+    /////      }
+    /////    D0Candidates.clear();
+    /////    
+    /////    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
+    /////      {
+    /////	D0Candidates.push_back(*itD);
+    /////      }
+    /////    tempParticles.clear();
+    /////
+    /////    reconstructChargedD();
+    /////    //    if(chargedDCandidates.size()>0)
+    /////      //    cout <<"we have " << chargedDCandidates.size() <<" before fit " <<endl;
+    /////    for(vector<Particle*>::iterator itD=chargedDCandidates.begin();itD!=chargedDCandidates.end();itD++)
+    /////      {
+    /////	double confLevel;
+    /////	//	if(false)
+    /////    	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+    /////	  {
+    /////	    //	    printD();
+    /////	    //	    	    cout <<" no good charged D " <<endl;
+    /////	    //	    cout <<"removing charged D due to bad fit " << endl;
+    /////	    delete *itD;
+    /////	  }
+    /////	else
+    /////	  {
+    /////	    //    cout <<"good fit for charged D " << endl;
+    /////	    //	    cout <<" good charged D " << endl;
+    /////	    tempParticles.push_back(*itD);
+    /////	  }
+    /////      }
+    /////    chargedDCandidates.clear();
+    /////
+    /////    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
+    /////      {
+    /////	chargedDCandidates.push_back(*itD);
+    /////      }
+    /////    tempParticles.clear();
+    /////    //    if(chargedDCandidates.size()>0 || D0Candidates.size()>0)
+    /////    //      cout <<"we have " << chargedDCandidates.size() <<" charged and " << D0Candidates.size() <<" D0s after fit" <<endl;
+    /////    reconstructDStar();
+    /////    for(vector<Particle*>::iterator itD=DStarCandidates.begin();itD!=DStarCandidates.end();itD++)
+    /////      {
+    /////	double confLevel;
+    /////	//	cout <<" d star before: "<<	(*itD)->p().mag() <<endl;
+    /////	//in principle mass-vertex constrained fit here (not just mass...)
+    /////	if(!doKmVtxFit2(*(*itD),  confLevel,0))
+    /////	  {
+    /////	    //	    	    cout <<" no good dstar .. " <<endl;
+    /////	    delete *itD;
+    /////	  }
+    /////	else
+    /////	  {
+    /////	    //	          if(kinematics::DStarDecay==2){
+    /////		    //		    cout <<"found good dstar in correct decay " <<endl;
+    /////	    //		  }
+    /////	    //	    	      cout <<"found good dstar .." <<endl;
+    /////	    tempParticles.push_back(*itD);
+    /////	    //	cout <<" d star after: "<<	(*itD)->p().mag() <<endl;
+    /////	  }
+    /////
+    /////      }
+    /////
+    /////    DStarCandidates.clear();
+    /////    for(vector<Particle*>::iterator itD=tempParticles.begin();itD!=tempParticles.end();itD++)
+    /////      {
+    /////	DStarCandidates.push_back(*itD);
+    /////      }
+    /////    tempParticles.clear();
+    /////
+    /////      /////----> end look for Ds
 
-//    if(D0Candidates.size()>0|| chargedDCandidates.size()>0 )
-//      {
-//		kinematics::D0Tag=1;
-//      }
-//    else
-//      {
-//	kinematics::D0Tag=0;
-//      }
-//    if(DStarCandidates.size()>0)
-//      {
-//	kinematics::DStarTag=1;
-//      }
-//    else
-//      {
-//	kinematics::DStarTag=0;
-//      }
-//
-//    cout <<"doing thrust "<<endl;
+    //    if(D0Candidates.size()>0|| chargedDCandidates.size()>0 )
+    //      {
+    //		kinematics::D0Tag=1;
+    //      }
+    //    else
+    //      {
+    //	kinematics::D0Tag=0;
+    //      }
+    //    if(DStarCandidates.size()>0)
+    //      {
+    //	kinematics::DStarTag=1;
+    //      }
+    //    else
+    //      {
+    //	kinematics::DStarTag=0;
+    //      }
+    //
+    //    cout <<"doing thrust "<<endl;
     Thrust t=thrustall(allParticlesBoosted.begin(),allParticlesBoosted.end(),retSelf);
     //    Thrust t2=thrust(allParticlesBoosted.begin(),allParticlesBoosted.end(),retSelf);
 
@@ -1489,8 +1489,8 @@ namespace Belle {
 
     //     cout <<"got  lab thrust " <<endl;
     //            cout <<"lab thrust theta: " << labThrust.axis.theta() <<endl;
-	    //   	cout <<"thrust cms theta: "<< t.axis.theta() <<" phi: "<< t.axis.phi() << " mag: "<< t.thru<<endl;
-	    //     cout <<"lab thrust phi: " << labThrust.axis.phi() <<endl;
+    //   	cout <<"thrust cms theta: "<< t.axis.theta() <<" phi: "<< t.axis.phi() << " mag: "<< t.thru<<endl;
+    //     cout <<"lab thrust phi: " << labThrust.axis.phi() <<endl;
 
     //    cout <<" Thrust cos theta in lab system: " << cos(labThrust.axis.theta())<<endl;
     //    cout <<" Thrust cos theta in CMS system: " << cos(t.axis.theta())<<endl;
@@ -1502,12 +1502,12 @@ namespace Belle {
       {
 	//	cout <<" cut on lab axis " <<endl;
 	//	    (*pXCheck) <<" exit event due to lab thrust " << endl;
-     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-       {
-	 cout <<"lab thrust exit" <<endl;
-       }
-     //we don't cut on thrust values anymore...
-     //	exitEvent();
+	if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+	  {
+	    cout <<"lab thrust exit" <<endl;
+	  }
+	//we don't cut on thrust values anymore...
+	//	exitEvent();
 	//	return;
       }
 
@@ -1546,10 +1546,10 @@ namespace Belle {
     Evtcls_hadron_info_Manager& hadronInfo_mgr = Evtcls_hadron_info_Manager::get_manager();
     visEnergyOnFile=hadronInfo_mgr.begin()->Evis();
     //  (*pXCheck)<<"diff: " << tDiff.x() << " " << tDiff.y() << " " << tDiff.z() <<endl;
-     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-    {	//  cout <<"boost: " << kinematics::CMBoost.x() << " y: " << kinematics::CMBoost.y() << " " << kinematics::CMBoost.z() <<endl;
-      //      cout <<"thrustDirCM: " << kinematics::thrustMag << " thrustDir z: " << abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()<<" vorher: " << kinematics::thrustDirCM.z()<< " visE: " << visEnergy<<" on file: " << visEnergyOnFile << " ichTrak: " << iChTrks <<" tdx: " << kinematics::thrustDirCM.x() << " tdy: " << kinematics::thrustDirCM.y() <<endl;
-    }
+    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+      {	//  cout <<"boost: " << kinematics::CMBoost.x() << " y: " << kinematics::CMBoost.y() << " " << kinematics::CMBoost.z() <<endl;
+	//      cout <<"thrustDirCM: " << kinematics::thrustMag << " thrustDir z: " << abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()<<" vorher: " << kinematics::thrustDirCM.z()<< " visE: " << visEnergy<<" on file: " << visEnergyOnFile << " ichTrak: " << iChTrks <<" tdx: " << kinematics::thrustDirCM.x() << " tdy: " << kinematics::thrustDirCM.y() <<endl;
+      }
 
     kinematics::E_miss=kinematics::Q-visEnergyOnFile;
     //    if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
@@ -1566,7 +1566,7 @@ namespace Belle {
 		cout <<"exit due to minvis energy" <<visEnergyOnFile <<endl;
 	      }
 	    
-	  foundReason=true;
+	    foundReason=true;
 	  }
 	if(abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ)
 	  {
@@ -1575,36 +1575,36 @@ namespace Belle {
 	    //	  cout <<"-------------------------------"<<endl;
 
 
-	  foundReason=true;
+	    foundReason=true;
 	  }
 	if(kinematics::thrustMag<cuts::minThrust)
 	  {
 	    //	    (*pXCheck) <<" exit event due to minthrust " << endl;
 	    //	    cout <<"---------------------------"<<endl<<"cut magnitude: " << cuts::minThrust <<" found  " <<kinematics::thrustMag <<endl;
 	    //	  cout <<"-------------------------------"<<endl;
-	  foundReason=true;
+	    foundReason=true;
 	  }
 	if( iChTrks < cuts::minNTracks)
 	  {
 	    
-     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-       {
-	 cout <<"exit due to ntracks" << iChTrks<<endl;
-       }
+	    if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+	      {
+		cout <<"exit due to ntracks" << iChTrks<<endl;
+	      }
 	    //	    (*pXCheck) <<" exit event due to min ntracks " << endl;
 	    //	        cout <<"-----------------------"<<endl <<" cut on min tracks, need; "<< cuts::minNTracks <<" have: " << iChTrks <<endl;
 	    //	  cout <<"-------------------------------"<<endl;
-	  foundReason=true;
+	    foundReason=true;
 	  }
 
 	if(!foundReason)
 	  {
-	  //	  cout <<"exiting event due to some cut" <<endl;
+	    //	  cout <<"exiting event due to some cut" <<endl;
 	  }
-     if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
-       {
-	 cout <<"exit due to some other reason" <<endl;
-       }
+	if(evtNr==DEBUG_EVENT || evtNr==DEBUG_EVENT2)
+	  {
+	    cout <<"exit due to some other reason" <<endl;
+	  }
 
 	exitEvent();
 	return;
@@ -1619,7 +1619,7 @@ namespace Belle {
       }
     if(evtNr==DEBUG_EVENT)
       {
-      cout <<"evt good" <<endl;
+	cout <<"evt good" <<endl;
       }
     //  cout <<"thrust cms: " << kinematics::thrustDirCM.theta() <<endl;
 
@@ -1637,53 +1637,53 @@ namespace Belle {
 #ifdef ThrustMethod
     findHadronPairsThrust();
 #else
-     findHadronPairs();
+    findHadronPairs();
 #endif
-     Hep3Vector axis=kinematics::thrustDirCM;
-     ////------ stuff for hairongs analysis
-     //     cout <<"found " << boostedPi0s.size() <<" pi0s and " << boostedEtas.size() <<" etas " <<endl;
-      for(int i=0;i<boostedPi0s.size();i++)
-	{
-	  Hep3Vector& vec=boostedPi0s[i];
-	  float thrustProj=axis.dot(vec);
-	  float pi0E=sqrt(vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()+pi0Mass*pi0Mass);
-	  float pi0Z=2*pi0E/10.5;
-	  if(pi0Z<0.2)
-	    continue;
-	  float pi0Pt=axis.perp(vec);
-	  //	  cout <<"pi0Z: "<< pi0Z<<" pt: " << pi0Pt <<endl;
-	  if(pi0Pt<1.5)
-	    {
-	      int zBin=getBin(zBorders,4,pi0Z);
-	      int ptBin=getBin(ptBorders,4,pi0Pt);
-	      //  cout <<"zBin: " << zBin <<" ptBin: "<< ptBin <<endl;
-	      numPi0s[zBin*4+ptBin]++;
-	    }
-     //     pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());
-	}
+    Hep3Vector axis=kinematics::thrustDirCM;
+    ////------ stuff for hairongs analysis
+    //     cout <<"found " << boostedPi0s.size() <<" pi0s and " << boostedEtas.size() <<" etas " <<endl;
+    for(int i=0;i<boostedPi0s.size();i++)
+      {
+	Hep3Vector& vec=boostedPi0s[i];
+	float thrustProj=axis.dot(vec);
+	float pi0E=sqrt(vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()+pi0Mass*pi0Mass);
+	float pi0Z=2*pi0E/10.5;
+	if(pi0Z<0.2)
+	  continue;
+	float pi0Pt=axis.perp(vec);
+	//	  cout <<"pi0Z: "<< pi0Z<<" pt: " << pi0Pt <<endl;
+	if(pi0Pt<1.5)
+	  {
+	    int zBin=getBin(zBorders,4,pi0Z);
+	    int ptBin=getBin(ptBorders,4,pi0Pt);
+	    //  cout <<"zBin: " << zBin <<" ptBin: "<< ptBin <<endl;
+	    numPi0s[zBin*4+ptBin]++;
+	  }
+	//     pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());
+      }
 
-      for(int i=0;i<boostedEtas.size();i++)
-	{
-	  Hep3Vector& vec=boostedEtas[i];
-	  float thrustProj=axis.dot(vec);
-	  float etaE=sqrt(vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()+pi0Mass*pi0Mass);
-	  float etaZ=2*etaE/10.5;
-	  if(etaZ<0.3)
-	    continue;
-	  float etaPt=axis.perp(vec);
-	  if(etaPt<1.5)
-	    {
-	      int zBin=getBin(zBorders,4,etaZ);
-	      int ptBin=getBin(ptBorders,4,etaPt);
-	      numEtas[zBin*4+ptBin]++;
-	    }
-	  //     pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());
-	}
-
-
+    for(int i=0;i<boostedEtas.size();i++)
+      {
+	Hep3Vector& vec=boostedEtas[i];
+	float thrustProj=axis.dot(vec);
+	float etaE=sqrt(vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()+pi0Mass*pi0Mass);
+	float etaZ=2*etaE/10.5;
+	if(etaZ<0.3)
+	  continue;
+	float etaPt=axis.perp(vec);
+	if(etaPt<1.5)
+	  {
+	    int zBin=getBin(zBorders,4,etaZ);
+	    int ptBin=getBin(ptBorders,4,etaPt);
+	    numEtas[zBin*4+ptBin]++;
+	  }
+	//     pinf.thrustProj=axis.dot((*it)->p().vect())/(axis.mag()*(*it)->p().vect().mag());
+      }
 
 
-     ////----
+
+
+    ////----
 
 
 
@@ -1706,70 +1706,70 @@ namespace Belle {
 #ifdef XCHECK
     int qCounter=-1;
     (*pXCheck) << std::setw(4);
-        (*pXCheck) <<" runNr: "<<runNr <<" eventNr: "<< evtNr;
-        (*pXCheck) <<" thrust Mag: " <<kinematics::thrustMag;
-       (*pXCheck) <<" thrust dir (CM) theta: "<<     kinematics::thrustDirCM.theta();
-        (*pXCheck) <<" phi "<<     kinematics::thrustDirCM.phi()<<endl;
+    (*pXCheck) <<" runNr: "<<runNr <<" eventNr: "<< evtNr;
+    (*pXCheck) <<" thrust Mag: " <<kinematics::thrustMag;
+    (*pXCheck) <<" thrust dir (CM) theta: "<<     kinematics::thrustDirCM.theta();
+    (*pXCheck) <<" phi "<<     kinematics::thrustDirCM.phi()<<endl;
 
     //    (*pXCheck) <<" thrust dir (Lab) theta: "<<     kinematics::thrustDirLab.theta();
     //    (*pXCheck) <<" phi "<<     kinematics::thrustDirLab.phi()<<endl;
 
     for(vector<HadronPair*>::iterator it=v_hadronPairs.begin();it!=v_hadronPairs.end();it++)
-    {
-      qCounter++;
-      HadronPair* hp=(*it);
-      //      if(evtNr==1)
+      {
+	qCounter++;
+	HadronPair* hp=(*it);
+	//      if(evtNr==1)
 	{
-	ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
-	ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+	  ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
+	  ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
 
-	//momentum ordering for easier comparison
-	if(pinf1.labMom<pinf2.labMom)
-	  {
-	    pinf1=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
-	    pinf2=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
-	  }
+	  //momentum ordering for easier comparison
+	  if(pinf1.labMom<pinf2.labMom)
+	    {
+	      pinf1=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+	      pinf2=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
+	    }
 
-	//	(*pXCheck) <<" two had type; "<< hp->hadPType<<endl;
-	//seems to be in cms...
-	//	(*pXCheck) << "other mom: "<<  hp->firstHadron->p().vect().mag() <<" or: "<< hp->secondHadron->p().vect().mag()<<endl;
-	(*pXCheck) <<"plab h1 "<< pinf1.labMom << " h2 " << pinf2.labMom;
-	(*pXCheck) << " costheta h1 " << cos(pinf1.labTheta)<<"  h2 " << cos(pinf2.labTheta)<<endl;
+	  //	(*pXCheck) <<" two had type; "<< hp->hadPType<<endl;
+	  //seems to be in cms...
+	  //	(*pXCheck) << "other mom: "<<  hp->firstHadron->p().vect().mag() <<" or: "<< hp->secondHadron->p().vect().mag()<<endl;
+	  (*pXCheck) <<"plab h1 "<< pinf1.labMom << " h2 " << pinf2.labMom;
+	  (*pXCheck) << " costheta h1 " << cos(pinf1.labTheta)<<"  h2 " << cos(pinf2.labTheta)<<endl;
 
-	(*pXCheck) <<"i 0 pid h1 data "<< pinf1.p_Pi <<" mc " << pinf1.p_Pi2;
-	(*pXCheck) <<" pid h2 data "<< pinf2.p_Pi <<" mc " << pinf2.p_Pi2<<endl;
+	  (*pXCheck) <<"i 0 pid h1 data "<< pinf1.p_Pi <<" mc " << pinf1.p_Pi2;
+	  (*pXCheck) <<" pid h2 data "<< pinf2.p_Pi <<" mc " << pinf2.p_Pi2<<endl;
 
-	(*pXCheck) <<"i 1 pid h1 data "<< pinf1.p_K <<" mc " << pinf1.p_K2;
-	(*pXCheck) <<" pid h2 data"<< pinf2.p_K <<" mc " << pinf2.p_K2<<endl;
+	  (*pXCheck) <<"i 1 pid h1 data "<< pinf1.p_K <<" mc " << pinf1.p_K2;
+	  (*pXCheck) <<" pid h2 data"<< pinf2.p_K <<" mc " << pinf2.p_K2<<endl;
 
-	(*pXCheck) <<"i 2 pid h1 data "<< pinf1.p_p <<" mc " << pinf1.p_p2;
-	(*pXCheck) <<" pid h2 data "<< pinf2.p_p <<" mc " << pinf2.p_p2<<endl;
+	  (*pXCheck) <<"i 2 pid h1 data "<< pinf1.p_p <<" mc " << pinf1.p_p2;
+	  (*pXCheck) <<" pid h2 data "<< pinf2.p_p <<" mc " << pinf2.p_p2<<endl;
 
 
-	(*pXCheck) << "i 0 z h1 " << hp->z1_PiPi << " z h2 "<< hp->z2_PiPi <<" kT " << hp->kT_PiPi << " qT " << hp->qT_PiPi <<endl;
-	(*pXCheck) << "i 1 z h1 " << hp->z1_PiK << " z h2 "<< hp->z2_PiK <<" kT " << hp->kT_PiK << " qT " << hp->qT_PiK <<endl;
-	(*pXCheck) << "i 2 z h1 " << hp->z1_PiP << " z h2 "<< hp->z2_PiP <<" kT " << hp->kT_PiP << " qT " << hp->qT_PiP <<endl;
+	  (*pXCheck) << "i 0 z h1 " << hp->z1_PiPi << " z h2 "<< hp->z2_PiPi <<" kT " << hp->kT_PiPi << " qT " << hp->qT_PiPi <<endl;
+	  (*pXCheck) << "i 1 z h1 " << hp->z1_PiK << " z h2 "<< hp->z2_PiK <<" kT " << hp->kT_PiK << " qT " << hp->qT_PiK <<endl;
+	  (*pXCheck) << "i 2 z h1 " << hp->z1_PiP << " z h2 "<< hp->z2_PiP <<" kT " << hp->kT_PiP << " qT " << hp->qT_PiP <<endl;
 
-	(*pXCheck) << "i 3 z h1 " << hp->z1_KPi << " z h2 "<< hp->z2_KPi <<" kT " << hp->kT_KPi << " qT " << hp->qT_KPi <<endl;
-	(*pXCheck) << "i 4 z h1 " << hp->z1_KK << " z h2 "<< hp->z2_KK <<" kT " << hp->kT_KK << " qT " << hp->qT_KK <<endl;
-	(*pXCheck) << "i 5 z h1 " << hp->z1_KP << " z h2 "<< hp->z2_KP <<" kT " << hp->kT_KP << " qT " << hp->qT_KP <<endl;
+	  (*pXCheck) << "i 3 z h1 " << hp->z1_KPi << " z h2 "<< hp->z2_KPi <<" kT " << hp->kT_KPi << " qT " << hp->qT_KPi <<endl;
+	  (*pXCheck) << "i 4 z h1 " << hp->z1_KK << " z h2 "<< hp->z2_KK <<" kT " << hp->kT_KK << " qT " << hp->qT_KK <<endl;
+	  (*pXCheck) << "i 5 z h1 " << hp->z1_KP << " z h2 "<< hp->z2_KP <<" kT " << hp->kT_KP << " qT " << hp->qT_KP <<endl;
 
-	(*pXCheck) << "i 6 z h1 " << hp->z1_PPi << " z h2 "<< hp->z2_PPi <<" kT " << hp->kT_PPi << " qT " << hp->qT_PPi <<endl;
-	(*pXCheck) << "i 7 z h1 " << hp->z1_PK << " z h2 "<< hp->z2_PK <<" kT " << hp->kT_PK << " qT " << hp->qT_PK <<endl;
-	(*pXCheck) << "i 8 z h1 " << hp->z1_PP << " z h2 "<< hp->z2_PP <<" kT " << hp->kT_PP << " qT " << hp->qT_PP <<endl;
+	  (*pXCheck) << "i 6 z h1 " << hp->z1_PPi << " z h2 "<< hp->z2_PPi <<" kT " << hp->kT_PPi << " qT " << hp->qT_PPi <<endl;
+	  (*pXCheck) << "i 7 z h1 " << hp->z1_PK << " z h2 "<< hp->z2_PK <<" kT " << hp->kT_PK << " qT " << hp->qT_PK <<endl;
+	  (*pXCheck) << "i 8 z h1 " << hp->z1_PP << " z h2 "<< hp->z2_PP <<" kT " << hp->kT_PP << " qT " << hp->qT_PP <<endl;
 
-	//(*pXCheck)<< "qT " <<hp->qT <<endl;
-	//	(*pXCheck) << "z1: " << hp->z1 <<" z2: " << hp->z2 <<" kT: " << hp->kT <<  " pid1 " << hp->firstHadron->lund() <<" pid2 " << hp->firstHadron->lund() <<endl;
+	  //(*pXCheck)<< "qT " <<hp->qT <<endl;
+	  //	(*pXCheck) << "z1: " << hp->z1 <<" z2: " << hp->z2 <<" kT: " << hp->kT <<  " pid1 " << hp->firstHadron->lund() <<" pid2 " << hp->firstHadron->lund() <<endl;
 
 	  //cos(pinf1.labTheta) <<" cos labTheta2: "<< cos(pinf2.labTheta) <<" z1: "<< hp->z1 << " z2: "<< hp->z2 << " kT: "<< hp->kT <<", qT: "<< hp->qT << " had type1 "<< hp->hadPType1 <<" second had type: "<< hp->hadPType2  <<" first charge: "<< hp->hadCharge1 << " second charge: "<< hp->hadCharge2 <<endl;
-	//	(*pXCheck) << "naive z1: "<< pinf1.boostedMoms[pinf1.idAs].mag()/5.25 <<" naive z2: "<< pinf2.boostedMoms[pinf2.idAs].mag()/5.25 <<endl;
-	//	(*pXCheck) << " lab Theta1 "<< pinf1.labTheta <<" cosLabTheta: "<< cos(pinf1.labTheta) <<" labTheta2: "<< pinf2.labTheta <<" cosLt2: ";
-	//	(*pXCheck) << cos(pinf2.labTheta)<<endl;
-	//	(*pXCheck) << " cms Theta1 "<< pinf1.cmsTheta <<" cosCmsTheta: "<< cos(pinf1.cmsTheta) <<" cmsTheta2: "<< pinf2.cmsTheta <<" cosLt2: ";
-	//	(*pXCheck) << cos(pinf2.cmsTheta)<<endl;
+	  //	(*pXCheck) << "naive z1: "<< pinf1.boostedMoms[pinf1.idAs].mag()/5.25 <<" naive z2: "<< pinf2.boostedMoms[pinf2.idAs].mag()/5.25 <<endl;
+	  //	(*pXCheck) << " lab Theta1 "<< pinf1.labTheta <<" cosLabTheta: "<< cos(pinf1.labTheta) <<" labTheta2: "<< pinf2.labTheta <<" cosLt2: ";
+	  //	(*pXCheck) << cos(pinf2.labTheta)<<endl;
+	  //	(*pXCheck) << " cms Theta1 "<< pinf1.cmsTheta <<" cosCmsTheta: "<< cos(pinf1.cmsTheta) <<" cmsTheta2: "<< pinf2.cmsTheta <<" cosLt2: ";
+	  //	(*pXCheck) << cos(pinf2.cmsTheta)<<endl;
 	}
 	//      (*pXCheck)<<setprecision(4);
-    }
+      }
     (*pXCheck) <<endl;
 #endif
     saveTree();
@@ -1864,7 +1864,7 @@ namespace Belle {
       {
 	cout <<" saving " << v_hadronPairs.size() <<" pairs" <<endl;
       }
-          pTreeSaver->fillWPairData(v_hadronPairs,m_evtInfo);
+    pTreeSaver->fillWPairData(v_hadronPairs,m_evtInfo);
   }
   void ptSpect::saveHistos( vector<Hep3Vector>& v_allParticlesBoosted, vector<Hep3Vector>& v_allParticlesNonBoosted)
   {
@@ -1982,9 +1982,9 @@ namespace Belle {
 	if(fabs(pinf.thrustProj)<cuts::minThrustProj)
 	  {
 	    //    if(evtNr==DEBUG_EVENT)
-	      {
-		//		cout <<"cut min thrustProj ("<<pinf.thrustProj << " required: " << cuts::minThrustProj<<endl;     
-	      }
+	    {
+	      //		cout <<"cut min thrustProj ("<<pinf.thrustProj << " required: " << cuts::minThrustProj<<endl;     
+	    }
 	    //	  cout <<"cut with " <<fabs(pinf.thrustProj)<<endl;
 	    continue;
 	  }
@@ -1999,10 +1999,10 @@ namespace Belle {
 	    if((*it)->pType().charge()!=0)
 	      {
 		//		(*pXCheck )<< "putting particle with cos lab theta: "<< cos(pinf.labTheta) <<" in first hemi, naive z: " << tmpVec.mag()/5.25<<endl;
-	if(DEBUG_EVENT==evtNr)
-	  {
-	    cout <<"pushing in first hemi p: "<< pinf.labMom<<endl;
-	  }
+		if(DEBUG_EVENT==evtNr)
+		  {
+		    cout <<"pushing in first hemi p: "<< pinf.labMom<<endl;
+		  }
 
 		v_firstHemi.push_back(*it);
 	      }
@@ -2014,10 +2014,10 @@ namespace Belle {
 	      {
 		//		(*pXCheck )<< "putting particle with cos lab theta: "<< cos(pinf.labTheta) <<" in second hemi, naive z: " << tmpVec.mag()/5.25<< endl;
 		//rather pointers...
-	if(DEBUG_EVENT==evtNr)
-	  {
-	    cout <<"pushing in second hemi p: "<< pinf.labMom<<endl;
-	  }
+		if(DEBUG_EVENT==evtNr)
+		  {
+		    cout <<"pushing in second hemi p: "<< pinf.labMom<<endl;
+		  }
 
 		v_secondHemi.push_back(*it);
 	      }
@@ -2051,30 +2051,30 @@ namespace Belle {
 	    //not back to back according to thrustless definition (note that being in first and second hemisphere is not necessarily enough
 	    //	    if((*it2)->sp().vect().dot((*it)->p().vect())>0)
 	    bool acceptPair=false;
-	      for(int i=0;i<5;i++)
-		{
-		  for(int j=0;j<5;j++)
-		    {
-		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
-		      //		      cout <<"dot prodcut (1) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-			{
-			  acceptPair=true;
+	    for(int i=0;i<5;i++)
+	      {
+		for(int j=0;j<5;j++)
+		  {
+		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+		    //		      cout <<"dot prodcut (1) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+		      {
+			acceptPair=true;
 
-			}
+		      }
 
-		      if(DEBUG_EVENT==kinematics::evtNr)
-			{
-			  cout <<"looking to combine first/second p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
-			  cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-			  cout <<" accept: ("<<i <<" ) " << acceptPair <<endl;
-			}
+		    if(DEBUG_EVENT==kinematics::evtNr)
+		      {
+			cout <<"looking to combine first/second p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
+			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+			cout <<" accept: ("<<i <<" ) " << acceptPair <<endl;
+		      }
 
-		    }
-		}
+		  }
+	      }
 
-	      if(!acceptPair)
-		continue;
+	    if(!acceptPair)
+	      continue;
 	    //now unknowns...
 	    HadronPair* hp=new HadronPair();
 	    //	    HadronPair* hp2=new HadronPair();
@@ -2085,7 +2085,7 @@ namespace Belle {
 	    //	    hp2->firstHadron=*it2;
 	    //	    hp2->secondHadron=*it;
 	    
-		//	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
 	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
 	    //	    hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
 	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
@@ -2107,7 +2107,7 @@ namespace Belle {
 	    //	    v_hadronPairs.push_back(hp2);
 	  }
       }
-  //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
+    //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
     for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
       {
  	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
@@ -2117,58 +2117,58 @@ namespace Belle {
 
 	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
 	    bool acceptPair=false;
-	      for(int i=0;i<5;i++)
-		{
-		  for(int j=0;j<5;j++)
-		    {
-		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
-		      //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-		      if(DEBUG_EVENT==kinematics::evtNr)
-			{
-			  cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
-			  cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+	    for(int i=0;i<5;i++)
+	      {
+		for(int j=0;j<5;j++)
+		  {
+		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+		    if(DEBUG_EVENT==kinematics::evtNr)
+		      {
+			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
+			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
 			
-}
-		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-			acceptPair=true;
-		    }
-		}
+		      }
+		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+		      acceptPair=true;
+		  }
+	      }
 
-	      if(!acceptPair)
-		continue;
-	      //at least one mass hypothesis is fine
+	    if(!acceptPair)
+	      continue;
+	    //at least one mass hypothesis is fine
 	    //now unknowns...
-		HadronPair* hp=new HadronPair();
-		//		HadronPair* hp2=new HadronPair();
-		//		hp2->secondRun=true;
+	    HadronPair* hp=new HadronPair();
+	    //		HadronPair* hp2=new HadronPair();
+	    //		hp2->secondRun=true;
 
-		hp->firstHadron=*it;
-		hp->secondHadron=*it2;
-		hp->setDotProducts(dotProduct);
+	    hp->firstHadron=*it;
+	    hp->secondHadron=*it2;
+	    hp->setDotProducts(dotProduct);
 
-		//		hp2->firstHadron=*it2;
-		//		hp2->secondHadron=*it;
+	    //		hp2->firstHadron=*it2;
+	    //		hp2->secondHadron=*it;
 		
-		//	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
-		hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
-		//		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+	    //		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
 	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
 	    //	  cout <<"R1: " << hp->phiR<<endl;
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
-		hp->compute();
-		//		hp2->compute();
-		if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
-		  {
-		    cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
-		    cout <<"putting hadron pair" <<endl;
-		  }
+	    hp->compute();
+	    //		hp2->compute();
+	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+	      {
+		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
+		cout <<"putting hadron pair" <<endl;
+	      }
 
-		v_hadronPairs.push_back(hp);
-		//		v_hadronPairs.push_back(hp2);
+	    v_hadronPairs.push_back(hp);
+	    //		v_hadronPairs.push_back(hp2);
 	  }
       }  
-  //  cout <<v_hadronPairs.size() <<" pairs after first with first" <<endl;
-  for(vector<Particle*>::const_iterator it=v_secondHemi.begin();it!=v_secondHemi.end();it++)
+    //  cout <<v_hadronPairs.size() <<" pairs after first with first" <<endl;
+    for(vector<Particle*>::const_iterator it=v_secondHemi.begin();it!=v_secondHemi.end();it++)
       {
  	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
 	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_secondHemi.end();it2++)
@@ -2177,51 +2177,51 @@ namespace Belle {
 
 	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
 	    bool acceptPair=false;
-	      for(int i=0;i<5;i++)
-		{
-		  for(int j=0;j<5;j++)
-		    {
-		      dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
-		      //		      cout <<"dot prodcut (3) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-		      if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-			acceptPair=true;
-		    }
-		}
+	    for(int i=0;i<5;i++)
+	      {
+		for(int j=0;j<5;j++)
+		  {
+		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+		    //		      cout <<"dot prodcut (3) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+		      acceptPair=true;
+		  }
+	      }
 
-	      if(!acceptPair)
-		continue;
+	    if(!acceptPair)
+	      continue;
 
 	    //now unknowns...
-		HadronPair* hp=new HadronPair();
-		//		HadronPair* hp2=new HadronPair();
-		//		hp2->secondRun=true;
+	    HadronPair* hp=new HadronPair();
+	    //		HadronPair* hp2=new HadronPair();
+	    //		hp2->secondRun=true;
 
-		hp->firstHadron=*it;
-		hp->secondHadron=*it2;
-		hp->setDotProducts(dotProduct);
+	    hp->firstHadron=*it;
+	    hp->secondHadron=*it2;
+	    hp->setDotProducts(dotProduct);
 
-		//		hp2->firstHadron=*it2;
-		//		hp2->secondHadron=*it;
+	    //		hp2->firstHadron=*it2;
+	    //		hp2->secondHadron=*it;
 		
-		//	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
-		hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
-		//		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+	    //		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
 	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
 	    //	  cout <<"R1: " << hp->phiR<<endl;
 	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
-		hp->compute();
-		//		hp2->compute();
-		if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
-       {
-	cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
-	 cout <<"putting hadron pair" <<endl;
-       }
+	    hp->compute();
+	    //		hp2->compute();
+	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+	      {
+		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
+		cout <<"putting hadron pair" <<endl;
+	      }
 
-		v_hadronPairs.push_back(hp);
-		//		v_hadronPairs.push_back(hp2);
+	    v_hadronPairs.push_back(hp);
+	    //		v_hadronPairs.push_back(hp2);
 	  }
       }  
-  //  cout <<v_hadronPairs.size() <<" pairs after second with second" <<endl;
+    //  cout <<v_hadronPairs.size() <<" pairs after second with second" <<endl;
 
   }
 
@@ -2414,10 +2414,10 @@ namespace Belle {
 
     TFile histoFile("myHistos.root","recreate");
     thetaPhiCMS->Write();
-        m_histos.hEFlowNorm->Write();
+    m_histos.hEFlowNorm->Write();
 
 
-        m_histos.hEFlowMC->Write();
+    m_histos.hEFlowMC->Write();
 
     TCanvas c3;
     m_histos.hHPairMassMC->Write();
@@ -2970,7 +2970,7 @@ namespace Belle {
 		    }
 		  }
 		chargedDCandidates.push_back(dPlus);
-	    kinematics::DDecay=10;
+		kinematics::DDecay=10;
 	      }
 	  }
       }
@@ -3060,7 +3060,7 @@ namespace Belle {
 	    ////	    cout <<"D: "<< D.p().px()<<" y: "<< D.p().py() << " z: "<< D.p().pz()<<endl;
 	    /////	    cout <<"pion: "<< pion.p().px()<<" y: "<< pion.p().py() << " z: "<< pion.p().pz()<<endl;
 
-   bool doubleUse=false;
+	    bool doubleUse=false;
 	    //make sure that pion is not child of D
 	    for(int i =0;i<D.nChildren();i++)
 	      {
@@ -3081,21 +3081,21 @@ namespace Belle {
 
 	    ///	    cout <<"dstar cand mass: "<< m <<endl;
 	    if(m>m_dStarPlusmass_max || m < m_dStarPlusmass_min ||isnan(m)) continue;
-//	   	    cout <<"m -D: "<< m-D.p().mag() <<endl;
-//	       cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
-//	        cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
-//		cout <<"individual: m: "<< m <<" D mass: "<< D.p().mag() <<endl;
+	    //	   	    cout <<"m -D: "<< m-D.p().mag() <<endl;
+	    //	       cout <<"looking at dstar, mass diff: " <<(m_DStarPlus-m_D0) <<" vs : " << (m-D.p().mag());
+	    //	        cout <<" gives: " << fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <<endl;
+	    //		cout <<"individual: m: "<< m <<" D mass: "<< D.p().mag() <<endl;
 
-//	    cout<<"rec D: "<<D.pType().name() <<" (" << D.pType().lund()<<"), "<<" |p|: " <<D.p().rho()<< " ("<<D.p().px()<<", " << D.p().py()<< ", " << D.p().pz() <<", "<< D.p().t()<<")" <<endl;
+	    //	    cout<<"rec D: "<<D.pType().name() <<" (" << D.pType().lund()<<"), "<<" |p|: " <<D.p().rho()<< " ("<<D.p().px()<<", " << D.p().py()<< ", " << D.p().pz() <<", "<< D.p().t()<<")" <<endl;
 
 	    //	    for(int i =0;i<D.nChildren();i++)
-	      {
-		//		cout<<"rec D: "<<D.child(i).pType().name() <<" (" << D.child(i).pType().lund()<<"), "<<" |p|: " <<D.child(i).p().rho()<< " ("<<D.child(i).p().px()<<", " << D.child(i).p().py()<< ", " << D.child(i).p().pz() <<", "<< D.child(i).p().t()<<")" <<endl;
-	      }
+	    {
+	      //		cout<<"rec D: "<<D.child(i).pType().name() <<" (" << D.child(i).pType().lund()<<"), "<<" |p|: " <<D.child(i).p().rho()<< " ("<<D.child(i).p().px()<<", " << D.child(i).p().py()<< ", " << D.child(i).p().pz() <<", "<< D.child(i).p().t()<<")" <<endl;
+	    }
 
 	    //	    cout <<"rec pion: "<<pion.pType().name() <<" (" << pion.pType().lund()<<"), "<<" |p|: " <<pion.p().rho()<< " ("<<pion.p().px()<<", " << pion.p().py()<< ", " << pion.p().pz() <<", "<< pion.p().t()<<")" <<endl;
-      //	    cout <<"momentum of reconstructed D: "<< D.p().px() <<", " << D.p().py()<<", " << D.p().pz()<<endl;
-      //	    cout <<"momentum of reconstructed pion: "<< pion.p().px() <<", " << pion.p().py()<<", " << pion.p().pz()<<endl;
+	    //	    cout <<"momentum of reconstructed D: "<< D.p().px() <<", " << D.p().py()<<", " << D.p().pz()<<endl;
+	    //	    cout <<"momentum of reconstructed pion: "<< pion.p().px() <<", " << pion.p().py()<<", " << pion.p().pz()<<endl;
 	    //	    HepLorentzVector p_dStar=D.p()+pi0.p();
 
 	    if(fabs(m-D.p().mag()-(m_DStarPlus-m_D0)) <0.1)
@@ -3230,12 +3230,12 @@ namespace Belle {
     //    kmvfitter.errVertex(IpProfile::position_err());
     kmvfitter.initialVertex(IpProfile::position());
     //no error  
-  if(!kmvfitter.fit()) {
+    if(!kmvfitter.fit()) {
       makeMother(kmvfitter, p);
       p.momentum().vertex(kmvfitter.vertex(),kmvfitter.errVertex());
       confLevel=kmvfitter.cl();
       return true;
-  }
+    }
     return false;
   }
   //this seems to have some impact...
@@ -3378,66 +3378,66 @@ namespace Belle {
 	    int numDaughters=0;
 	    int numGDaughters=0;
 
-	        genhep_vec* daughters=getDaughters(*gen_it);
-		numDaughters=daughters->size();
-		if(numDaughters<=0)
-		  {
-		    delete daughters;
-		    return false;
-		  }
+	    genhep_vec* daughters=getDaughters(*gen_it);
+	    numDaughters=daughters->size();
+	    if(numDaughters<=0)
+	      {
+		delete daughters;
+		return false;
+	      }
 
-		for(genhep_vec::iterator it=daughters->begin();it!=daughters->end();it++)
-		  {		    
-		    if(fabs((*it)->idhep())==211)
+	    for(genhep_vec::iterator it=daughters->begin();it!=daughters->end();it++)
+	      {		    
+		if(fabs((*it)->idhep())==211)
+		  {
+		    numPi++;
+		  }
+		if(fabs((*it)->idhep())==321)
+		  {
+		    numK++;
+		  }
+		if((fabs((*it)->idhep())==411) || (fabs((*it)->idhep())==421))
+		  {
+		    genhep_vec* grandDaughters=getDaughters(**it);
+		    numGDaughters=grandDaughters->size();
+		    for(genhep_vec::iterator it2=grandDaughters->begin();it2!=grandDaughters->end();it2++)
 		      {
-			numPi++;
-		      }
-		    if(fabs((*it)->idhep())==321)
-		      {
-			numK++;
-		      }
-		    if((fabs((*it)->idhep())==411) || (fabs((*it)->idhep())==421))
-		      {
-			genhep_vec* grandDaughters=getDaughters(**it);
-			numGDaughters=grandDaughters->size();
-			for(genhep_vec::iterator it2=grandDaughters->begin();it2!=grandDaughters->end();it2++)
+			if(fabs((*it2)->idhep())==211)
 			  {
-			    if(fabs((*it2)->idhep())==211)
-			      {
-				numPi++;
-			      }
-			    if(fabs((*it2)->idhep())==321)
-			      {
-				numK++;
-			      }
+			    numPi++;
 			  }
-			delete grandDaughters;
-		       
+			if(fabs((*it2)->idhep())==321)
+			  {
+			    numK++;
+			  }
 		      }
+		    delete grandDaughters;
+		       
+		  }
 
-		  }
-		//delete daughters of D*
-		delete daughters;	
-		//don't print eventual decay products of kaons etc...
+	      }
+	    //delete daughters of D*
+	    delete daughters;	
+	    //don't print eventual decay products of kaons etc...
 		
-		if(numK==1 && numPi==2 && numDaughters==2 && numGDaughters==2)
-		  {
-		    //ddecay ==1 is pi/k ,dstardecay 2 is D0/pi
-		    //		    recursivePrint(*gen_it,"");
-		    kinematics::DDecayMC=1;
-		    kinematics::DStarDecayMC=2;
-		    //		    cout <<"found d in mc "<< kinematics::evtNr<<endl;
-		    //		    printD(true);
-		    return true;
-		  }
-		else
-		  {
-		    //start new
-		    numDaughters=0;
-		    numGDaughters=0;
-		    numK=0;
-		    numPi=0;
-		  }
+	    if(numK==1 && numPi==2 && numDaughters==2 && numGDaughters==2)
+	      {
+		//ddecay ==1 is pi/k ,dstardecay 2 is D0/pi
+		//		    recursivePrint(*gen_it,"");
+		kinematics::DDecayMC=1;
+		kinematics::DStarDecayMC=2;
+		//		    cout <<"found d in mc "<< kinematics::evtNr<<endl;
+		//		    printD(true);
+		return true;
+	      }
+	    else
+	      {
+		//start new
+		numDaughters=0;
+		numGDaughters=0;
+		numK=0;
+		numPi=0;
+	      }
 
 	  }
 
@@ -3504,11 +3504,11 @@ namespace Belle {
 	    if((thetaBin>=0 && momBin>=0) && mom >0.5){
 
 
-    if(kinematics::evtNr==DEBUG_EVENT)
-      {
-	cout <<"theta and mom bin in range " <<endl;
-	cout <<"setting prop to : "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] << " for hypo " << hypo <<endl;
-      }
+	      if(kinematics::evtNr==DEBUG_EVENT)
+		{
+		  cout <<"theta and mom bin in range " <<endl;
+		  cout <<"setting prop to : "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] << " for hypo " << hypo <<endl;
+		}
 	    
 	      info->pidProbabilities[hypo]=pidMatrixPositive[momBin][thetaBin][hypo][idAs];
 	      info->pidProbabilities2[hypo]=pidMatrixPositive2[momBin][thetaBin][hypo][idAs];
@@ -3528,12 +3528,12 @@ namespace Belle {
 		  {
 #ifdef noPID
 		  
-		  //even with noPID reject events outside acceptance
-		  info->pidProbabilities[hypo]=0.0;
-		  info->pidProbabilities2[hypo]=0.0;
+		    //even with noPID reject events outside acceptance
+		    info->pidProbabilities[hypo]=0.0;
+		    info->pidProbabilities2[hypo]=0.0;
 #else
-		  info->pidProbabilities[hypo]=0.0;
-		  info->pidProbabilities2[hypo]=0.0;
+		    info->pidProbabilities[hypo]=0.0;
+		    info->pidProbabilities2[hypo]=0.0;
 #endif
 		  }
 		else
@@ -3548,7 +3548,7 @@ namespace Belle {
 	  {
 	    if((thetaBin>=0 && momBin>=0) && mom >0.5)
 	      {
-	      //	      cout <<"pid neg probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
+		//	      cout <<"pid neg probability for hypo " << hypo<< " is: "<< pidMatrixPositive[momBin][thetaBin][hypo][idAs] <<endl;
 		info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	
 		info->pidProbabilities2[hypo]=pidMatrixNegative2[momBin][thetaBin][hypo][idAs];	
 		info->pidUncert[hypo]=pidUncertNegative[momBin][thetaBin][hypo][idAs];
@@ -3556,18 +3556,18 @@ namespace Belle {
 		if(fabs(info->pidProbabilities[hypo])>10000)
 		  return -1;
 	      }
-	   else
+	    else
 	      {
 		if(idAs==hypo)
 		  {
 #ifdef noPID
 
-		  //outside acceptance
-		  info->pidProbabilities[hypo]=0.0;
-		  info->pidProbabilities2[hypo]=0.0;
+		    //outside acceptance
+		    info->pidProbabilities[hypo]=0.0;
+		    info->pidProbabilities2[hypo]=0.0;
 #else
-		  info->pidProbabilities[hypo]=0.0;
-		  info->pidProbabilities2[hypo]=0.0;
+		    info->pidProbabilities[hypo]=0.0;
+		    info->pidProbabilities2[hypo]=0.0;
 #endif
 		  }
 		else
@@ -3614,180 +3614,233 @@ namespace Belle {
   //code from FRancesca
   void  ptSpect::loadPIDMatrix()
   {
-
-
     //   TFile* fpid = new TFile("newpid.root","read");
 
     TFile* fpid = new TFile("~vossen/myProjects/ptSpect/invertedpidmatrices_setb061810I_inv2_realdataalways.root","read");
-
     TFile* fpid2 = new TFile("~vossen/myProjects/ptSpect/invertedpidmatrices_setb061810I_inv1_MConlyatlooseends.root","read");
 
-
-   char matrix_name[300];
-   char uncert_minus_name[300];
-   char uncert_plus_name[300];
-   if (fpid->IsZombie() || fpid2->IsZombie()) {
-     printf("File code.root does not exist.\n");
-     return;
-   }
+    char matrix_name[300];
+    char uncert_minus_name[300];
+    char uncert_plus_name[300];
+    if (fpid->IsZombie() || fpid2->IsZombie()) {
+      printf("File code.root does not exist.\n");
+      return;
+    }
   
-// reading all matrices together, as the code crashes if I try to open the file too many times...
- for (Int_t u = 0; u < pb; u++)
-   for (Int_t v = 0; v < thb; v++)
-     for (Int_t w = 0; w < 2; w++){
-       //w is charge ( 0  negative, 1 positive);
-      sprintf(matrix_name,"invanalyticmatrix_u%d_v%d_w%d",u,v,w); // invanalyticmatrix_u16_v0_w0 does not exists!!! 
-      sprintf(uncert_plus_name,"invuncertrejplmatrix_u%d_v%d_w%d",u,v,w); 
-      sprintf(uncert_minus_name,"invuncertrejmimatrix_u%d_v%d_w%d",u,v,w); 
-                                                                //u16 starts from v3 (invanalyticmatrix_u16_v3_w0)
-                                                                  // corresponds to z > 1 (smearing?) additional uncertainties would be 1-2
-    // up to 9 July 2015! int k= u*8*2+v*2+w; using 8 instead of 9!
-      //    int k= u*thb*2+v*2+w;
-     if(u<16 || v>2 ){
-       //       cout <<" u:  " << u << " v: " << v << " w: " << w <<endl;
-       TMatrixD mat = *(TMatrixD*)fpid->Get(matrix_name);
-       TMatrixD mat2 = *(TMatrixD*)fpid2->Get(matrix_name);
-       TMatrixD matUncertPos = *(TMatrixD*)fpid->Get(uncert_plus_name);
-       TMatrixD matUncertNeg = *(TMatrixD*)fpid->Get(uncert_minus_name);
+    // reading all matrices together, as the code crashes if I try to open the file too many times...
+    for (Int_t u = 0; u < pb; u++)
+      for (Int_t v = 0; v < thb; v++)
+	for (Int_t w = 0; w < 2; w++){
+	  //w is charge ( 0  negative, 1 positive);
+	  sprintf(matrix_name,"invanalyticmatrix_u%d_v%d_w%d",u,v,w); // invanalyticmatrix_u16_v0_w0 does not exists!!! 
+	  sprintf(uncert_plus_name,"invuncertrejplmatrix_u%d_v%d_w%d",u,v,w); 
+	  sprintf(uncert_minus_name,"invuncertrejmimatrix_u%d_v%d_w%d",u,v,w); 
+	  //u16 starts from v3 (invanalyticmatrix_u16_v3_w0)
+	  // corresponds to z > 1 (smearing?) additional uncertainties would be 1-2
+	  // up to 9 July 2015! int k= u*8*2+v*2+w; using 8 instead of 9!
+	  //    int k= u*thb*2+v*2+w;
+	  if(u<16 || v>2 ){
+	    //       cout <<" u:  " << u << " v: " << v << " w: " << w <<endl;
+	    TMatrixD mat = *(TMatrixD*)fpid->Get(matrix_name);
+	    TMatrixD mat2 = *(TMatrixD*)fpid2->Get(matrix_name);
+	    TMatrixD matUncertPos = *(TMatrixD*)fpid->Get(uncert_plus_name);
+	    TMatrixD matUncertNeg = *(TMatrixD*)fpid->Get(uncert_minus_name);
 
-       TMatrixD matUncertPos2 = *(TMatrixD*)fpid2->Get(uncert_plus_name);
-       TMatrixD matUncertNeg2 = *(TMatrixD*)fpid2->Get(uncert_minus_name);
+	    TMatrixD matUncertPos2 = *(TMatrixD*)fpid2->Get(uncert_plus_name);
+	    TMatrixD matUncertNeg2 = *(TMatrixD*)fpid2->Get(uncert_minus_name);
+
+	    for (Int_t i = 0; i <= 4; i++)
+	      for (Int_t j = 0; j <= 4; j++){
+
+		//	   cout <<"mat: " << mat(i,j) <<" mat2: "<< mat2(i,j) <<endl;
+		//	   cout <<"pos uncert: " << matUncertPos(i,j) <<" neg: "<< matUncertNeg(i,j) <<endl;
+		//	   	   cout <<"pos uncert2: " << matUncertPos2(i,j) <<" neg: "<< matUncertNeg2(i,j) <<endl;
+		float symUncert=matUncertPos(i,j);
+		float symUncert2=matUncertPos2(i,j);
+		if(isnan(matUncertPos(i,j)))
+		  {
+		    cout <<" matuncert pos nan"<<endl;
+		    //to force using the neg uncert
+		    symUncert=0;
+		  }
+		if(isnan(matUncertNeg(i,j)))
+		  {
+		    cout <<" matuncert neg nan"<<endl;
+		  }
+		else
+		  {
+		    if(fabs(matUncertNeg(i,j))>symUncert)
+		      symUncert=fabs(matUncertNeg(i,j));
+		  }
+		if(isnan(matUncertNeg2(i,j)))
+		  {
+		    cout <<" matuncert neg2 nan"<<endl;
+		  }
+		else
+		  {
+		    if(fabs(matUncertNeg2(i,j))>symUncert2)
+		      symUncert2=fabs(matUncertNeg2(i,j));
+		  }
+
+		//not sure if that makes sense here since we do the averaging later on again
+		//		if(fabs(symUncert2)<100.0)
+		//		  symUncert=sqrt((symUncert*symUncert+symUncert2*symUncert2))/2;
+		if(isnan(symUncert))
+		  cout<<"resulting uncertainty still nan!!!!!!!!"<<endl<<endl;
 
 
-       for (Int_t i = 0; i <= 4; i++)
-         for (Int_t j = 0; j <= 4; j++){
+		//now we got the symmetric uncertainties
 
-	   //	   cout <<"mat: " << mat(i,j) <<" mat2: "<< mat2(i,j) <<endl;
-	   //	   cout <<"pos uncert: " << matUncertPos(i,j) <<" neg: "<< matUncertNeg(i,j) <<endl;
-	   //	   	   cout <<"pos uncert2: " << matUncertPos2(i,j) <<" neg: "<< matUncertNeg2(i,j) <<endl;
-	   float symUncert=matUncertPos(i,j);
-	   float symUncert2=matUncertPos2(i,j);
-	   if(isnan(matUncertPos(i,j)))
-	     {
-	       cout <<" matuncert pos nan"<<endl;
-	       //to force using the neg uncert
-	       symUncert=0;
-	     }
-	   if(isnan(matUncertNeg(i,j)))
-	     {
-	       cout <<" matuncert neg nan"<<endl;
-	     }
-	   else
-	     {
-	       if(fabs(matUncertNeg(i,j))>symUncert)
-		 symUncert=fabs(matUncertNeg(i,j));
-	     }
-	   if(isnan(matUncertNeg2(i,j)))
-	     {
-	       cout <<" matuncert neg2 nan"<<endl;
-	     }
-	   else
-	     {
-	       if(fabs(matUncertNeg2(i,j))>symUncert2)
-		 symUncert2=fabs(matUncertNeg2(i,j));
-	     }
-	   if(fabs(symUncert2)<100.0)
-	     symUncert=sqrt((symUncert*symUncert+symUncert2*symUncert2))/2;
-	   if(isnan(symUncert))
-	     cout<<"resulting uncertainty still nan!!!!!!!!"<<endl<<endl;
-	   if(w==1)
-	     {
+		//at this point symUncert is the data uncertainty if there is a problem with MC, otherwise the geometric mean
+		//
+
+		if(w==1)
+		  {
 #ifdef noPID
-	       	       if(i==j)
-			 {
-			   pidMatrixPositive[u][v][i][j]=1;
-			   pidMatrixPositive2[u][v][i][j]=1;
-			   pidUncertPositive[u][v][i][j]=0.0;
-			 }
-	       	       else
-			 {
-			   pidMatrixPositive[u][v][i][j]=0;
-			   pidMatrixPositive2[u][v][i][j]=0;
-			   pidUncertPositive[u][v][i][j]=0.0;
-			 }
+		    if(i==j)
+		      {
+			pidMatrixPositive[u][v][i][j]=1;
+			pidMatrixPositive2[u][v][i][j]=1;
+			pidUncertPositive[u][v][i][j]=0.0;
+		      }
+		    else
+		      {
+			pidMatrixPositive[u][v][i][j]=0;
+			pidMatrixPositive2[u][v][i][j]=0;
+			pidUncertPositive[u][v][i][j]=0.0;
+		      }
 #else
-	                    pidMatrixPositive[u][v][i][j]=mat(i,j);
-			    pidMatrixPositive2[u][v][i][j]=mat2(i,j);
-			    //			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
-			    //		    cout <<"loading 2" << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
+		    pidMatrixPositive[u][v][i][j]=mat(i,j);
+		    pidMatrixPositive2[u][v][i][j]=mat2(i,j);
+		    //			    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
+		    //		    cout <<"loading 2" << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" positive " <<endl;
 
-			    if(fabs(pidMatrixPositive2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0)
-			      {
-				pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
-				//the uncert asseignment doesnt' matter, since we use the average between the two anyways
-				symUncert2=symUncert;
-			      }
+		    if(fabs(pidMatrixPositive2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0)
+		      {
+			pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
+			//the uncert asseignment doesnt' matter, since we use the average between the two anyways
+			//			symUncert2=symUncert;
+		      }
 
-			   if(isnan(pidMatrixPositive2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
-			      {
-				pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
-				symUncert2=symUncert;
-			      }
-			   symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
-			   pidUncertPositive[u][v][i][j]=symUncert;
-			   if(isnan(symUncert))
-			     {
-			       cout <<"poblem with pos symUncert!!!" <<endl;
-			     }
+		    if(isnan(pidMatrixPositive2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
+		      {
+			pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
+			symUncert2=symUncert;
+		      }
+		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
+		    pidUncertPositive[u][v][i][j]=symUncert;
+		    if(isnan(symUncert))
+		      {
+			cout <<"poblem with pos symUncert!!!" <<endl;
+		      }
 			   
 
 #endif
-	     //	     cout <<"loading positive "<< i <<", " << j << " "  << mat(i,j) <<endl;
+		    //	     cout <<"loading positive "<< i <<", " << j << " "  << mat(i,j) <<endl;
 
 
 
 
-	     }
-	   else
-	     {
+		  }
+		else
+		  {
 #ifdef noPID
-	       if(i==j)
-		 {
-		 pidMatrixNegative[u][v][i][j]=1;
-		 pidMatrixNegative2[u][v][i][j]=1;
-		 pidUncertNegative[u][v][i][j]=0.0;
-		 }
-	       else
-		 {
-		 pidMatrixNegative[u][v][i][j]=0;
-		 pidMatrixNegative2[u][v][i][j]=0;
-		 pidUncertNegative[u][v][i][j]=0.0;
-		 }
+		    if(i==j)
+		      {
+			pidMatrixNegative[u][v][i][j]=1;
+			pidMatrixNegative2[u][v][i][j]=1;
+			pidUncertNegative[u][v][i][j]=0.0;
+		      }
+		    else
+		      {
+			pidMatrixNegative[u][v][i][j]=0;
+			pidMatrixNegative2[u][v][i][j]=0;
+			pidUncertNegative[u][v][i][j]=0.0;
+		      }
 #else
-	      		    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
-			    cout <<"symUncert: "<< symUncert <<endl;
-		    cout <<"loading 2 " << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
-	       pidMatrixNegative[u][v][i][j]=mat(i,j);
-	       pidMatrixNegative2[u][v][i][j]=mat2(i,j);
-	       if(fabs(pidMatrixNegative2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0) 
-		 {
-		   pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
-		   symUncert2=symUncert;
-		 }
-	       if(isnan(pidMatrixNegative2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
-		 {
-		   pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
-		   symUncert2=symUncert;
-		 }
+		    //		    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
+		    //		    cout <<"symUncert: "<< symUncert <<endl;
+		    //		    cout <<"loading 2 " << mat2(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
+		    pidMatrixNegative[u][v][i][j]=mat(i,j);
+		    pidMatrixNegative2[u][v][i][j]=mat2(i,j);
+		    if(fabs(pidMatrixNegative2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0) 
+		      {
+			pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
+			//			symUncert2=symUncert;
+		      }
+		    if(isnan(pidMatrixNegative2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
+		      {
+			pidMatrixNegative2[u][v][i][j]=pidMatrixNegative[u][v][i][j];
+			symUncert2=symUncert;
+		      }
 
-	       symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
-	       if(isnan(symUncert))
-		 cout <<"poblem with neg symUncert!!!" <<endl;
-	       pidUncertNegative[u][v][i][j]=symUncert;
+		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
+
+		    if(isnan(symUncert))
+		      cout <<"problem with neg symUncert!!!" <<endl;
+		    pidUncertNegative[u][v][i][j]=symUncert;
+
+		  
 #endif
 
+		    //	     cout <<"loading negative " << i << ", " << j << " "  << mat(i,j) <<endl;
 
-			      
 
-	     //	     cout <<"loading negative " << i << ", " << j << " "  << mat(i,j) <<endl;
-	     }
 
-	   //        matrix[k][i][j] = mat(i,j);
-          //if(k==72) cout << i << " " << j <<" " <<  mat(i,j) << endl;
-	 }
-     }
-  }
- fpid->Close();
+
+		  }
+
+		//        matrix[k][i][j] = mat(i,j);
+		//if(k==72) cout << i << " " << j <<" " <<  mat(i,j) << endl;
+	      }
+	  }
+	}
+    fpid->Close();
+    cout << std::fixed;
+    cout <<setprecision(4);
+    for(Int_t w=0;w<2;w++)
+      {
+	if(w==0)
+	  cout <<" negative mc matrix " <<endl;
+	else
+	  cout <<"  positive mc matrix " <<endl;
+	for (Int_t u = 0; u < pb; u++)
+	  {
+
+	    for (Int_t v = 0; v < thb; v++)
+	      {
+		cout <<"momentum bin " << u;
+		cout <<", cosTheta bin " <<v<<endl;
+		for (Int_t i = 0; i <= 4; i++)
+		  {
+		    for (Int_t j = 0; j <= 4; j++)
+		      {
+			if(w==0)
+			  cout <<pidMatrixNegative2[u][v][i][j] <<" ";
+			else
+			  cout <<pidMatrixPositive2[u][v][i][j] <<" ";
+			//			pidUncertNegative[u][v][i][j];
+		      }
+		    cout <<endl;
+		  }
+		cout <<"symmetrized uncertainties (mc/data mean) "<<endl;
+		for (Int_t i = 0; i <= 4; i++)
+		  {
+		    for (Int_t j = 0; j <= 4; j++)
+		      {
+			if(w==0)
+			  cout <<pidUncertNegative[u][v][i][j] <<" ";
+			else
+			  cout <<pidUncertPositive[u][v][i][j] <<" ";
+			//			pidUncertNegative[u][v][i][j];
+		      }
+		    cout <<endl;
+		  }
+
+		cout <<endl;
+	      }
+	  }
+      }
 
   }
 #if defined(BELLE_NAMESPACE)
