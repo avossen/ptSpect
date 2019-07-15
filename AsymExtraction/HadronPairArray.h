@@ -38,6 +38,21 @@ struct HadronPairArray:public ReaderBase
   float p_PK[Max_ArrSize];
   float p_PP[Max_ArrSize];
 
+
+  float p_PiPi1[Max_ArrSize];
+  float p_PiK1[Max_ArrSize];
+
+  float p_PiP1[Max_ArrSize];
+
+  float p_KPi1[Max_ArrSize];
+  float p_KK1[Max_ArrSize];
+  float p_KP1[Max_ArrSize];
+
+  float p_PPi1[Max_ArrSize];
+  float p_PK1[Max_ArrSize];
+  float p_PP1[Max_ArrSize];
+
+
   float p_PiPi2[Max_ArrSize];
   float p_PiK2[Max_ArrSize];
 
@@ -237,6 +252,18 @@ struct HadronPairArray:public ReaderBase
 	    branchPointers.push_back(p_PK);
 	    branchPointers.push_back(p_PP);
 
+	    branchPointers.push_back(p_PiPi1);
+	    branchPointers.push_back(p_PiK1);
+	    branchPointers.push_back(p_PiP1);
+
+	    branchPointers.push_back(p_KPi1);
+	    branchPointers.push_back(p_KK1);
+	    branchPointers.push_back(p_KP1);
+
+	    branchPointers.push_back(p_PPi1);
+	    branchPointers.push_back(p_PK1);
+	    branchPointers.push_back(p_PP1);
+
 	    branchPointers.push_back(p_PiPi2);
 	    branchPointers.push_back(p_PiK2);
 	    branchPointers.push_back(p_PiP2);
@@ -399,6 +426,19 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("p_PK");
 	    branchNames.push_back("p_PP");
 
+	    branchNames.push_back("p_PiPi_1");
+	    branchNames.push_back("p_PiK_1");
+	    branchNames.push_back("p_PiP_1");
+
+	    branchNames.push_back("p_KPi_1");
+	    branchNames.push_back("p_KK_1");
+	    branchNames.push_back("p_KP_1");
+	    
+	    branchNames.push_back("p_PPi_1");
+	    branchNames.push_back("p_PK_1");
+	    branchNames.push_back("p_PP_1");
+
+
 	    branchNames.push_back("p_PiPi_2");
 	    branchNames.push_back("p_PiK_2");
 	    branchNames.push_back("p_PiP_2");
@@ -533,6 +573,8 @@ struct HadronPairArray:public ReaderBase
 
   void afterFill(int evtNr=0, bool print=false)
   {
+    if(print)
+      cout <<"evtNr: " << evtNr<<endl;
     if(evtNr==DEBUG_EVENT)
       {
 	cout <<"we see " <<numPairs<<endl;
@@ -771,6 +813,18 @@ struct HadronPairArray:public ReaderBase
 	    p_PPi[i]=0.0;
 	    p_PK[i]=0.0;
 	    p_PP[i]=0.0;
+
+	    p_PiPi1[i]=0.0;
+	    p_PiK1[i]=0.0;
+	    p_PiP1[i]=0.0;
+	    p_KPi1[i]=0.0;
+	    p_KK1[i]=0.0;
+	    p_KP1[i]=0.0;
+	    p_PPi1[i]=0.0;
+	    p_PK1[i]=0.0;
+	    p_PP1[i]=0.0;
+
+
 	    p_PiPi2[i]=0.0;
 	    p_PiK2[i]=0.0;
 	    p_PiP2[i]=0.0;
@@ -795,6 +849,7 @@ struct HadronPairArray:public ReaderBase
 	      case PiPi:
 		//		cout <<"got pion pair" <<endl;
 		p_PiPi[i]=1.0;
+		p_PiPi1[i]=1.0;
 		p_PiPi2[i]=1.0;
 		kT_PiPi[i]=kT[i];
 		z1_PiPi[i]=z1[i];
@@ -802,6 +857,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PiK:
 		p_PiK[i]=1.0;
+		p_PiK1[i]=1.0;
 		p_PiK2[i]=1.0;
 		kT_PiK[i]=kT[i];
 		z1_PiK[i]=z1[i];
@@ -810,6 +866,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PiP:
 		p_PiP[i]=1.0;
+		p_PiP1[i]=1.0;
 		p_PiP2[i]=1.0;
 		kT_PiP[i]=kT[i];
 		z1_PiP[i]=z1[i];
@@ -819,6 +876,7 @@ struct HadronPairArray:public ReaderBase
 
 	      case KPi:
 		p_KPi[i]=1.0;
+		p_KPi1[i]=1.0;
 		p_KPi2[i]=1.0;
 		kT_KPi[i]=kT[i];
 		z1_KPi[i]=z1[i];
@@ -827,6 +885,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case KK:
 		p_KK[i]=1.0;
+		p_KK1[i]=1.0;
 		p_KK2[i]=1.0;
 		kT_KK[i]=kT[i];
 		z1_KK[i]=z1[i];
@@ -835,6 +894,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case KP:
 		p_KP[i]=1.0;
+		p_KP1[i]=1.0;
 		p_KP2[i]=1.0;
 		kT_KP[i]=kT[i];
 		z1_KP[i]=z1[i];
@@ -843,6 +903,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PPi:
 		p_PPi[i]=1.0;
+		p_PPi1[i]=1.0;
 		p_PPi2[i]=1.0;
 		kT_PPi[i]=kT[i];
 		z1_PPi[i]=z1[i];
@@ -851,6 +912,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PK:
 		p_PK[i]=1.0;
+		p_PK1[i]=1.0;
 		p_PK2[i]=1.0;
 		kT_PK[i]=kT[i];
 		z1_PK[i]=z1[i];
@@ -859,6 +921,7 @@ struct HadronPairArray:public ReaderBase
 		break;
 	      case PP:
 		p_PP[i]=1.0;
+		p_PP1[i]=1.0;
 		p_PP2[i]=1.0;
 		kT_PP[i]=kT[i];
 		z1_PP[i]=z1[i];
@@ -1008,11 +1071,29 @@ struct HadronPairArray:public ReaderBase
 	      }
     if(DEBUG_EVENT==evtNr)
       cout <<"cut? " << cut[i] <<endl;
+
+
+    if(print && cut[i]==0)
+      {
+	if(chargeType[i]==0)
+	  cout << " same-charged pair";
+	else
+	  cout <<" opposite-charged pair";
+
+	cout <<" z1: " << z1[i] <<" z2: " << z2[i] << " kT: " << kT[i];
+	cout <<" (combined/data/mc) probabilities for ";
+	cout << "PiPi: " << p_PiPi[i] <<" / " << p_PiPi1[i] << " / " << p_PiPi2[i];
+	cout <<endl;
+	cout <<" combined sys uncert for ";
+	cout <<" PiPi: " << ep_PiPi[i];
+
+
+
+      }
+
+
       }
     //    cout <<"---------"<<endl;
-
-
-
 
   }
 

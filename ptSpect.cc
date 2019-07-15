@@ -196,6 +196,9 @@ namespace Belle {
     pidMatrixNegative2=new float***[numMomBins];
     pidUncertPositive=new float***[numMomBins];
     pidUncertNegative=new float***[numMomBins];
+    pidUncertPositive2=new float***[numMomBins];
+    pidUncertNegative2=new float***[numMomBins];
+
 
     masses[pionIdx]=0.14;
 
@@ -218,6 +221,9 @@ namespace Belle {
 	pidMatrixNegative2[i]=new float**[numThetaBins];
 	pidUncertPositive[i]=new float**[numThetaBins];
 	pidUncertNegative[i]=new float**[numThetaBins];
+	pidUncertPositive2[i]=new float**[numThetaBins];
+	pidUncertNegative2[i]=new float**[numThetaBins];
+
 
 	for(int j=0;j<numThetaBins;j++)
 	  {
@@ -227,6 +233,9 @@ namespace Belle {
 	    pidMatrixNegative2[i][j]=new float*[numPIDs];
 	    pidUncertPositive[i][j]=new float*[numPIDs];
 	    pidUncertNegative[i][j]=new float*[numPIDs];
+	    pidUncertPositive2[i][j]=new float*[numPIDs];
+	    pidUncertNegative2[i][j]=new float*[numPIDs];
+
 	    for(int k=0;k<numPIDs;k++)
 	      {
 		pidMatrixPositive[i][j][k]=new float[numPIDs];
@@ -235,6 +244,9 @@ namespace Belle {
 		pidMatrixNegative2[i][j][k]=new float[numPIDs];
 		pidUncertPositive[i][j][k]=new float[numPIDs];
 		pidUncertNegative[i][j][k]=new float[numPIDs];
+		pidUncertPositive2[i][j][k]=new float[numPIDs];
+		pidUncertNegative2[i][j][k]=new float[numPIDs];
+
 
 		for(int l=0;l<numPIDs;l++)
 		  {
@@ -368,7 +380,17 @@ namespace Belle {
     pTreeSaver->addArrayF("p_PP");
 
 
-    ///--->the other matrix set from martin
+    ///--->the two matrix set from martin
+    pTreeSaver->addArrayF("p_PiPi_1");
+    pTreeSaver->addArrayF("p_PiK_1");
+    pTreeSaver->addArrayF("p_PiP_1");
+    pTreeSaver->addArrayF("p_KPi_1");
+    pTreeSaver->addArrayF("p_KK_1");
+    pTreeSaver->addArrayF("p_KP_1");
+    pTreeSaver->addArrayF("p_PPi_1");
+    pTreeSaver->addArrayF("p_PK_1");
+    pTreeSaver->addArrayF("p_PP_1");
+
     pTreeSaver->addArrayF("p_PiPi_2");
     pTreeSaver->addArrayF("p_PiK_2");
     pTreeSaver->addArrayF("p_PiP_2");
@@ -3497,6 +3519,7 @@ namespace Belle {
 	info->pidProbabilities[hypo]=0.0;
 	info->pidProbabilities2[hypo]=0.0;
 	info->pidUncert[hypo]=0.0;
+	info->pidUncert2[hypo]=0.0;
 	//	cout <<"momBin: " << momBin <<" thetaBin: "<< thetaBin <<" hypo: " << hypo <<  " idAs: "<< idAs << " charge: "<< info->charge <<endl;
 	if(info->charge > 0)
 	  {
@@ -3513,6 +3536,7 @@ namespace Belle {
 	      info->pidProbabilities[hypo]=pidMatrixPositive[momBin][thetaBin][hypo][idAs];
 	      info->pidProbabilities2[hypo]=pidMatrixPositive2[momBin][thetaBin][hypo][idAs];
 	      info->pidUncert[hypo]=pidUncertPositive[momBin][thetaBin][hypo][idAs];
+	      info->pidUncert2[hypo]=pidUncertPositive2[momBin][thetaBin][hypo][idAs];
 	      //	           cout <<"hypothesis: " << hypo <<" weight: "<< info->pidProbabilities[hypo] <<endl;
 	      if(fabs(info->pidProbabilities[hypo])>10000)
 		{
@@ -3552,6 +3576,7 @@ namespace Belle {
 		info->pidProbabilities[hypo]=pidMatrixNegative[momBin][thetaBin][hypo][idAs];	
 		info->pidProbabilities2[hypo]=pidMatrixNegative2[momBin][thetaBin][hypo][idAs];	
 		info->pidUncert[hypo]=pidUncertNegative[momBin][thetaBin][hypo][idAs];
+		info->pidUncert2[hypo]=pidUncertNegative2[momBin][thetaBin][hypo][idAs];
 		//	      cout <<"hypothesis: " << hypo <<" weight: "<< info->pidProbabilities[hypo] <<endl;    
 		if(fabs(info->pidProbabilities[hypo])>10000)
 		  return -1;
@@ -3603,6 +3628,15 @@ namespace Belle {
 
     info->ep_e=info->pidUncert[electronIdx];
     info->ep_mu=info->pidUncert[muonIdx];
+
+    info->ep_Pi2=info->pidUncert2[pionIdx];
+    info->ep_K2=info->pidUncert2[kaonIdx];
+    info->ep_p2=info->pidUncert2[protonIdx];
+
+
+    info->ep_e2=info->pidUncert2[electronIdx];
+    info->ep_mu2=info->pidUncert2[muonIdx];
+
 
 
 
@@ -3702,12 +3736,14 @@ namespace Belle {
 			pidMatrixPositive[u][v][i][j]=1;
 			pidMatrixPositive2[u][v][i][j]=1;
 			pidUncertPositive[u][v][i][j]=0.0;
+			pidUncertPositive2[u][v][i][j]=0.0;
 		      }
 		    else
 		      {
 			pidMatrixPositive[u][v][i][j]=0;
 			pidMatrixPositive2[u][v][i][j]=0;
 			pidUncertPositive[u][v][i][j]=0.0;
+			pidUncertPositive2[u][v][i][j]=0.0;
 		      }
 #else
 		    pidMatrixPositive[u][v][i][j]=mat(i,j);
@@ -3717,6 +3753,7 @@ namespace Belle {
 
 		    if(fabs(pidMatrixPositive2[u][v][i][j])>100.0 || fabs(symUncert2)>100.0)
 		      {
+			symUncert2=symUncert;
 			pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
 			//the uncert asseignment doesnt' matter, since we use the average between the two anyways
 			//			symUncert2=symUncert;
@@ -3727,13 +3764,17 @@ namespace Belle {
 			pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
 			symUncert2=symUncert;
 		      }
-		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
+		    //		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
 		    pidUncertPositive[u][v][i][j]=symUncert;
+		    pidUncertPositive2[u][v][i][j]=symUncert2;
 		    if(isnan(symUncert))
 		      {
 			cout <<"poblem with pos symUncert!!!" <<endl;
 		      }
-			   
+		    if(symUncert>100.0)
+		      {
+			cout <<" uncert > 100 " <<endl;
+		      }	   
 
 #endif
 		    //	     cout <<"loading positive "<< i <<", " << j << " "  << mat(i,j) <<endl;
@@ -3750,12 +3791,14 @@ namespace Belle {
 			pidMatrixNegative[u][v][i][j]=1;
 			pidMatrixNegative2[u][v][i][j]=1;
 			pidUncertNegative[u][v][i][j]=0.0;
+			pidUncertNegative2[u][v][i][j]=0.0;
 		      }
 		    else
 		      {
 			pidMatrixNegative[u][v][i][j]=0;
 			pidMatrixNegative2[u][v][i][j]=0;
 			pidUncertNegative[u][v][i][j]=0.0;
+			pidUncertNegative2[u][v][i][j]=0.0;
 		      }
 #else
 		    //		    cout <<"loading " << mat(i,j) << " for u: "<< u <<" v: " << v << ", i : "<< i << " j: " << j <<" negative " <<endl;
@@ -3774,11 +3817,12 @@ namespace Belle {
 			symUncert2=symUncert;
 		      }
 
-		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
+		    //		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;
 
 		    if(isnan(symUncert))
 		      cout <<"problem with neg symUncert!!!" <<endl;
 		    pidUncertNegative[u][v][i][j]=symUncert;
+		    pidUncertNegative2[u][v][i][j]=symUncert2;
 
 		  
 #endif
@@ -3800,10 +3844,6 @@ namespace Belle {
     cout <<setprecision(4);
     for(Int_t w=0;w<2;w++)
       {
-	if(w==0)
-	  cout <<" negative mc matrix " <<endl;
-	else
-	  cout <<"  positive mc matrix " <<endl;
 	for (Int_t u = 0; u < pb; u++)
 	  {
 
@@ -3816,22 +3856,22 @@ namespace Belle {
 		    for (Int_t j = 0; j <= 4; j++)
 		      {
 			if(w==0)
-			  cout <<pidMatrixNegative2[u][v][i][j] <<" ";
+			  cout <<"data: " << pidMatrixNegative[u][v][i][j] <<" mc: " << pidMatrixNegative2[u][v][i][j] <<" ";
 			else
-			  cout <<pidMatrixPositive2[u][v][i][j] <<" ";
+			  cout <<"data: " <<pidMatrixPositive[u][v][i][j]<< " mc: "<< pidMatrixPositive2[u][v][i][j] <<" ";
 			//			pidUncertNegative[u][v][i][j];
 		      }
 		    cout <<endl;
 		  }
-		cout <<"symmetrized uncertainties (mc/data mean) "<<endl;
+		cout <<"symmetrized uncertainties  "<<endl;
 		for (Int_t i = 0; i <= 4; i++)
 		  {
 		    for (Int_t j = 0; j <= 4; j++)
 		      {
 			if(w==0)
-			  cout <<pidUncertNegative[u][v][i][j] <<" ";
+			  cout <<"data: " << pidUncertNegative[u][v][i][j] <<" mc: "<< pidUncertNegative2[u][v][i][j]<< " " ;
 			else
-			  cout <<pidUncertPositive[u][v][i][j] <<" ";
+			  cout <<"data: " << pidUncertPositive[u][v][i][j] <<" mc: "<< pidUncertPositive2[u][v][i][j]<<" ";
 			//			pidUncertNegative[u][v][i][j];
 		      }
 		    cout <<endl;

@@ -287,7 +287,8 @@ int main(int argc, char** argv)
 
 
       //      cout <<"reconstructed pair: " <<endl;
-      hadPair.afterFill(myEvent.evtNr,false);
+      
+      hadPair.afterFill(myEvent.evtNr,true);
       //           cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	{

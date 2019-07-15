@@ -473,9 +473,21 @@ public:
 	      dataF.push_back(pair->p_PK);	  
 	      dataF.push_back(pair->p_PP);
 
+	      dataF.push_back(pair->p_PiPi1);
+	      dataF.push_back(pair->p_PiK1);	  
+	      dataF.push_back(pair->p_PiP1);
+
+
+	      dataF.push_back(pair->p_KPi1);
+	      dataF.push_back(pair->p_KK1);	  
+	      dataF.push_back(pair->p_KP1);
+	      
+	      
+	      dataF.push_back(pair->p_PPi1);
+	      dataF.push_back(pair->p_PK2);	  
+	      dataF.push_back(pair->p_PP1);
 
 	      dataF.push_back(pair->p_PiPi2);
-	      //	      cout <<"saving p_pipi2: "<< pair->p_PiPi2 <<endl;
 	      dataF.push_back(pair->p_PiK2);	  
 	      dataF.push_back(pair->p_PiP2);
 
@@ -488,6 +500,8 @@ public:
 	      dataF.push_back(pair->p_PPi2);
 	      dataF.push_back(pair->p_PK2);	  
 	      dataF.push_back(pair->p_PP2);
+
+
 
 
 	      dataF.push_back(pair->ep_PiPi);

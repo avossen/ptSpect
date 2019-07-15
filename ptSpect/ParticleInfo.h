@@ -21,6 +21,7 @@ class ParticleInfo:public ParticleUserInfo
   float pidProbabilities[5];
   float pidProbabilities2[5];
   float pidUncert[5];
+  float pidUncert2[5];
   float p_Pi;
   float p_K;
   float p_p;
@@ -38,6 +39,12 @@ class ParticleInfo:public ParticleUserInfo
   float ep_p;
   float ep_e;
   float ep_mu;
+
+  float ep_Pi2;
+  float ep_K2;
+  float ep_p2;
+  float ep_e2;
+  float ep_mu2;
 
 
 

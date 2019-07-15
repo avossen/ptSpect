@@ -54,6 +54,20 @@ class HadronPair
   float p_PK;
   float p_PP;
 
+  float p_PiPi1;
+  float p_PiK1;
+  float p_PiP1;
+
+  float p_KPi1;
+  float p_KK1;
+  float p_KP1;
+
+  float p_PPi1;
+  float p_PK1;
+  float p_PP1;
+
+
+
   float p_PiPi2;
   float p_PiK2;
   float p_PiP2;
@@ -167,13 +181,21 @@ class HadronPair
 
   }
 
-  float getProductUncert(float p1, float ep1,float p2, float ep2)
+  //product of the probabilities
+  //the later index gives the particle number
+  float getPProduct(float p1_1, float p1_2, float p2_1, float p2_2)
+  {
+    return (p1_1+p2_1)/2.0 * (p1_2*p2_2)/2.0;
+  }
+  //first 4 parameters refer to first prob (data?)
+  float getProductUncert(float p1, float ep1,float p2, float ep2, float p2_1, float ep2_1, float p2_2, float ep2_2)
   {
     if(p2==0 || p1==0)
       {
 	return 0.0;
       }
-    return sqrt((ep1*ep1)/(p1*p1)+(ep2*ep2)/(p2*p2))*(p1*p2);
+    //    return sqrt((ep1*ep1)/(p1*p1)+(ep2*ep2)/(p2*p2))*(p1*p2);
+    return 0.5*( (p2+p2_2)*(p2+p2_2)*(ep1*ep1+ep2_1*ep2_1)+(p1+p2_1)*(p1+p2_1)*(ep2*ep2+ep2_2*ep2_2));   
 
   }
 
@@ -239,91 +261,110 @@ class HadronPair
       }
     //sub optimal, since the weights are not in arrays one can iterate over...
     p_PiPi=0.0;
+    p_PiPi1=0.0;
     p_PiPi2=0.0;
     ep_PiPi=0.0;
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[pionIdx])<0))
       {
-	p_PiPi=pinf1.p_Pi*pinf2.p_Pi;
+	p_PiPi=getPProduct(pinf1.p_Pi,pinf2.p_Pi,pinf1.p_Pi2,pinf2.p_Pi2);
+	p_PiPi1=pinf1.p_Pi*pinf2.p_Pi;
 	p_PiPi2=pinf1.p_Pi2*pinf2.p_Pi2;
+
 	//	cout <<" looking at pion p: " << pinf1.p_Pi <<" and " << pinf2.p_Pi<<", alt: "<< pinf1.p_Pi2<<" and " <<pinf2.p_Pi2 <<" comb p: " << p_PiPi <<" and " << p_PiPi2<<endl;
-	ep_PiPi=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_Pi,pinf2.ep_Pi);
+	ep_PiPi=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_Pi,pinf2.ep_Pi, pinf1.p_Pi2,pinf1.ep_Pi2,pinf2.p_Pi2,pinf2.ep_Pi2);
       }
 
     p_PiK=0.0;
+    p_PiK1=0.0;
     p_PiK2=0.0;
     ep_PiK=0.0;
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
       {
-	p_PiK=pinf1.p_Pi*pinf2.p_K;
+	p_PiK=getPProduct(pinf1.p_Pi,pinf2.p_K,pinf1.p_Pi2,pinf2.p_K2);
+	p_PiK1=pinf1.p_Pi*pinf2.p_K;
 	p_PiK2=pinf1.p_Pi2*pinf2.p_K2;
-	ep_PiK=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_K,pinf2.ep_K);
+	ep_PiK=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_K,pinf2.ep_K,pinf1.p_Pi2,pinf1.ep_Pi2,pinf2.p_K2,pinf2.ep_K2);
       }
     p_PiP=0.0;
+    p_PiP1=0.0;
     p_PiP2=0.0;
     ep_PiP=0.0;
     if(thrustMethod || (pinf1.boostedMoms[pionIdx].dot(pinf2.boostedMoms[protonIdx])<0))
       {
-	p_PiP=pinf1.p_Pi*pinf2.p_p;
+	p_PiP=getPProduct(pinf1.p_Pi,pinf2.p_p,pinf1.p_Pi2,pinf2.p_p2);
+	p_PiP1=pinf1.p_Pi*pinf2.p_p;
 	p_PiP2=pinf1.p_Pi2*pinf2.p_p2;
-	ep_PiP=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_p,pinf2.ep_p);
+	ep_PiP=getProductUncert(pinf1.p_Pi,pinf1.ep_Pi,pinf2.p_p,pinf2.ep_p,pinf1.p_Pi2,pinf1.ep_Pi2,pinf2.p_p2,pinf2.ep_p2);
       }
 
     p_KPi=0.0;
+    p_KPi1=0.0;
     p_KPi2=0.0;
     ep_KPi=0.0;
     if(thrustMethod || (pinf1.boostedMoms[kaonIdx].dot(pinf2.boostedMoms[pionIdx])<0))
       {
-      p_KPi=pinf1.p_K*pinf2.p_Pi;
-      p_KPi2=pinf1.p_K2*pinf2.p_Pi2;
-      ep_KPi=getProductUncert(pinf1.p_K,pinf1.ep_K,pinf2.p_Pi,pinf2.ep_Pi);
+	p_KPi=getPProduct(pinf1.p_K,pinf2.p_Pi,pinf1.p_K2,pinf2.p_Pi2);
+	p_KPi1=pinf1.p_K*pinf2.p_Pi;
+	p_KPi2=pinf1.p_K2*pinf2.p_Pi2;
+      ep_KPi=getProductUncert(pinf1.p_K,pinf1.ep_K,pinf2.p_Pi,pinf2.ep_Pi,pinf1.p_K2,pinf1.ep_K2,pinf2.p_Pi2,pinf2.ep_Pi2);
 
 
       }
     p_KK=0.0;
+    p_KK1=0.0;
     p_KK2=0.0;
     ep_KP=0.0;
     if(thrustMethod || (pinf1.boostedMoms[kaonIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
       {
-	p_KK=pinf1.p_K*pinf2.p_K;
+	p_KK=getPProduct(pinf1.p_K,pinf2.p_K,pinf1.p_K2,pinf2.p_K2);
+	p_KK1=pinf1.p_K*pinf2.p_K;
 	p_KK2=pinf1.p_K2*pinf2.p_K2;
-	ep_KK=getProductUncert(pinf1.p_K,pinf1.ep_K,pinf2.p_K,pinf2.ep_K);
+	ep_KK=getProductUncert(pinf1.p_K,pinf1.ep_K,pinf2.p_K,pinf2.ep_K,pinf1.p_K2,pinf1.ep_K2,pinf2.p_K2,pinf2.ep_K2);
       }
     p_KP=0.0;
+    p_KP1=0.0;
     p_KP2=0.0;
     ep_KP=0.0;
     if(thrustMethod || (pinf1.boostedMoms[kaonIdx].dot(pinf2.boostedMoms[protonIdx])<0))
       {
-	p_KP=pinf1.p_K*pinf2.p_p;
+	p_KP=getPProduct(pinf1.p_K,pinf2.p_p,pinf1.p_K2,pinf2.p_p2);
+	p_KP1=pinf1.p_K*pinf2.p_p;
 	p_KP2=pinf1.p_K2*pinf2.p_p2;
-	ep_KP=getProductUncert(pinf1.p_K,pinf1.ep_K,pinf2.p_p,pinf2.ep_p);
+	ep_KP=getProductUncert(pinf1.p_K,pinf1.ep_K,pinf2.p_p,pinf2.ep_p,pinf1.p_K2,pinf1.ep_K2,pinf2.p_p2,pinf2.ep_p2);
       }
 
     p_PPi=0.0;
+    p_PPi1=0.0;
     p_PPi2=0.0;
     ep_PPi=0.0;
     if(thrustMethod || (pinf1.boostedMoms[protonIdx].dot(pinf2.boostedMoms[pionIdx])<0))
       {
-      p_PPi=pinf1.p_p*pinf2.p_Pi;
-      p_PPi2=pinf1.p_p2*pinf2.p_Pi2;
-      ep_PPi=getProductUncert(pinf1.p_p,pinf1.ep_p,pinf2.p_Pi,pinf2.ep_Pi);
+	p_PPi=getPProduct(pinf1.p_p,pinf2.p_Pi,pinf1.p_p2,pinf2.p_Pi2);
+	  p_PPi1=pinf1.p_p*pinf2.p_Pi;
+	  p_PPi2=pinf1.p_p2*pinf2.p_Pi2;
+	ep_PPi=getProductUncert(pinf1.p_p,pinf1.ep_p,pinf2.p_Pi,pinf2.ep_Pi,pinf1.p_p2,pinf1.ep_p2,pinf2.p_Pi2,pinf2.ep_Pi2);
       }
     p_PK=0.0;
+    p_PK1=0.0;
     p_PK2=0.0;
     ep_PK=0.0;
     if(thrustMethod || (pinf1.boostedMoms[protonIdx].dot(pinf2.boostedMoms[kaonIdx])<0))
       {
-      p_PK=pinf1.p_p*pinf2.p_K;
-      p_PK2=pinf1.p_p2*pinf2.p_K2;
-      ep_PK=getProductUncert(pinf1.p_p,pinf1.ep_p,pinf2.p_K,pinf2.ep_K);
+	p_PK=getPProduct(pinf1.p_p,pinf2.p_K,pinf1.p_p2,pinf2.p_K2);
+	p_PK1=pinf1.p_p*pinf2.p_K;
+	p_PK2=pinf1.p_p2*pinf2.p_K2;
+	ep_PK=getProductUncert(pinf1.p_p,pinf1.ep_p,pinf2.p_K,pinf2.ep_K,pinf1.p_p2,pinf1.ep_p2,pinf2.p_K2,pinf2.ep_K2);
       }
     p_PP=0.0;
+    p_PP1=0.0;
     p_PP2=0.0;
     ep_PP=0.0;
     if(thrustMethod || (pinf1.boostedMoms[protonIdx].dot(pinf2.boostedMoms[protonIdx])<0))
       {
-	p_PP=pinf1.p_p*pinf2.p_p;
+	p_PP=getPProduct(pinf1.p_p,pinf2.p_p,pinf1.p_p2,pinf2.p_p2);
+	p_PP1=pinf1.p_p*pinf2.p_p;
 	p_PP2=pinf1.p_p2*pinf2.p_p2;
-	ep_PP=getProductUncert(pinf1.p_p,pinf1.ep_p,pinf2.p_K,pinf2.ep_K);
+	ep_PP=getProductUncert(pinf1.p_p,pinf1.ep_p,pinf2.p_p,pinf2.ep_p,pinf1.p_p2,pinf1.ep_p2,pinf2.p_p2,pinf2.ep_p2);
       }
 
     //vector<int> v={pionIdx,kaonIdx,protonIdx};
