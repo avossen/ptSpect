@@ -3841,7 +3841,7 @@ namespace Belle {
 	}
     fpid->Close();
     cout << std::fixed;
-    cout <<setprecision(4);
+    cout << setprecision(4);
     for(Int_t w=0;w<2;w++)
       {
 	for (Int_t u = 0; u < pb; u++)

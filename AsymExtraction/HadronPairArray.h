@@ -2,6 +2,9 @@
 
 #ifndef HADRON_PAIR_ARRAY_H
 #define HADRON_PAIR_ARRAY_H
+
+#include <iomanip>
+
 #include "ReaderBase.h"
 #include "TMath.h"
 //#define USE_QT
@@ -1055,8 +1058,8 @@ struct HadronPairArray:public ReaderBase
 	    //		    	       cout <<" z1: "<< z1[i] <<" z2: " << z2[i];
 	    //	    	    cout <<endl;
 
-	    			cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
-	    	cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
+	    //	    			cout <<"prop pipi: " << p_PiPi[i] << " piK: "<< p_PiK[i] <<" piP: "<< p_PiP[i] << " p_KPi: "<< p_KPi[i] <<" KK: " << p_KK[i] << " KP: ";
+	    //	    	cout << p_KP[i]<<endl<< " PPi: " << p_PPi[i] << " PK " << p_PK[i] <<" PP: " << p_PP[i]<<endl;
 
 	  }
 	if(p_PiPi[i]>0.5 && z1[i] < 0.1 && z2[i] < 0.1 && chargeType[i]==0)
@@ -1075,6 +1078,8 @@ struct HadronPairArray:public ReaderBase
 
     if(print && cut[i]==0)
       {
+	cout << std::fixed;
+	cout <<setprecision(4);
 	if(chargeType[i]==0)
 	  cout << " same-charged pair";
 	else
@@ -1083,12 +1088,33 @@ struct HadronPairArray:public ReaderBase
 	cout <<" z1: " << z1[i] <<" z2: " << z2[i] << " kT: " << kT[i];
 	cout <<" (combined/data/mc) probabilities for ";
 	cout << "PiPi: " << p_PiPi[i] <<" / " << p_PiPi1[i] << " / " << p_PiPi2[i];
+	cout << "PiK: " << p_PiK[i] <<" / " << p_PiK[i] << " / " << p_PiK2[i];
+	cout << "PiP: " << p_PiP[i] <<" / " << p_PiP1[i] << " / " << p_PiP2[i];
+
+	cout << "KPi: " << p_KPi[i] <<" / " << p_KPi1[i] << " / " << p_KPi2[i];
+	cout << "KK: " << p_KK[i] <<" / " << p_KK[i] << " / " << p_KK2[i];
+	cout << "KP: " << p_KP[i] <<" / " << p_KP1[i] << " / " << p_KP2[i];
+
+	cout << "PPi: " << p_PPi[i] <<" / " << p_PPi1[i] << " / " << p_PPi2[i];
+	cout << "PK: " << p_PK[i] <<" / " << p_PK[i] << " / " << p_PK2[i];
+	cout << "PP: " << p_PP[i] <<" / " << p_PP1[i] << " / " << p_PP2[i];
+
+
 	cout <<endl;
 	cout <<" combined sys uncert for ";
 	cout <<" PiPi: " << ep_PiPi[i];
+	cout <<" PiK: " << ep_PiK[i];
+	cout <<" PiP: " << ep_PiP[i];
 
+	cout <<" KPi: " << ep_KPi[i];
+	cout <<" KK: " << ep_KK[i];
+	cout <<" KP: " << ep_KP[i];
 
+	cout <<" PPi: " << ep_PPi[i];
+	cout <<" PK: " << ep_PK[i];
+	cout <<" PP: " << ep_PP[i];
 
+	cout <<endl;
       }
 
 
