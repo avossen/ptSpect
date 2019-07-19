@@ -288,7 +288,7 @@ int main(int argc, char** argv)
 
       //      cout <<"reconstructed pair: " <<endl;
       
-      hadPair.afterFill(myEvent.evtNr,true);
+      hadPair.afterFill(myEvent.evtNr,false);
       //           cout <<"mc after fill " <<endl;
       if(isMC!=mcFlagNone)
 	{
@@ -304,7 +304,7 @@ int main(int argc, char** argv)
 	  z2.Fill(hadPair.z2[i]);
 	}
 
-      plotter.addHadPairArray(&hadPair, myEvent);
+      plotter.addHadPairArray(&hadPair, myEvent,true);
       if(isMC!=mcFlagNone)
 	{
 

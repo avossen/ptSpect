@@ -173,6 +173,14 @@ struct HadronPairArray:public ReaderBase
 
   bool flip[Max_ArrSize];
   bool flip_PiPi[Max_ArrSize];
+  bool flip_PiK[Max_ArrSize];
+  bool flip_PiP[Max_ArrSize];
+  bool flip_KPi[Max_ArrSize];
+  bool flip_KK[Max_ArrSize];
+  bool flip_KP[Max_ArrSize];
+  bool flip_PPi[Max_ArrSize];
+  bool flip_PK[Max_ArrSize];
+  bool flip_PP[Max_ArrSize];
   float kT[Max_ArrSize];
   float dp[Max_ArrSize];
   float qT[Max_ArrSize];
@@ -646,9 +654,20 @@ struct HadronPairArray:public ReaderBase
 
 	//	cout <<"looking at p_pipi: "<< p_PiPi[i] << " and " << p_PiPi2[i]<<" e: "<< ep_PiPi[i]<<endl;
 
-	//for the benefit of the xcheck, debug
+	//for the benefit of the xcheck, debug..
 	    flip[i]=false;
 	    flip_PiPi[i]=false;
+	    flip_PiK[i]=false;
+	    flip_PiP[i]=false;
+
+	    flip_KPi[i]=false;
+	    flip_KK[i]=false;
+	    flip_KP[i]=false;
+
+
+	    flip_PPi[i]=false;
+	    flip_PK[i]=false;
+	    flip_PP[i]=false;
 	if((z1[i]< z2[i] && zOrdered) || (followFlip && relatedHP->flip[i]) )
 	  {
 	    float tmp=z2[i];
@@ -664,6 +683,46 @@ struct HadronPairArray:public ReaderBase
 	    z1_PiPi[i]=tmp;
 	    flip_PiPi[i]=true;
 	  }
+	if((z1_PiK[i]< z2_PiK[i] && zOrdered) || (followFlip && relatedHP->flip_PiK[i])) 
+	  {
+	    flip_PiK[i]=true;
+	  }
+	if((z1_PiP[i]< z2_PiP[i] && zOrdered) || (followFlip && relatedHP->flip_PiP[i])) 
+	  {
+	    flip_PiP[i]=true;
+	  }
+
+	if((z1_KPi[i]< z2_KPi[i] && zOrdered) || (followFlip && relatedHP->flip_KPi[i])) 
+	  {
+	    flip_KPi[i]=true;
+	  }
+	if((z1_KK[i]< z2_KK[i] && zOrdered) || (followFlip && relatedHP->flip_KK[i])) 
+	  {
+	    flip_KK[i]=true;
+	  }
+	if((z1_KP[i]< z2_KP[i] && zOrdered) || (followFlip && relatedHP->flip_KP[i])) 
+	  {
+	    flip_KP[i]=true;
+	  }
+
+
+	if((z1_PPi[i]< z2_PPi[i] && zOrdered) || (followFlip && relatedHP->flip_PPi[i])) 
+	  {
+	    flip_PPi[i]=true;
+	  }
+	if((z1_PK[i]< z2_PK[i] && zOrdered) || (followFlip && relatedHP->flip_PK[i])) 
+	  {
+	    flip_PK[i]=true;
+	  }
+	if((z1_PP[i]< z2_PP[i] && zOrdered) || (followFlip && relatedHP->flip_PP[i])) 
+	  {
+	    flip_PP[i]=true;
+	  }
+
+
+
+
+
 
 	//    cout <<" kt PiPi: "<< kT_PiPi[i] <<endl;
 	//    cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;

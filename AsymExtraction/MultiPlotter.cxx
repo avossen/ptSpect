@@ -1671,6 +1671,17 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       //      int chargeBin1=hp->chargeType1[i];
       //      int chargeBin2=hp->chargeType2[i];
       int chargeBin=hp->chargeType[i];
+      if(print)
+	{
+	  cout << std::fixed;
+	  cout <<setprecision(8);
+	  cout <<endl;
+	  cout <<"event nr: " << event.evtNr <<endl;
+	  if(hp->chargeType[i]==0)
+	    cout << " same-charged pair";
+	  else
+	    cout <<" opposite-charged pair";
+	}
       for(int p =PiPi;p<UNKNOWN;p++)
 	{
 
@@ -1820,7 +1831,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  weight1=hp->p_PP[i];
 	  weight2=hp->p_PP2[i];
 	  weight=(weight1+weight2)/2;
-	  sys=hp->ep_PP[i];
+ 	  sys=hp->ep_PP[i];
 
 	  break;
 
@@ -1837,6 +1848,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  cout <<"done with default " << endl;
 	}
+
+
+
+
 
       this->qT=hp->qT[i];
 
@@ -1860,15 +1875,147 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       labThetaBin2=getBin(binningLabTheta,hp->labTheta2[i]);
       //      cout <<"getting mass: " << hq->hp1.mass[i] <<endl;
 	  
+
+
+    if(print)
+      {
+	switch(p)
+	  {
+
+	  case PiPi:
+	    if(hp->flip_PiPi[i])
+	      cout <<" z1: " << hp->z2_PiPi[i] <<" z2: " << hp->z1_PiPi[i] << " kT: " << hp->kT_PiPi[i];
+	    else
+	      cout <<" z1: " << hp->z1_PiPi[i] <<" z2: " << hp->z2_PiPi[i] << " kT: " << hp->kT_PiPi[i]<<endl;;
+	    cout <<" (combined/data/mc) probabilities for ";
+	    cout << "PiPi: " << hp->p_PiPi[i] <<" / " << hp->p_PiPi1[i] << " / " << hp->p_PiPi2[i];
+	    break;
+	  case PiK:
+	    //check if the assignment is flipped that would produce this
+	    if(hp->flip_KPi[i])
+	      cout << "PiK: " << hp->p_KPi[i] <<" / " << hp->p_KPi[i] << " / " << hp->p_KPi2[i];
+	    else
+	      cout << "PiK: " << hp->p_PiK[i] <<" / " << hp->p_PiK[i] << " / " << hp->p_PiK2[i];
+	    break;
+
+
+	  case PiP:
+	    if(hp->flip_PPi[i])
+	      cout << "PiP: " << hp->p_PPi[i] <<" / " << hp->p_PPi1[i] << " / " << hp->p_PPi2[i];
+	    else
+	      cout << "PiP: " << hp->p_PiP[i] <<" / " << hp->p_PiP1[i] << " / " << hp->p_PiP2[i];
+	    break;
+
+	  case KPi:
+	    if(hp->flip_PiK[i])
+	      cout << "KPi: " << hp->p_PiK[i] <<" / " << hp->p_PiK1[i] << " / " << hp->p_PiK2[i];
+	    else
+	      cout << "KPi: " << hp->p_KPi[i] <<" / " << hp->p_KPi1[i] << " / " << hp->p_KPi2[i];
+	    break;
+
+	  case KK:
+	    cout << "KK: " << hp->p_KK[i] <<" / " << hp->p_KK[i] << " / " << hp->p_KK2[i];
+	    break;
+
+	  case KP:
+	    cout <<"dp: "<<hp->dp_KP[i] <<" dp PK: " << hp->dp_PK[i]<<endl;
+	    if(hp->flip_PK[i])
+	      cout << "KP (flipped): " << hp->p_PK[i] <<" / " << hp->p_PK1[i] << " / " << hp->p_PK2[i];
+	    else
+	      cout << "KP: " << hp->p_KP[i] <<" / " << hp->p_KP1[i] << " / " << hp->p_KP2[i];
+	    break;
+
+	  case PPi:
+	    if(hp->flip_PiP[i])
+	      cout << "PPi: " << hp->p_PiP[i] <<" / " << hp->p_PiP1[i] << " / " << hp->p_PiP2[i];
+	    else
+	      cout << "PPi: " << hp->p_PPi[i] <<" / " << hp->p_PPi1[i] << " / " << hp->p_PPi2[i];
+	    break;
+
+	  case PK:
+	    if(hp->flip_KP[i])
+	      cout << "PK: " << hp->p_KP[i] <<" / " << hp->p_KP[i] << " / " << hp->p_KP2[i];
+	    else
+	      cout << "PK: " << hp->p_PK[i] <<" / " << hp->p_PK[i] << " / " << hp->p_PK2[i];
+	    
+	    break;
+
+
+	  case PP:
+	    cout << "PP: " << hp->p_PP[i] <<" / " << hp->p_PP1[i] << " / " << hp->p_PP2[i];
+	    break;
+	  }
+
+	cout <<endl;
+	cout <<" combined sys uncert for ";
+	switch(p)
+	  {
+	  case PiPi:
+	    cout <<" PiPi: " << hp->ep_PiPi[i];
+	    break;
+	  case PiK:
+	    if(hp->flip_KPi[i])
+	      cout <<" PiK: " << hp->ep_KPi[i];
+	    else
+	      cout <<" PiK: " << hp->ep_PiK[i];
+	    break;
+
+	  case PiP:
+	    if(hp->flip_PPi[i])
+	      cout <<" PiP: " << hp->ep_PPi[i];
+	    else
+	      cout <<" PiP: " << hp->ep_PiP[i];
+	    break;
+
+	  case KPi:
+	    if(hp->flip_PiK[i])
+	      cout <<" KPi: " << hp->ep_PiK[i];
+	    else
+	      cout <<" KPi: " << hp->ep_KPi[i];
+	    break;
+
+	  case KK:
+	    cout <<" KK: " << hp->ep_KK[i];
+	    break;
+
+	  case KP:
+	    if(hp->flip_PK[i])
+	      cout <<" KP: " << hp->ep_PK[i];
+	    else
+	      cout <<" KP: " << hp->ep_KP[i];
+	    break;
+
+	  case PPi:
+	    if(hp->flip_PiP[i])
+	      cout <<" PPi: " << hp->ep_PiP[i];
+	    else
+	      cout <<" PPi: " << hp->ep_PPi[i];
+	    break;
+
+	  case PK:
+	    if(hp->flip_KP[i])
+	      cout <<" PK: " << hp->ep_KP[i];
+	    else
+	      cout <<" PK: " << hp->ep_PK[i];
+	    break;
+
+	  case PP:
+	    cout <<" PP: " << hp->ep_PP[i];
+	  }
+
+	cout <<endl;
+      }
+
+
 	  if(print)
 	    {
 	      if(hp->particleType[i]==PiPi && p==PiPi)
 		{
-		  cout <<" found pipi, z1 pipi: " << hp->z1_PiPi[i]<<" z2: "<< hp->z2_PiPi[i];
-		  cout <<" kt pipi: " << hp->kT_PiPi[i] <<" weight: " << hp->p_PiPi[i] <<endl;
-		  cout <<"hadron pType: " << hp->particleType[i];
-		  cout <<" z1: " << hp->z1[i] <<", z2: " <<hp->z2[i];
-		  cout <<" kt: "<< hp->kT[i]<<endl;
+		  //		  cout <<" found pipi, z1 pipi: " << hp->z1_PiPi[i]<<" z2: "<< hp->z2_PiPi[i];
+		  //		  cout <<" kt pipi: " << hp->kT_PiPi[i] <<" weight: " << hp->p_PiPi[i] <<endl;
+		  //		  cout <<"hadron pType: " << hp->particleType[i];
+		  //		  cout <<" z1: " << hp->z1[i] <<", z2: " <<hp->z2[i];
+		  //		  cout <<" kt: "<< hp->kT[i]<<endl;
 		  
 
 		  }

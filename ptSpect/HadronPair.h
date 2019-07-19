@@ -185,7 +185,7 @@ class HadronPair
   //the later index gives the particle number
   float getPProduct(float p1_1, float p1_2, float p2_1, float p2_2)
   {
-    return (p1_1+p2_1)/2.0 * (p1_2*p2_2)/2.0;
+    return (p1_1+p2_1)/2.0 * (p1_2+p2_2)/2.0;
   }
   //first 4 parameters refer to first prob (data?)
   float getProductUncert(float p1, float ep1,float p2, float ep2, float p2_1, float ep2_1, float p2_2, float ep2_2)
