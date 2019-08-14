@@ -304,7 +304,7 @@ int main(int argc, char** argv)
 	  z2.Fill(hadPair.z2[i]);
 	}
 
-      plotter.addHadPairArray(&hadPair, myEvent,true);
+      plotter.addHadPairArray(&hadPair, myEvent,false);
       if(isMC!=mcFlagNone)
 	{
 

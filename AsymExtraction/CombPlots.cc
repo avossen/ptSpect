@@ -459,11 +459,12 @@ int main(int argc, char** argv)
 		      TH1D* output;
 		      TH1D* outputHighSys;
 		      TH1D* outputLowSys;
+		      sprintf(buffer,"_binning%d_pid%d_charge_%d.png",b,p,c);
 		      if(!closureTest)
 			{
-			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
-			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,d);
-			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,d);
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d,buffer);
+			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,d,buffer);
+			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,d,buffer);
 		      //for closure test, bini is output....
 			}
 		      else
@@ -472,7 +473,8 @@ int main(int argc, char** argv)
 			    {
 			      combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
 			    }
-			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d);
+
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d,buffer);
 			}
 		      ///-->just for tmp
 		       //		      output=combinedHisto;

@@ -455,10 +455,8 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
   return ret;
 }
 
-
-
 //mc_input is what is called xini in the tsvdunfold docu, MC_out is what is called bini
-TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D** d)
+TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D** d,const char* name)
 {  
   int countThreshold=0;
   vector<int> lowCountRows;
@@ -541,7 +539,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
     }
 
   char buffer[300];
-  sprintf(buffer,"statcof_%s",data->GetName());
+  sprintf(buffer,"statcof_%s%s",data->GetName(),name);
   TH2D* statcovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
     cout <<" input has " << MC_input->GetNbinsX();
   cout <<" bins and output " << MC_out->GetNbinsX() <<" data: " << data->GetNbinsX() <<" smearing matrix " << smearingMatrix->GetNbinsX() <<" x " << smearingMatrix->GetNbinsY() <<endl;
@@ -622,7 +620,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   TH2D* utaucov= f->GetXtau();
   utaucov->Add(uadetcov);
 
-  sprintf(buffer,"unfold_from_%s",data->GetName());
+  sprintf(buffer,"unfold_from_%s%s",data->GetName(),name);
   cout <<" unfolding " << buffer <<endl;
   TH1D* ret2=(TH1D*)ret->Clone(buffer);
   for(int i=0;i<ret2->GetNbinsX();i++)
@@ -633,15 +631,14 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   for(int i=0;i<ret->GetNbinsX();i++)
     {
       //      cout <<"data: "<< data->GetBinContent(i+1) <<" unfolded: " << ret->GetBinContent(i+1) <<" mc out: "<< MC_out->GetBinContent(i+1) <<" mc in: "<< MC_input->GetBinContent(i+1)<<endl;
-
     }
-  sprintf(buffer,"debug_D_from%s.png",MC_input->GetName());
+  sprintf(buffer,"debug_D_from%s%s.png",MC_input->GetName(),name);
   cout <<"d: bins: "<< (*d)->GetNbinsX()<<endl;
   TCanvas c;
   (*d)->Draw();
   c.SetLogy();
   c.SaveAs(buffer);
-  sprintf(buffer,"%s_ret3",ret2->GetTitle());
+  sprintf(buffer,"%s_ret3%s",ret2->GetTitle(),name);
   TH1D* ret3=new TH1D(buffer,buffer,initialDimension,ret2->GetBinLowEdge(1),ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()));
   cout <<"created ret3 with dim: "<< initialDimension<<" low edge: " << ret2->GetBinLowEdge(1) <<" high: " << ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()) <<endl;
   int redCount=0;
@@ -1887,6 +1884,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	      cout <<" z1: " << hp->z2_PiPi[i] <<" z2: " << hp->z1_PiPi[i] << " kT: " << hp->kT_PiPi[i];
 	    else
 	      cout <<" z1: " << hp->z1_PiPi[i] <<" z2: " << hp->z2_PiPi[i] << " kT: " << hp->kT_PiPi[i]<<endl;;
+
+
 	    cout <<" (combined/data/mc) probabilities for ";
 	    cout << "PiPi: " << hp->p_PiPi[i] <<" / " << hp->p_PiPi1[i] << " / " << hp->p_PiPi2[i];
 	    break;
@@ -1918,7 +1917,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    break;
 
 	  case KP:
-	    cout <<"dp: "<<hp->dp_KP[i] <<" dp PK: " << hp->dp_PK[i]<<endl;
+	    //	    cout <<"dp: "<<hp->dp_KP[i] <<" dp PK: " << hp->dp_PK[i]<< " z1 kp: " << hp->z1_KP[i] <<" z2 kp: " << hp->z2_KP[i] << " kt kP: "<< hp->kT_KP[i] <<endl;
 	    if(hp->flip_PK[i])
 	      cout << "KP (flipped): " << hp->p_PK[i] <<" / " << hp->p_PK1[i] << " / " << hp->p_PK2[i];
 	    else
@@ -1933,8 +1932,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    break;
 
 	  case PK:
+	    cout <<"dp: "<<hp->dp_PK[i] <<" dp PK: " << hp->dp_PK[i]<< " z1 pk: " << hp->z1_PK[i] <<" z2 pk: " << hp->z2_PK[i] << " kt kP: "<< hp->kT_PK[i] <<endl;
 	    if(hp->flip_KP[i])
-	      cout << "PK: " << hp->p_KP[i] <<" / " << hp->p_KP[i] << " / " << hp->p_KP2[i];
+	      cout << "PK (flipped): " << hp->p_KP[i] <<" / " << hp->p_KP[i] << " / " << hp->p_KP2[i];
 	    else
 	      cout << "PK: " << hp->p_PK[i] <<" / " << hp->p_PK[i] << " / " << hp->p_PK2[i];
 	    

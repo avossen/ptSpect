@@ -22,6 +22,9 @@ struct HadronPairArray:public ReaderBase
   const float hadronTagFiducialCut;
   const bool asymmetryFlag;
 
+  const float thetaCMSLower;
+  const float thetaCMSUpper;
+
   int numPairs;
 
   float z1[Max_ArrSize];
@@ -205,7 +208,7 @@ struct HadronPairArray:public ReaderBase
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
   //the pid dependent cuts (z, kT) should be done for the correct hypothesis
 
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(1.1), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0)//kTCut(5.31145668)
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(1.1), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.8)//kTCut(5.31145668)
   {
     zOrdered=false;
     followFlip=false;
@@ -728,6 +731,14 @@ struct HadronPairArray:public ReaderBase
 	//    cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	//	cout <<"hp after fill!" <<endl;
 
+	if(cmsTheta1[i]<thetaCMSLower || cmsTheta1[i]>thetaCMSUpper)
+	  {
+	    cut[i]=1;
+	  }
+	if(cmsTheta2[i]<thetaCMSLower || cmsTheta2[i]>thetaCMSUpper)
+	  {
+	    cut[i]=1;
+	  }
 
 	if(fabs(cmsTheta2[i]-TMath::Pi()/2)>hadronTagFiducialCut)
 	  {

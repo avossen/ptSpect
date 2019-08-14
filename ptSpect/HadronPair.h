@@ -468,6 +468,16 @@ class HadronPair
       z2_KPi=getZ(pinf2,pionIdx,pinf1,kaonIdx,vPhoton2);
       z2_KK=getZ(pinf2,kaonIdx,pinf1,kaonIdx,vPhoton2);
       z2_KP=getZ(pinf2,protonIdx,pinf1,kaonIdx,vPhoton2);
+      /*            cout <<"evt: " << kinematics::evtNr << " got z1 kp: " << z1_KP <<" z2: "<< z2_KP <<endl;
+            cout <<"evt: " << kinematics::evtNr << " got z1 pipi: " << z1_PiPi <<" z2: "<< z2_PiPi <<endl;
+
+	    cout <<" lab mom1: " << pinf1.labMom <<" lab mom2: " << pinf2.labMom <<" labTheta1: " << pinf1.labTheta <<" labTheta2: " << pinf2.labTheta;
+	    cout <<" lab phi1: " << pinf1.labPhi<<" lab phi2: " << pinf2.labPhi <<endl;
+
+	    cout <<" boosted (K hypo) 1st: "<< pinf1.boostedMoms[kaonIdx].x() <<", " << pinf1.boostedMoms[kaonIdx].y() <<", " << pinf1.boostedMoms[kaonIdx].z()<<endl;
+
+	    cout <<" boosted (p hypo) 2nd: "<< pinf2.boostedMoms[protonIdx].x() <<", " << pinf2.boostedMoms[protonIdx].y() <<", " << pinf2.boostedMoms[protonIdx].z()<<endl;
+      */
 
       z1_PPi=getZ(pinf1,protonIdx,pinf2,pionIdx,vPhoton2);
       z1_PK=getZ(pinf1,protonIdx,pinf2,kaonIdx,vPhoton2);
