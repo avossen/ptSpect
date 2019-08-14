@@ -2072,7 +2072,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	      cout <<"sys*sys is nan: "<< sys<<endl;
 	    }
 
-	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(sys*sys);
+	  //	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(sys*sys);
+	  //the factor is because in the trees I have a factor of 0.5 for each term, but in reality that should be 0.25^2, since there is a factor of 1/4 in front of the square root, so we have to do 1/0.5 * 0.25^2
+	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(2*0.25*0.25)*sys;
 	  //	  	  cout <<"adding sys: "<< sys*sys <<" adding to " << sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin] <<endl;
 
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);
