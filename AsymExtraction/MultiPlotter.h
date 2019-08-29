@@ -162,13 +162,13 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //addSys=0: don't add
     //addSys=-1: add lower Sys, =1 higher sys
 
-    TH1D* getHistogram(int binning, int chargeBin, int pidBin, int addSys=0);
+    TH1D* getHistogram(int binning, int chargeBin, int pidBin, int getSys=0);
     //set the unfolded results again
     void setHistogram(int binning, int chargeBin, int pidBin, TH1D* histo, TH1D* histoUpperSys, TH1D* histoLowerSys);
 
 
     //d is a return value
-    TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D** d,const char* name);
+    TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D* sys, TH1D** d,const char* name);
     TH1D** convertUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
     TH1D*** convertAllUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
     void setName(string s);

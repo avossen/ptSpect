@@ -422,6 +422,7 @@ int main(int argc, char** argv)
 		      cout <<"getting combined histo for b: "<< b <<" c: "<< c <<" p: "<< p <<endl;
 		      //get combined z/kT histogram for this charge, pid bin
 		      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p);
+		      TH1D* combinedHistoSys=pPlotter->getHistogram(b,c,p,1);
 		      TH1D* combinedHistoUpperSys=pPlotter->getHistogram(b,c,p,1);
 		      TH1D* combinedHistoLowerSys=pPlotter->getHistogram(b,c,p,-1);
 
@@ -462,9 +463,9 @@ int main(int argc, char** argv)
 		      sprintf(buffer,"_binning%d_pid%d_charge_%d.png",b,p,c);
 		      if(!closureTest)
 			{
-			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d,buffer);
-			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,d,buffer);
-			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,d,buffer);
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,buffer);
+			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,combinedHistoSys,d,buffer);
+			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,combinedHistoSys,d,buffer);
 		      //for closure test, bini is output....
 			}
 		      else
@@ -474,7 +475,7 @@ int main(int argc, char** argv)
 			      combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
 			    }
 
-			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,d,buffer);
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,buffer);
 			}
 		      ///-->just for tmp
 		       //		      output=combinedHisto;

@@ -456,7 +456,9 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 }
 
 //mc_input is what is called xini in the tsvdunfold docu, MC_out is what is called bini
-TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D** d,const char* name)
+//needs stat uncertainties to construct bcov-->right now in 'statcov' but that takes it from the binerror. At some point this has to be set and also
+//propagated from data1 to data --->actually is set as uncertainty on data1, so all we have to do is propagate...
+TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D* sys, TH1D** d,const char* name)
 {  
   int countThreshold=0;
   vector<int> lowCountRows;
@@ -523,8 +525,12 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
       if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
 	{
 	  MC_input->SetBinContent(i2+1,MC_input1->GetBinContent(i+1));
+	  MC_input->SetBinError(i2+1,MC_input1->GetBinError(i+1));
 	  MC_out->SetBinContent(i2+1,MC_out1->GetBinContent(i+1));
+	  MC_out->SetBinError(i2+1,MC_out1->GetBinError(i+1));
+
 	  data->SetBinContent(i2+1,data1->GetBinContent(i+1));
+	  data->SetBinError(i2+1,data1->GetBinError(i+1));
 	  int j2=0;
 	  for(int j=0;j<smearingMatrix1->GetNbinsY();j++)
 	    { 
@@ -723,7 +729,7 @@ void MultiPlotter::setHistogram(int binning, int chargeType, int pidType, TH1D* 
 //for now only for the zOnly binning--> changed to z1,z2 and zOnly (binning argument)
 //don't do the bin width normalization since we also don't do it for the xini, bini
 
-TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int addSys)
+TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int getSys)
 
 {
   //  cout <<"getting histo for binning: " << binning <<" charge: "<< chargeType <<" pidType: " << pidType <<endl;
@@ -858,16 +864,31 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int a
 	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      Double_t binUncertainty=m_plotResults[resIdx].kTUncertainties[iKtBin]*normFactor/binWidthFactor;
+	      Double_t binSysUncertainty=m_plotResults[resIdx].kTSysUncertainties[iKtBin]*normFactor/binWidthFactor;
+
 	      //have to add one due to histos counting from 1
 	      if(binning==0)//for the z_z binning, the z1, z2 used for getResIdx are switchted...
 		{
-		  ret->SetBinContent(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binContent);
-		  ret->SetBinError(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binUncertainty);
+		  if(!getSys)
+		    {
+		      ret->SetBinContent(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binContent);
+		      ret->SetBinError(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binUncertainty);
+		    }
+		  else
+		    {
+		      ret->SetBinContent(j*numKtBins+iKtBin+1,binSysUncertainty);
+		    }
 		}
 	      else
 		{
-		  ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
-		  ret->SetBinError(j*numKtBins+iKtBin+1,binUncertainty);
+		  if(!getSys)
+		    {
+		      ret->SetBinContent(j*numKtBins+iKtBin+1,binContent);
+		      ret->SetBinError(j*numKtBins+iKtBin+1,binUncertainty);
+		    }
+		  else{
+		    ret->SetBinContent(j*numKtBins+iKtBin+1,binSysUncertainty);
+		  }
 		}
 	      //	      cout <<" getH, bin number: j: "<< j << " iKtBin  "<<iKtBin <<" bin number: " << j*numKtBins+iKtBin << " content: " << binContent <<endl;
 	      mYErr[iKtBin]=sqrt(m_plotResults[resIdx].kTValues[iKtBin])*normFactor/binWidthFactor;
