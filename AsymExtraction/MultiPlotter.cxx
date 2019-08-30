@@ -458,7 +458,9 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 //mc_input is what is called xini in the tsvdunfold docu, MC_out is what is called bini
 //needs stat uncertainties to construct bcov-->right now in 'statcov' but that takes it from the binerror. At some point this has to be set and also
 //propagated from data1 to data --->actually is set as uncertainty on data1, so all we have to do is propagate...
-TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D* sys, TH1D** d,const char* name)
+//return three cov matrices: uncert due to limited MC statistics (getatdetcovmatrix), stat uncert (getxtau) and PID: propagate pid uncert (sys)
+//with getunfoldcov matrix
+TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D* sys, TH1D** d, TH2D** statCov, TH2D** mcStatCov, TH2D** sysCov, const char* name)
 {  
   int countThreshold=0;
   vector<int> lowCountRows;
@@ -517,6 +519,8 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   TH1D* MC_input=new TH1D("tmpMCIn","tmpMCIn",maxBin,0,maxBin);
   TH1D* MC_out=new TH1D("tmpMCOut","tmpMCOut",maxBin,0,maxBin);
   TH1D* data=new TH1D("data","data",maxBin,0,maxBin);
+
+
   int i2=0;
   //  for(int i=0;i<smearingMatrix->GetNbinsX();i++)
   for(int i=0;i<smearingMatrix1->GetNbinsX();i++)
@@ -547,6 +551,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   char buffer[300];
   sprintf(buffer,"statcof_%s%s",data->GetName(),name);
   TH2D* statcovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
+  TH2D* syscovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
     cout <<" input has " << MC_input->GetNbinsX();
   cout <<" bins and output " << MC_out->GetNbinsX() <<" data: " << data->GetNbinsX() <<" smearing matrix " << smearingMatrix->GetNbinsX() <<" x " << smearingMatrix->GetNbinsY() <<endl;
   for(int i =0;i<MC_input->GetNbinsX();i++)
@@ -562,12 +567,14 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   cout <<endl<<endl;
   for(int i =0;i<data->GetNbinsX();i++)
     {
-
       cout <<data->GetBinContent(i+1) <<" error: " << data->GetBinError(i+1)<<" ";
-
-      for(int j =0;j<data->GetNbinsX();j++)
+      ///--->
+      //only diagonal
+      statcovMatrix->SetBinContent(i+1,i+1,data->GetBinError(i+1)*data->GetBinError(i+1));
+      syscovMatrix->SetBinContent(i+1,i+1,sys->GetBinContent(i+1)*sys->GetBinContent(i+1));
+      //      for(int j =0;j<data->GetNbinsX();j++)
 	{
-	  statcovMatrix->SetBinContent(i+1,j+1,data->GetBinError(i+1)*data->GetBinError(j+1));
+	  //--->	  statcovMatrix->SetBinContent(i+1,j+1,data->GetBinError(i+1)*data->GetBinError(j+1));
 
 	}
     }
@@ -576,17 +583,15 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 
   cout <<endl<<"smearingMatrix: " <<endl;
   double scalingFactor=1.0;
+  //loop seems for scaling which we don't do anyways
   for(int j =0;j<smearingMatrix->GetNbinsY();j++)
     {
-
-
       MC_out->SetBinContent(j+1,MC_out->GetBinContent(j+1)/scalingFactor);
       MC_input->SetBinContent(j+1,MC_input->GetBinContent(j+1)/scalingFactor);
       data->SetBinContent(j+1,data->GetBinContent(j+1)/scalingFactor);
       statcovMatrix->SetBinContent(j+1,j+1,statcovMatrix->GetBinContent(j+1,j+1)/scalingFactor);
       for(int i =0;i<smearingMatrix->GetNbinsX();i++)
 	{
-
 	  //	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
 	  smearingMatrix->SetBinContent(i+1,j+1,smearingMatrix->GetBinContent(i+1,j+1)/scalingFactor);
 
@@ -624,7 +629,12 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 
   cout <<"4"<<endl;
   TH2D* utaucov= f->GetXtau();
-  utaucov->Add(uadetcov);
+  (*statCov)=utaucov;
+  (*mcStatCov)=uadetcov;
+  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,10);
+
+  //return separate, but still fine to add here for overall uncertainties separate
+    utaucov->Add(uadetcov);
 
   sprintf(buffer,"unfold_from_%s%s",data->GetName(),name);
   cout <<" unfolding " << buffer <<endl;
@@ -633,6 +643,8 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
     {
       ret2->SetBinError(i,TMath::Sqrt(utaucov->GetBinContent(i,i)));
     }
+
+
   (*d)=f->GetD();
   for(int i=0;i<ret->GetNbinsX();i++)
     {
@@ -729,7 +741,7 @@ void MultiPlotter::setHistogram(int binning, int chargeType, int pidType, TH1D* 
 //for now only for the zOnly binning--> changed to z1,z2 and zOnly (binning argument)
 //don't do the bin width normalization since we also don't do it for the xini, bini
 
-TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int getSys)
+TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const char* nameAdd, int getSys)
 
 {
   //  cout <<"getting histo for binning: " << binning <<" charge: "<< chargeType <<" pidType: " << pidType <<endl;
@@ -747,8 +759,8 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, int g
     binningType=binType_zOnly;
 
   string binName=getBinName(binningType,pidType,chargeType,-1,-1);
-  sprintf(buffer,"%s",binName.c_str());
-  sprintf(buffer1,"histo_%s",buffer);
+  sprintf(buffer,"%s_%s",binName.c_str(),nameAdd);
+  sprintf(buffer1,"histo_%s_%s",buffer,nameAdd);
   TH1D* ret=new TH1D(buffer1,buffer1,maxSmearing[pidType][binning],0,maxSmearing[pidType][binning]);
   //  cout <<" getH: " << maxSmearing <<endl;
     cout <<"saving graph for " << binName <<" buffer; " << buffer<<endl;
