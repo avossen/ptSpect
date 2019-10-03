@@ -1013,7 +1013,7 @@ struct HadronPairArray:public ReaderBase
 	      }
 
 
-	  }
+	  }//end test for mc
 	//	cout <<"good id" <<endl;
 	///------------------
 	if(z1[i]<zCut || z2[i]<zCut)

@@ -166,13 +166,15 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //set the unfolded results again
     void setHistogram(int binning, int chargeBin, int pidBin, TH1D* histo, TH1D* histoUpperSys, TH1D* histoLowerSys);
 
-
+    static void printMatrix(TH1D* histo, const char* filename,bool saveUncert=false);
+    static void  printMatrix(TH2D* histo, const char* filename, bool saveUncert=false);
     //d is a return value
     TH1D* unfold(TH2D* smearingMatrix, TH1D* MC_input,TH1D* MC_out, TH1D* data, TH1D* sys, TH1D** d, TH2D** statCov, TH2D** mcStatCov, TH2D** sysCov, const char* name);
     TH1D** convertUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
     TH1D*** convertAllUnfold2Plots(TH1D* input,int binning,  int chargeBin, int pidBin, const char* nameAdd);
     void setName(string s);
     string getName();
+    string getParticlePairName(int p);
     PlotResults* plotResults;
 
     vector<PlotResults*> plotResVect;
@@ -276,6 +278,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     double***** meanValues_kin2;
     double****** meanValues_kT;
 };
+
+
 
 inline string MultiPlotter::getName()
 {

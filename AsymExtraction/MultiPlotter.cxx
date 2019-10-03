@@ -1,6 +1,36 @@
 #include "MultiPlotter.h"
 #include "PlotResults.h"
+string MultiPlotter::getParticlePairName(int p)
+{
+   switch(p)
+       {
+       case PiPi:
+	 return "PiPi";
+       case PiK:
+	 return "PiK";
+       case PiP:
+	 return "PiP";
+       case KPi:
+	 return "KPi";
+       case KK:
+	 return "KK";
 
+       case KP:
+	 return "KP";
+       case PPi:
+	 return "PPi";
+
+       case PK:
+	 return "PK";
+
+       case PP:
+	 return "PP";
+
+       }
+   return "unknown";
+
+
+}
 
 //compute means and fill plotResults
 void MultiPlotter::doPlots(bool print)
@@ -549,8 +579,9 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
     }
 
   char buffer[300];
-  sprintf(buffer,"statcof_%s%s",data->GetName(),name);
+  sprintf(buffer,"statcov_%s%s",data->GetName(),name);
   TH2D* statcovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
+  sprintf(buffer,"syscov_%s%s",data->GetName(),name);
   TH2D* syscovMatrix=new TH2D(buffer,buffer,data->GetNbinsX(),0,data->GetNbinsX(),data->GetNbinsX(),0,data->GetNbinsX());
     cout <<" input has " << MC_input->GetNbinsX();
   cout <<" bins and output " << MC_out->GetNbinsX() <<" data: " << data->GetNbinsX() <<" smearing matrix " << smearingMatrix->GetNbinsX() <<" x " << smearingMatrix->GetNbinsY() <<endl;
@@ -633,8 +664,8 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   (*mcStatCov)=uadetcov;
   (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,10);
 
-  //return separate, but still fine to add here for overall uncertainties separate
-    utaucov->Add(uadetcov);
+  //return separate, -->if we would add here, that would also affect our return value, since we only saved the pointer above...
+  ///    utaucov->Add(uadetcov);
 
   sprintf(buffer,"unfold_from_%s%s",data->GetName(),name);
   cout <<" unfolding " << buffer <<endl;
@@ -659,8 +690,20 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   sprintf(buffer,"%s_ret3%s",ret2->GetTitle(),name);
   TH1D* ret3=new TH1D(buffer,buffer,initialDimension,ret2->GetBinLowEdge(1),ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()));
   cout <<"created ret3 with dim: "<< initialDimension<<" low edge: " << ret2->GetBinLowEdge(1) <<" high: " << ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX()) <<endl;
-  int redCount=0;
 
+  float lowerEdge=ret2->GetBinLowEdge(1);
+  float upperEdge=ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX());
+
+  sprintf(buffer,"%s_%s_statCov",data->GetName(),name);
+  TH2D* statCovFullsize=new TH2D(buffer,buffer,initialDimension,lowerEdge,upperEdge,initialDimension,lowerEdge,upperEdge);
+  sprintf(buffer,"%s_%s_mcStatCov",data->GetName(),name);
+  TH2D* mcStatCovFullsize=new TH2D(buffer,buffer,initialDimension,lowerEdge,upperEdge,initialDimension,lowerEdge,upperEdge);
+  sprintf(buffer,"%s_%s_sysStatCov",data->GetName(),name);
+  TH2D* sysCovFullsize=new TH2D(buffer,buffer,initialDimension,lowerEdge,upperEdge,initialDimension,lowerEdge,upperEdge);
+
+
+  int redCount=0;
+  int redCount2=0;
   cout <<" original unfold: "<<endl;
   for(int i=0;i<ret2->GetNbinsX();i++)
     {
@@ -669,14 +712,27 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 
   for(int i=0;i<ret3->GetNbinsX();i++)
     {
-      //not dropeed
+      //not dropped
       if(find(lowCountRows.begin(),lowCountRows.end(),i)==lowCountRows.end())
 	{
 	  cout <<i+1 <<"("<<redCount+1<<")-->"<<ret2->GetBinContent(redCount+1)<<endl;
 	  ret3->SetBinContent(i+1,ret2->GetBinContent(redCount+1));
 	  redCount++;
+	  for(int j=0;j<ret3->GetNbinsX();j++)
+	    {
+	      if(find(lowCountRows.begin(),lowCountRows.end(),j)==lowCountRows.end())
+		{
+		  statCovFullsize->SetBinContent(i+1,j+1,(*statCov)->GetBinContent(redCount+1,redCount2+1));
+		  sysCovFullsize->SetBinContent(i+1,j+1,(*sysCov)->GetBinContent(redCount+1,redCount2+1));
+		  mcStatCovFullsize->SetBinContent(i+1,j+1,(*mcStatCov)->GetBinContent(redCount+1,redCount2+1));
+		  redCount2++;
+		}
+	    }
 	}
 
+      (*statCov)=statCovFullsize;
+      (*sysCov)=sysCovFullsize;
+      (*mcStatCov)=mcStatCovFullsize;
     }
   return ret3;
 }
@@ -888,7 +944,7 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
 		    }
 		  else
 		    {
-		      ret->SetBinContent(j*numKtBins+iKtBin+1,binSysUncertainty);
+		      ret->SetBinContent(i*maxKinMap[pidType][binningType].second*numKtBins+j*numKtBins+iKtBin+1,binSysUncertainty);
 		    }
 		}
 	      else
@@ -912,6 +968,44 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
     }
   return ret;
 }
+
+void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncert)
+{
+  ofstream of;
+  of.open(filename);
+  for(int i=0;i<histo->GetNbinsX();i++)
+    {
+      if(saveUncert)
+	of << histo->GetBinError(i+1)<<" ";
+      else
+	of << histo->GetBinContent(i+1)<<" ";
+
+    }
+  of<<endl;
+  of.close();
+
+}
+void MultiPlotter::printMatrix(TH2D* histo, const char* filename, bool saveUncert)
+{
+  ofstream of;
+  of.open(filename);
+  for(int i=0;i<histo->GetNbinsX();i++)
+    {
+      for(int j=0;j<histo->GetNbinsY();j++)
+	{
+	  if(saveUncert)
+	    of << histo->GetBinError(i+1,j+1)<<" ";
+	  else
+	    of << histo->GetBinContent(i+1,j+1)<<" ";
+	}
+      cout <<endl;
+    }
+  of<<endl;
+  of.close();
+
+}
+
+
 
 //just print a textfile with the bin content for the cross check
 void MultiPlotter::printDebug(plotType mPlotType)
@@ -1701,6 +1795,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       //      int chargeBin1=hp->chargeType1[i];
       //      int chargeBin2=hp->chargeType2[i];
       int chargeBin=hp->chargeType[i];
+
+	  cout <<"event nr: " << event.evtNr <<endl;
+
       if(print)
 	{
 	  cout << std::fixed;
@@ -1708,9 +1805,13 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  cout <<endl;
 	  cout <<"event nr: " << event.evtNr <<endl;
 	  if(hp->chargeType[i]==0)
-	    cout << " same-charged pair";
+	    {
+	      	    cout << " same-charged pair";
+	    }
 	  else
-	    cout <<" opposite-charged pair";
+	    {
+	      cout <<" opposite-charged pair";
+	    }
 	}
       for(int p =PiPi;p<UNKNOWN;p++)
 	{
@@ -1743,9 +1844,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 
-	  weight1=hp->p_PiPi[i];
+	  weight1=hp->p_PiPi1[i];
 	  weight2=hp->p_PiPi2[i];
-	  weight=(weight1+weight2)/2;
+	  //weight=(weight1+weight2)/2;
+	  weight=hp->p_PiPi[i];
 	  
 	  //cout <<"looking at weight1: "<< weight1 <<" weight2: " << weight2 <<" weight: "<< weight <<endl;
 	  sys=hp->ep_PiPi[i];
@@ -1763,7 +1865,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  weight1=hp->p_PiK[i];
 	  weight2=hp->p_PiK2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_PiK[i];
 	  sys=hp->ep_PiK[i];
 
 	  //	  cout <<"adding weight: " << weight <<endl;
@@ -1778,7 +1881,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  weight1=hp->p_PiP[i];
 	  weight2=hp->p_PiP2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_PiP[i];
 	  sys=hp->ep_PiP[i];
 
 	  break;
@@ -1792,7 +1896,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  weight1=hp->p_KPi[i];
 	  weight2=hp->p_KPi2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_KPi[i];
 	  sys=hp->ep_KPi[i];
 
 	  break;
@@ -1805,7 +1910,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    continue;
 	  weight1=hp->p_KK[i];
 	  weight2=hp->p_KK2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_KK[i];
 	  sys=hp->ep_KK[i];
 
 	  break;
@@ -1818,7 +1924,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    continue;
 	  weight1=hp->p_KP[i];
 	  weight2=hp->p_KP2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_KP[i];
+
 	  sys=hp->ep_KP[i];
 
 	  break;
@@ -1832,7 +1940,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    continue;
 	  weight1=hp->p_PPi[i];
 	  weight2=hp->p_PPi2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_PPi[i];
 	  sys=hp->ep_PPi[i];
 
 	  break;
@@ -1845,8 +1954,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    continue;
 	  weight1=hp->p_PK[i];
 	  weight2=hp->p_PK2[i];
-	  weight=(weight1+weight2)/2;
-
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_PK[i];
 	  sys=hp->ep_PK[i];
 
 
@@ -1860,7 +1969,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    continue;
 	  weight1=hp->p_PP[i];
 	  weight2=hp->p_PP2[i];
-	  weight=(weight1+weight2)/2;
+	  //	  weight=(weight1+weight2)/2;
+	  weight=hp->p_PP[i];
  	  sys=hp->ep_PP[i];
 
 	  break;
@@ -2092,13 +2202,21 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  //	  	    cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
 	  //		    cout <<"weight: "<< weight <<endl;
 
+	  /////for x-check, looking at PiPi weights
+	  if(hp->chargeType[i]==0 && p==PiPi)
+	    {
+
+	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
+	      cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
+	    }
+
+
+	  /////
+
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
 	  counts1[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight1;
 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight2;
 	  uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*weight);
-
-
-
 
 	  if(isnan(sys*sys))
 	    {

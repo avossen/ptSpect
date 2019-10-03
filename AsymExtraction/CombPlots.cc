@@ -20,6 +20,12 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+
+  if(argc<2)
+    {
+      cout <<"usage: CombPlots rootPath smearingFileName rawSmearingFileName"<<endl;
+      exit(0);
+    }
   //  bool closureTest=true;
   bool closureTest=false;
   bool m_useQt=false;
@@ -209,7 +215,6 @@ int main(int argc, char** argv)
 	    {
 	      //	  float locW[3]={0.0,0.0,0.0};
 	      chAll->GetEntry(i);
-
 	      if(plotResults->exp<minExp ||(plotResults->on_res && (badOnRes.find(plotResults->exp)!=badOnRes.end())) ||(!plotResults->on_res && (badCont.find(plotResults->exp)!=badCont.end())))
 		continue;
 	      if(plotResults->exp>maxExp && plotResults->exp < minExp2)
@@ -324,6 +329,7 @@ int main(int argc, char** argv)
 		    //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
 		    {
 		      char buffer[500];
+		      char buffer2[500];
 		      sprintf(buffer,"kinematicSmearingMatrix_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		      TH2D* smearingMatrix=(TH2D*)smearingFile->Get(buffer);
 
@@ -464,12 +470,31 @@ int main(int argc, char** argv)
 		      TH1D* output;
 		      TH1D* outputHighSys;
 		      TH1D* outputLowSys;
+
+		      sprintf(buffer,"pidCorrected_binning%d_pid%d_charge_%d.txt",b,p,c);
+		      MultiPlotter::printMatrix(combinedHisto,buffer);
+		      sprintf(buffer,"pidCorrectedUncert_binning%d_pid%d_charge_%d.txt",b,p,c);
+		      MultiPlotter::printMatrix(combinedHisto,buffer,true);
+		      sprintf(buffer,"pidSys_binning%d_pid%d_charge_%d.txt",b,p,c);
+		      MultiPlotter::printMatrix(combinedHistoSys,buffer);
+
+
 		      sprintf(buffer,"_binning%d_pid%d_charge_%d.png",b,p,c);
 		      if(!closureTest)
 			{
 			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
-			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
-			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			  sprintf(buffer,"unfolded_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(output,buffer);
+			  sprintf(buffer,"statCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(*statCov,buffer);
+			  sprintf(buffer,"mcStatCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(*mcStatCov,buffer);
+			  sprintf(buffer,"sysCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(*sysCov,buffer);
+
+
+			  //			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			  //			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 		      //for closure test, bini is output....
 			}
 		      else
@@ -481,6 +506,10 @@ int main(int argc, char** argv)
 
 			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 			}
+		      ///--->save debugs
+
+
+
 		      ///-->just for tmp
 		       //		      output=combinedHisto;
 		      output->Draw();
