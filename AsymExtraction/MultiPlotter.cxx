@@ -1779,6 +1779,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
   //  cout <<"thrustLabtheta bin: " << thrustLabThetaBin <<endl;
   cmsThrustThetaBin=getBin(binningCmsThrustTheta,cmsThrustTheta);
   //  cout <<"got cmsThrust theta: " << cmsThrustTheta <<" bin: " << cmsThrustThetaBin <<" phi: " << cmsThrustPhi <<" bin: " << cmsThrustPhiBin<<endl;
+  if(numEvts>0)
+    {
+      //      cout <<"hadPairCount: " << hadPairCount <<" num evts: " << numEvts <<endl;
+      //      cout <<"pair per event: " << (float)hadPairCount/(float)numEvts <<endl;
+    }
+  bool alreadyInc=false;
 
   for(int i=0;i<hp->numPairs;i++)
     {
@@ -1796,8 +1802,17 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       //      int chargeBin2=hp->chargeType2[i];
       int chargeBin=hp->chargeType[i];
 
-	  cout <<"event nr: " << event.evtNr <<endl;
+      	  cout <<"event nr: " << event.evtNr <<endl;
 
+      if(hp->z1[i]>0.1 && hp->z2[i]>0.1 && hp->particleType[i]==0 && hp->chargeType[i]==0)
+	{
+	  if(!alreadyInc)
+	    {
+	      alreadyInc=true;
+	      numEvts++;
+	    }
+	  hadPairCount++;
+	}
       if(print)
 	{
 	  cout << std::fixed;
@@ -2206,8 +2221,15 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  if(hp->chargeType[i]==0 && p==PiPi)
 	    {
 
-	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
-	      cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
+
+	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
+	      	      cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
+		      cout <<"theta lab1: "<< hp->labTheta1[i] <<", theta lab2: "<< hp->labTheta2[i] <<endl;
+		      cout <<"particle type1: "<< hp->particleType1[i] << " particle type2: "<< hp->particleType2[i]<<endl;
+
+
+
+
 	    }
 
 

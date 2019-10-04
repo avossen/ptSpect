@@ -23,6 +23,9 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
  public:
  MultiPlotter(bool m_useQt,const char* pathBase,const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(pathBase,filenameBase,nameAdd,exNr,onRes,uds,charm,mc),zCutPi(0.05),zCutPK(0.1),useQt(m_useQt)
     {
+      numEvts=0;
+      hadPairCount=0;
+
       cout<<"museQt: " << m_useQt <<" useQt: "<< useQt <<endl;
       auto mt=std::make_tuple(1,1);
       maxSmearing=new int*[NumPIDs];
@@ -200,6 +203,10 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     static const int numKinematicBinning;
 
     //to differentiate between different fit results...
+    //actually for Collins paper reply
+    long hadPairCount;
+    long numEvts;
+
 
     TH1D* hChi2OverNdf;
     TH1D* hOneDVsTwoDA1;

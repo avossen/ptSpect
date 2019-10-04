@@ -536,6 +536,11 @@ class HadronPair
 	return AnaDef::Neut;
       if(lund==22)
 	return AnaDef::Neut;
+
+      if(lund==11 || lund==13)
+	return AnaDef::Neg;
+      if(lund==(-11) || lund==(-13))
+	return AnaDef::Pos;
       
       if(lund<0)
 	return AnaDef::Neg;
