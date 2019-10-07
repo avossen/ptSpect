@@ -1704,6 +1704,10 @@ bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
 {
   float z1Cut=0.05;
   float z2Cut=0.05;
+
+  float z1UpperCut=1.1;
+  float z2UpperCut=1.1;
+
   switch(pidBin)
     {
     case PiPi:
@@ -1755,7 +1759,7 @@ bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
       return true;
 
     }
-  if(z1 < z1Cut || z2< z2Cut || kT > 5.31145668)
+  if(z1 < z1Cut || z2< z2Cut || kT > 5.31145668 || z1> z1UpperCut || z2> z2UpperCut) 
     {
       return true;
     }
@@ -1781,8 +1785,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
   //  cout <<"got cmsThrust theta: " << cmsThrustTheta <<" bin: " << cmsThrustThetaBin <<" phi: " << cmsThrustPhi <<" bin: " << cmsThrustPhiBin<<endl;
   if(numEvts>0)
     {
-      //      cout <<"hadPairCount: " << hadPairCount <<" num evts: " << numEvts <<endl;
-      //      cout <<"pair per event: " << (float)hadPairCount/(float)numEvts <<endl;
+      //            cout <<"hadPairCount: " << hadPairCount <<" num evts: " << numEvts <<endl;
+      //            cout <<"pair per event: " << (float)hadPairCount/(float)numEvts <<endl;
     }
   bool alreadyInc=false;
 
@@ -1802,9 +1806,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       //      int chargeBin2=hp->chargeType2[i];
       int chargeBin=hp->chargeType[i];
 
-      	  cout <<"event nr: " << event.evtNr <<endl;
+      //      	  cout <<"event nr: " << event.evtNr <<endl;
 
-      if(hp->z1[i]>0.1 && hp->z2[i]>0.1 && hp->particleType[i]==0 && hp->chargeType[i]==0)
+      if(hp->z1[i]>0.1 && hp->z2[i]>0.1 && hp->particleType[i]==0 && hp->chargeType[i]==1)
 	{
 	  if(!alreadyInc)
 	    {
@@ -1816,7 +1820,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       if(print)
 	{
 	  cout << std::fixed;
-	  cout <<setprecision(8);
+	  cout <<setprecision(4);
 	  cout <<endl;
 	  cout <<"event nr: " << event.evtNr <<endl;
 	  if(hp->chargeType[i]==0)
@@ -2220,12 +2224,14 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  /////for x-check, looking at PiPi weights
 	  if(hp->chargeType[i]==0 && p==PiPi)
 	    {
-
-
-	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
-	      	      cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
-		      cout <<"theta lab1: "<< hp->labTheta1[i] <<", theta lab2: "<< hp->labTheta2[i] <<endl;
-		      cout <<"particle type1: "<< hp->particleType1[i] << " particle type2: "<< hp->particleType2[i]<<endl;
+	      cout << std::fixed;
+	      cout <<setprecision(4);
+	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
+	      //	      cout << weight <<endl;
+	      	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
+	            cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
+	      		      cout <<"theta lab1: "<< hp->labTheta1[i] <<", theta lab2: "<< hp->labTheta2[i] <<endl;
+		            cout <<"particle type1: "<< hp->particleType1[i] << " particle type2: "<< hp->particleType2[i]<<endl;
 
 
 
@@ -2234,7 +2240,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 
 	  /////
-
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
 	  counts1[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight1;
 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight2;
