@@ -730,6 +730,7 @@ namespace Belle {
 	    //	    cout <<" cut track with naive momentum: "<< (*chr_it).p(0)<<", " << (*chr_it).p(1) <<", " << (*chr_it).p(2)<<endl;
 	    continue;
 	  }
+	bool positivId=false;
 	double m_mass=m_pi;
 	int massHyp=pionIdx;
 	if(evtNr==DEBUG_EVENT)
@@ -783,6 +784,7 @@ namespace Belle {
 		cout <<"is electron "<< e_id <<" mu_id: "<< mu_id <<" atcKPi: "<< atcKPi << " atcKP: "<< atcKP <<" atcPiP: "<< atcPiP <<endl;
 	      }
 	    m_mass=m_e;
+	    positivId=true;
 	    massHyp=electronIdx;
 	    isLepton=true;
 	    //	    m_histos.hPidE->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
@@ -808,6 +810,7 @@ namespace Belle {
 	      }
 	    //	    m_histos.hPidMuPi->Fill(chr_it->trk().pid_mu(),chr_it->trk().pid_pi());
 	    m_mass=m_muon;
+	    positivId=true;
 	    massHyp=muonIdx;
 	    isLepton=true;
 	    if(charge>0)
@@ -831,6 +834,7 @@ namespace Belle {
 	      }
 	    //	    m_histos.hPidEPi->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_pi());
 	    m_mass=m_e;
+	    positivId=true;
 	    //massHyp is already set to zero above 
 	    isLepton=true;
 	    //	    m_histos.hPidE->Fill(chr_it->trk().pid_e(),chr_it->trk().pid_mu());
@@ -855,6 +859,7 @@ namespace Belle {
 		m_mass=m_k;
 		massHyp=kaonIdx;
 		isPionKaon=true;
+		positivId=true;
 		if(charge>0)
 		  {
 		    strcpy(ptypName,"K+");
@@ -883,6 +888,7 @@ namespace Belle {
 		    //			m_histos.hPidPrPi->Fill(chr_it->trk().pid_p(),chr_it->trk().pid_pi());
 
 		    isProton=true;
+		    positivId=true;
 		    if(charge>0)
 		      {
 			strcpy(ptypName,"P+");
@@ -903,7 +909,7 @@ namespace Belle {
 		      {
 			massHyp=pionIdx;
 			m_mass=m_pi;
-
+			positivId=true;
 			if(evtNr==DEBUG_EVENT)
 			  {
 			    cout <<"setting massHyp positively to " << massHyp <<endl;
@@ -931,6 +937,9 @@ namespace Belle {
 		  }
 	      }
 	  }
+	//new...
+	if(!positivId)
+	  continue;
 	Hep3Vector tmpv(chr_it->p(0),chr_it->p(1),chr_it->p(2));
 	if(DEBUG_EVENT==evtNr)
 	  {

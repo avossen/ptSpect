@@ -208,7 +208,9 @@ struct HadronPairArray:public ReaderBase
   //considering the thrust axis resolution of 0.16+-0.09 rad, a max opening cut of 0.99 is even too large...
   //the pid dependent cuts (z, kT) should be done for the correct hypothesis
 
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(1.1), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.8)//kTCut(5.31145668)
+  //changed the upper cut to something high, since we are now doing a pid depdendent upper cut
+
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(100.0), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.8)//kTCut(5.31145668)
   {
     zOrdered=false;
     followFlip=false;
@@ -587,6 +589,7 @@ struct HadronPairArray:public ReaderBase
 
   void afterFill(int evtNr=0, bool print=false)
   {
+
     if(print)
       cout <<"evtNr: " << evtNr<<endl;
     if(evtNr==DEBUG_EVENT)
@@ -595,6 +598,16 @@ struct HadronPairArray:public ReaderBase
       }
     for(int i=0;i<numPairs;i++)
       {
+
+	//seems to be cut
+	if(evtNr==5776)
+	  {
+	    //	    cout <<"chargeType: " << chargeType[i] <<" particleType: "<< particleType[i] << ", weight: "<< p_PiPi[i] <<endl;
+	    //	    cout <<"z1 pipi: "<< z1_PiPi[i] << " z2 pipi: "<< z2_PiPi[i] <<endl;
+	    //	    cout <<" z1: " << z1[i] <<  " z2: " << z2[i] <<endl;
+	  }
+
+
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    cout <<"looking at pair with z1: " << z1[i] << " z2: " << z2[i] << " kt: " << kT[i] <<endl;
@@ -1036,7 +1049,7 @@ struct HadronPairArray:public ReaderBase
 	    cut[i]=1;
 	  }
 	
-	if(z1[i]<=0 || z1[i] >1.1|| z2[i]<=0 || z2[i] >1.1)
+	if(z1[i]<=0 || z1[i] >zUpperCut|| z2[i]<=0 || z2[i] >zUpperCut)
 	  {
 	    //	    if(particleType[i]==0 && chargeType[i]==0)
 	    //	      cout <<" cut due to wrong z: " << z[i] <<endl;
