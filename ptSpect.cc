@@ -1,7 +1,7 @@
 //#define DEBUG_EVENT 287880//please no output
-
-//#define DEBUG_EVENT 15859
-#define DEBUG_EVENT2 -287880
+///--->in AnaDef.h now
+//#define DEBUG_EVENT  32950
+#define DEBUG_EVENT2 32950
 
 #define pi0Mass 0.1349766
 #define etaMass 0.548
@@ -317,6 +317,7 @@ namespace Belle {
   // begin_run function
   void ptSpect::begin_run(BelleEvent* evptr, int* status)
   {
+      cout <<"debug event : " << DEBUG_EVENT <<endl;
     //    cout <<" in begin run... " <<endl;
     IpProfile::begin_run();
     eid::init_data();
@@ -592,6 +593,7 @@ namespace Belle {
   // event function
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
+    //        cout <<"debug event : " << DEBUG_EVENT <<endl;
     bool onlyGen=false;
     if(onlyGen_>0.0)
       {
@@ -905,7 +907,7 @@ namespace Belle {
 		  {
 		    //default mass assignment if nothing is found is pion anywasy....
 		    //			if(atcKPi<0.3)
-		    if(atcKPi<0.6)
+		    if(atcKPi<0.6 && atcPiP>=0.2 && atcKPi>0.0 && atcPiP<1.0)
 		      {
 			massHyp=pionIdx;
 			m_mass=m_pi;
