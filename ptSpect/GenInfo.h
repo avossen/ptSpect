@@ -125,7 +125,9 @@ namespace Belle {
 
     void finalize()
     {
+      cout <<"gi write" <<endl;
       tData.pDataTree->Write();
+      cout <<" done gi write " <<endl;
     }
 
     void fillInf()

@@ -721,6 +721,12 @@ namespace Belle {
 
     for(Mdst_charged_Manager::iterator chr_it=mdst_chr_Mgr.begin();chr_it!=mdst_chr_Mgr.end();chr_it++)
       {
+	Hep3Vector tmpv3(chr_it->p(0),chr_it->p(1),chr_it->p(2));
+	if(DEBUG_EVENT==evtNr)
+	  {
+	    cout <<"very first looking at track with theta: "<< tmpv3.theta() <<" lab p : "<< tmpv3.mag()<<endl;
+	  }
+
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    atc_pid selPID2(3,1,5,2,3);
@@ -729,7 +735,10 @@ namespace Belle {
 	  }
 	if(!enoughSVDHits(chr_it))
 	  {
-	    //	    cout <<" cut track with naive momentum: "<< (*chr_it).p(0)<<", " << (*chr_it).p(1) <<", " << (*chr_it).p(2)<<endl;
+	    if(DEBUG_EVENT==evtNr)
+	      {
+		cout <<" cut track with naive momentum: "<< (*chr_it).p(0)<<", " << (*chr_it).p(1) <<", " << (*chr_it).p(2)<<endl;
+	      }
 	    continue;
 	  }
 	bool positivId=false;
@@ -773,6 +782,12 @@ namespace Belle {
 	if(DEBUG_EVENT==evtNr)
 	  {
 	    cout <<"pids "<< e_id <<" mu_id: "<< mu_id <<" atcKPi: "<< atcKPi << " atcKP: "<< atcKP <<" atcPiP: "<< atcPiP <<" px: "<< (*chr_it).p(0)<<endl;
+	Hep3Vector tmpv2(chr_it->p(0),chr_it->p(1),chr_it->p(2));
+	if(DEBUG_EVENT==evtNr)
+	  {
+	    cout <<"first looking at track with theta: "<< tmpv2.theta() <<" lab p : "<< tmpv2.mag()<<endl;
+	  }
+
 	    //cout <<"pid kpi: " << atcKPiAlt <<" pid KP: " << atcKPAlt << " e_id: " << e_id << " mu_id: " << mu_id <<endl;
 	  }
 	bool isLepton=false;
@@ -856,7 +871,7 @@ namespace Belle {
 
 	if(!isLepton)
 	  {
-	    if(atcKPi>0.6 && atcKPi < 1.0 && atcKP >0.2 && atcKP < 1.0 && atcPiP<1.0 && atcPiP>0.0) //kaon
+	    if(atcKPi>0.6 && atcKPi <= 1.0 && atcKP >0.2 && atcKP <= 1.0 && atcPiP<=1.0 && atcPiP>=0.0) //kaon
 	      {
 		m_mass=m_k;
 		massHyp=kaonIdx;
@@ -882,7 +897,7 @@ namespace Belle {
 	      }
 	    else
 	      {
-		if(atcKP<0.2 && atcKP <1.0 && atcPiP<0.2 && atcPiP<1.0)
+		if(atcKP<0.2 && atcKP <=1.0 && atcPiP<0.2 && atcPiP<=1.0)
 		  {
 		    m_mass=m_pr;
 		    massHyp=protonIdx;
@@ -907,7 +922,7 @@ namespace Belle {
 		  {
 		    //default mass assignment if nothing is found is pion anywasy....
 		    //			if(atcKPi<0.3)
-		    if(atcKPi<0.6 && atcPiP>=0.2 && atcKPi>0.0 && atcPiP<1.0)
+		    if(atcKPi<0.6 && atcPiP>=0.2 && atcKPi>=0.0 && atcPiP<=1.0)
 		      {
 			massHyp=pionIdx;
 			m_mass=m_pi;
@@ -941,7 +956,13 @@ namespace Belle {
 	  }
 	//new...
 	if(!positivId)
-	  continue;
+	  {
+	    if(DEBUG_EVENT==evtNr)
+	      {
+		cout <<"no pos id " <<endl;
+	      }
+	    continue;
+	  }
 	Hep3Vector tmpv(chr_it->p(0),chr_it->p(1),chr_it->p(2));
 	if(DEBUG_EVENT==evtNr)
 	  {
@@ -2413,23 +2434,23 @@ namespace Belle {
       {
 	for(int j=0;j<4;j++)
 	  {
-	    cout << "zBin " << i <<" ptBin: "<< j << " numPi0s: "<<numPi0s[i*4+j]<<" numEtas: "<< numEtas[i*4+j]<<endl;
+	    //	    cout << "zBin " << i <<" ptBin: "<< j << " numPi0s: "<<numPi0s[i*4+j]<<" numEtas: "<< numEtas[i*4+j]<<endl;
 	  }
 
       }
 
     pTreeSaver->finalize();
 
-    histoD0Spect->Write();
-    histoDStar->Write();
-    histoPiSlowMom->Write();
-    histoRecDStarSpectToD0Pi->Write();
+    //    histoD0Spect->Write();
+    //    histoDStar->Write();
+    //    histoPiSlowMom->Write();
+    //    histoRecDStarSpectToD0Pi->Write();
 
-    thetaPhiLab->Write();
-    thetaPhiCMS->Write();
+    //    thetaPhiLab->Write();
+    //    thetaPhiCMS->Write();
 
 
-    cout <<"writing file.." <<endl;
+        cout <<"writing file.." <<endl;
     m_file->Write();
     cout <<"closing file.." <<endl;
     m_file->Close();

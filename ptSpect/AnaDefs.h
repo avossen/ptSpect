@@ -1,4 +1,4 @@
-#define DEBUG_EVENT 32950
+#define DEBUG_EVENT 1210
 #ifndef ANADEFS_H
 #define ANADEFS_H
 

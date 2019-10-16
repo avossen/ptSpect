@@ -680,8 +680,11 @@ public:
 
   void finalize()
   {
+    cout <<" in tree saver finalize " <<endl;
+#ifdef MC
     gi.finalize();
-
+#endif
+    cout <<" write data tree " <<endl;
     pDataTree->Write();
   }
 
