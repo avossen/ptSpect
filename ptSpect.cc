@@ -794,7 +794,7 @@ namespace Belle {
 	bool isPionKaon=false;
 	bool isProton=false;
 	//	cout <<"e id: "<< e_id <<" mu id: "<< mu_id << endl;
-	if(e_id>e_cut&& mu_id<0.9)
+	if(e_id>e_cut&& mu_id<0.9 && e_id<=1.0 &&mu_id >=-999)
 	  {
 	    if(DEBUG_EVENT==evtNr)
 	      {
@@ -819,7 +819,7 @@ namespace Belle {
 
 	  }
 	//used to be mu_id > e_cut 
-	if(mu_id>mu_cut && e_id<e_cut)
+	if(mu_id>mu_cut && e_id<e_cut && mu_id<=1.0&&e_id>=0.0)
 	  {
 	    if(DEBUG_EVENT==evtNr)
 	      {
@@ -869,7 +869,7 @@ namespace Belle {
 	  }
 
 
-	if(!isLepton)
+	if(!isLepton && e_id>=0.0 && e_id<0.85 && mu_id>=-999 && mu_id<0.9 )
 	  {
 	    if(atcKPi>0.6 && atcKPi <= 1.0 && atcKP >0.2 && atcKP <= 1.0 && atcPiP<=1.0 && atcPiP>=0.0) //kaon
 	      {

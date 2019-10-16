@@ -1,4 +1,4 @@
-#define DEBUG_EVENT 119394
+#define DEBUG_EVENT 3025
 
 #ifndef HADRON_PAIR_ARRAY_H
 #define HADRON_PAIR_ARRAY_H
@@ -600,7 +600,7 @@ struct HadronPairArray:public ReaderBase
       {
 
 	//seems to be cut
-	if(evtNr==5776)
+	if(evtNr==DEBUG_EVENT)
 	  {
 	    //	    cout <<"chargeType: " << chargeType[i] <<" particleType: "<< particleType[i] << ", weight: "<< p_PiPi[i] <<endl;
 	    //	    cout <<"z1 pipi: "<< z1_PiPi[i] << " z2 pipi: "<< z2_PiPi[i] <<endl;
@@ -611,6 +611,7 @@ struct HadronPairArray:public ReaderBase
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    cout <<"looking at pair with z1: " << z1[i] << " z2: " << z2[i] << " kt: " << kT[i] <<endl;
+	    cout <<"theta1: " << labTheta1[i] <<" theta2: " << labTheta2[i] <<endl;
 	  }
 	cut[i]=0;
 	if(isnan(ep_PiPi[i]))
