@@ -869,6 +869,8 @@ namespace Belle {
 	  }
 
 
+	
+	//	if(!isLepton)// && e_id>=0.0 && e_id<0.85 && mu_id>=-999 && mu_id<0.9 )
 	if(!isLepton && e_id>=0.0 && e_id<0.85 && mu_id>=-999 && mu_id<0.9 )
 	  {
 	    if(atcKPi>0.6 && atcKPi <= 1.0 && atcKP >0.2 && atcKP <= 1.0 && atcPiP<=1.0 && atcPiP>=0.0) //kaon
