@@ -340,6 +340,7 @@ int main(int argc, char** argv)
 
   cout <<" printing debug " <<endl;
   plotter.printDebug(plotType_2D);
+
   cout <<"done " <<endl;
   plotter.savePlots(plotType_2D);
   cout <<"now woa..." <<endl;

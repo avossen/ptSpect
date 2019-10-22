@@ -25,6 +25,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     {
       numEvts=0;
       hadPairCount=0;
+      weightSum=0;
 
       cout<<"museQt: " << m_useQt <<" useQt: "<< useQt <<endl;
       auto mt=std::make_tuple(1,1);
@@ -206,6 +207,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //actually for Collins paper reply
     long hadPairCount;
     long numEvts;
+
+    double weightSum;
 
 
     TH1D* hChi2OverNdf;

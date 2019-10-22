@@ -1,4 +1,4 @@
-#define DEBUG_EVENT 3025
+#define DEBUG_EVENT -1
 
 #ifndef HADRON_PAIR_ARRAY_H
 #define HADRON_PAIR_ARRAY_H
