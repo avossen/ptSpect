@@ -591,8 +591,17 @@ namespace Belle {
 		  //now we have to check if that is already in our reconstruction pairs or should be part of the acceptance correction, otherwise it is already paired with
 		  //the accepted ones...
 		  HadronPair* hp=new HadronPair();
+            if(rand() % 100 <50)
+	      {
 		  hp->firstHadron=*it;
 		  hp->secondHadron=*it2;
+	      }
+	    else
+	      {
+		hp->firstHadron=*it2;
+		  hp->secondHadron=*it;
+	
+	      }
 
 		  //done in HadronPair::compute now...
 		  //	      nhp->hadCharge=AnaDef::PN;
@@ -632,9 +641,16 @@ namespace Belle {
 		}
 	      //now unknowns...
 	      HadronPair* hp=new HadronPair();
+            if(rand() % 100 <50)
+	      {
 	      hp->firstHadron=*it;
 	      hp->secondHadron=*it2;
-
+	      }
+	    else
+	      {
+	      hp->firstHadron=*it2;
+	      hp->secondHadron=*it;
+	      }
 	      //done in HadronPair::compute now...
 	      //	      hp->hadCharge=AnaDef::PN;
 	      //	      hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
