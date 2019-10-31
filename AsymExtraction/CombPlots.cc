@@ -470,7 +470,7 @@ int main(int argc, char** argv)
 		      TH1D* output;
 		      TH1D* outputHighSys;
 		      TH1D* outputLowSys;
-
+		      cout <<"writing pidCorrected" <<endl;
 		      sprintf(buffer,"pidCorrected_binning%d_pid%d_charge_%d.txt",b,p,c);
 		      MultiPlotter::printMatrix(combinedHisto,buffer);
 		      sprintf(buffer,"pidCorrectedUncert_binning%d_pid%d_charge_%d.txt",b,p,c);

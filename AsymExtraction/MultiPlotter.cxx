@@ -2226,12 +2226,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	      weightSum+=weight;
 	      cout << std::fixed;
 	      cout <<setprecision(4);
-	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
+	      //	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
 	      //	      cout << weight <<endl;
-		      	      	      	      	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
-		      	                  cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
-		      	            		      cout <<"theta lab1: "<< hp->labTheta1[i] <<", theta lab2: "<< hp->labTheta2[i] <<endl;
-	                  cout <<"particle type1: "<< hp->particleType1[i] << " particle type2: "<< hp->particleType2[i]<<endl;
+	      //		      	      	      	      	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
+	      //		      	                  cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
+	      //      	            		      cout <<"theta lab1: "<< hp->labTheta1[i] <<", theta lab2: "<< hp->labTheta2[i] <<endl;
+	      //	                  cout <<"particle type1: "<< hp->particleType1[i] << " particle type2: "<< hp->particleType2[i]<<endl;
 
 	    }
 

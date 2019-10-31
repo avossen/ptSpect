@@ -140,7 +140,8 @@ int main(int argc, char** argv)
   if(dataMCFlag==mcFlagMC)
     cout <<"mc Flag!! " <<endl;
   HadronPairArray hadPair(chAll,dataMCFlag);
-  hadPair.zOrdered=true;
+  ///  hadPair.zOrdered=true;
+  hadPair.zOrdered=false;
 
   kMCFlags hadMCFlag=dataMCFlag;
   if(isMC==mcAsData)
@@ -178,7 +179,8 @@ int main(int argc, char** argv)
     {
       pMyEventWoA=new MEvent(chWoA,mcFlagWoA);
       pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
-      pHadPairWoA->zOrdered=true;
+      //      pHadPairWoA->zOrdered=true;
+      pHadPairWoA->zOrdered=false;
     }
 
 
