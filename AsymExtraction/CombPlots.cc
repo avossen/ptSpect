@@ -325,7 +325,7 @@ int main(int argc, char** argv)
 		  //just do the pik
 		  //	  for(int p=0;p<9;p++)
 		  //		  for(int p=1;p<2;p++)
-		  for(int p=0;p<2;p++)
+		  for(int p=0;p<9;p++)
 		    //	  for(int p=0;p<MultiPlotter::NumPIDs;p++)
 		    {
 		      char buffer[500];
@@ -504,7 +504,7 @@ int main(int argc, char** argv)
 			      combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
 			    }
 
-			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			   output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 			}
 		      ///--->save debugs
 

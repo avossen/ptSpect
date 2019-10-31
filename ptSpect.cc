@@ -2135,8 +2135,16 @@ namespace Belle {
 	    HadronPair* hp=new HadronPair();
 	    //	    HadronPair* hp2=new HadronPair();
 	    //	    hp2->secondRun=true;
-	    hp->firstHadron=*it;
-	    hp->secondHadron=*it2;
+            if(rand() % 100 <50)
+	      {
+		hp->firstHadron=*it;
+		hp->secondHadron=*it2;
+	      }
+	    else
+	      {
+		hp->firstHadron=*it2;
+		hp->secondHadron=*it;
+	      }
 	    hp->setDotProducts(dotProduct);
 	    //	    hp2->firstHadron=*it2;
 	    //	    hp2->secondHadron=*it;
@@ -2198,8 +2206,16 @@ namespace Belle {
 	    //		HadronPair* hp2=new HadronPair();
 	    //		hp2->secondRun=true;
 
-	    hp->firstHadron=*it;
-	    hp->secondHadron=*it2;
+            if(rand() % 100 <50)
+	      {
+		hp->firstHadron=*it;
+		hp->secondHadron=*it2;
+	      }
+	    else
+	      {
+		hp->firstHadron=*it2;
+		hp->secondHadron=*it;
+	      }
 	    hp->setDotProducts(dotProduct);
 
 	    //		hp2->firstHadron=*it2;
@@ -2252,8 +2268,16 @@ namespace Belle {
 	    //		HadronPair* hp2=new HadronPair();
 	    //		hp2->secondRun=true;
 
-	    hp->firstHadron=*it;
-	    hp->secondHadron=*it2;
+	               if(rand() % 100 <50)
+			 {
+			   hp->firstHadron=*it;
+			   hp->secondHadron=*it2;
+			 }
+		       else
+			 {
+			   hp->firstHadron=*it2;
+			   hp->secondHadron=*it;
+			 }
 	    hp->setDotProducts(dotProduct);
 
 	    //		hp2->firstHadron=*it2;
@@ -2306,8 +2330,16 @@ namespace Belle {
 	    //	    HadronPair* hp2=new HadronPair();
 	    hp->thrustMethod=true;
 	    //	    hp2->thrustMethod=true;
-	    hp->firstHadron=*it;
-	    hp->secondHadron=*it2;
+	               if(rand() % 100 <50)
+			 {
+			   hp->firstHadron=*it;
+			   hp->secondHadron=*it2;
+			 }
+		       else
+			 {
+			   hp->firstHadron=*it2;
+			   hp->secondHadron=*it;
+			 }
 
 	    //	    hp2->firstHadron=*it2;
 	    //	    hp2->secondHadron=*it;

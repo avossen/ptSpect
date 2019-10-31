@@ -662,7 +662,8 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   TH2D* utaucov= f->GetXtau();
   (*statCov)=utaucov;
   (*mcStatCov)=uadetcov;
-  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,10);
+  ///  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,10);
+  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,1);
 
   //return separate, -->if we would add here, that would also affect our return value, since we only saved the pointer above...
   ///    utaucov->Add(uadetcov);
@@ -971,10 +972,17 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
 
 void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncert)
 {
+  int numZBins=0;
   ofstream of;
   of.open(filename);
   for(int i=0;i<histo->GetNbinsX();i++)
     {
+      if((i%9)==0)
+	{
+	  of <<"new z bin "<<numZBins <<endl;
+	  numZBins++;
+	}
+
       if(saveUncert)
 	of << histo->GetBinError(i+1)<<" ";
       else
