@@ -979,7 +979,7 @@ void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncer
     {
       if((i%9)==0)
 	{
-	  of <<"new z bin "<<numZBins <<endl;
+	  //	  of <<"new z bin "<<numZBins <<endl;
 	  numZBins++;
 	}
 
