@@ -2,7 +2,6 @@
 #ifndef PLOT_RESULTS_H
 #define PLOT_RESULTS_H
 
-#include <cmath>
 #include <iostream>
 
 #include "TObject.h"
@@ -69,9 +68,11 @@ inline void PlotResults::doPrint(bool print)
     mPrint=print;
 }
 
+
+
+//PlotResults& PlotResults::operator +=(const PlotResults& rhs);
 inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 {
-
       double intRhsCount=0;
       double intCount=0;
       for(int i=0;i<maxKtBins;i++)
@@ -121,7 +122,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
   pidBin=rhs.pidBin;
   return *this;
       
-}
+};
 
 
 //to add to PlotResults. This means we have to incrementaly compute weighted mean etc

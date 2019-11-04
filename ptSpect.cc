@@ -3826,8 +3826,7 @@ namespace Belle {
 		      }
 
 		    if(isnan(pidMatrixPositive2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
-		      {
-			pidMatrixPositive2[u][v][i][j]=pidMatrixPositive[u][v][i][j];
+		      {a
 			symUncert2=symUncert;
 		      }
 		    //		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;

@@ -1315,6 +1315,21 @@ void MultiPlotter::addXiniEntry(HadronPairArray* hp2)
       xini[0][pidBin][chargeBin]->Fill(iniBin0);
       xini[1][pidBin][chargeBin]->Fill(iniBin1);
 
+
+            if(pidBin==0 && chargeBin==0)
+	      {
+		cout <<std::fixed;
+		cout.precision(3);
+		//		cout <<"Generated : z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " sys: " << sys<<endl;
+	  //	  cout <<"Generated : z1: "<< hp2->z1[i] << " z2: "<< hp2->z2[i] << " kT: "<< hp2->kT[i] << " bin: ";
+	  //	  cout <<z2Bin1<<"*"<<numZBins2<<"*" << numKtBins<<"+"<<z2Bin2<<"*"<<numKtBins<<"+"<<kTBin2<<"="<< iniBin0<<endl;
+	  //	  cout << "lab theta hadron1: " << hp2->labTheta1[i] << " hadron2: "<< hp2->labTheta2[i] << " lab phi 1: "<< hp2->labPhi1[i] << ", phi2: "<< hp2->labPhi2[i] <<endl;
+//	  //	  cout << "cms theta hadron1: " << hp2->cmsTheta1[i] << " hadron2: "<< hp2->cmsTheta2[i] << " cms phi 1: "<< hp2->cmsPhi1[i] << " "<< hp2->cmsPhi2[i] <<endl;
+//
+
+	      }
+	      
+
 //      if(pidBin==0 && chargeBin==0 && (iniBin0==7 || iniBin0==1084 || iniBin0==1083|| iniBin0==1080))
 //	{
 //	  cout <<std::fixed;
@@ -2014,10 +2029,8 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  cout <<"done with default " << endl;
 	}
-
-
-
-
+      ////correct for the wrong factor we put in the trees
+      sys*=(2*0.25*0.25);
 
       this->qT=hp->qT[i];
 
@@ -2228,13 +2241,20 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  //	  	    cout <<"bt: " << bt <<" chargeBin: " << chargeBin<< " firstBin: " << firstBin << " second: " << secondBin <<" kt: "<< kTBin <<endl;
 	  //		    cout <<"weight: "<< weight <<endl;
 
+
+
+	  
 	  /////for x-check, looking at PiPi weights
-	  if(hp->chargeType[i]==0 && p==PiPi && this->z1 <0.1 && this->z2 < 0.1 && this->kT < 0.45)
+	  //	  if(hp->chargeType[i]==0 && p==PiPi && this->z1 <0.1 && this->z2 < 0.1 && this->kT < 0.45)
+	  if(hp->chargeType[i]==0 && p==PiPi)
 	    {
 	      weightSum+=weight;
 	      cout << std::fixed;
 	      cout <<setprecision(4);
-	      //	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
+
+	      
+	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
+	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " sys: " << sys <<endl;
 	      //	      cout << weight <<endl;
 	      //		      	      	      	      	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
 	      //		      	                  cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
@@ -2258,7 +2278,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  //	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(sys*sys);
 	  //the factor is because in the trees I have a factor of 0.5 for each term, but in reality that should be 0.25^2, since there is a factor of 1/4 in front of the square root, so we have to do 1/0.5 * 0.25^2
-	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(2*0.25*0.25)*sys;
+	  sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=sys;
 	  //	  	  cout <<"adding sys: "<< sys*sys <<" adding to " << sysUncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin] <<endl;
 
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);
