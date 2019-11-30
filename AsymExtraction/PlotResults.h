@@ -1,8 +1,8 @@
-
 #ifndef PLOT_RESULTS_H
 #define PLOT_RESULTS_H
 
 #include <iostream>
+#include <cmath>
 
 #include "TObject.h"
 using namespace std;

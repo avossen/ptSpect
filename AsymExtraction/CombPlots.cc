@@ -1,4 +1,3 @@
- 
 #include "TLegend.h"
 #include <iostream>
 #include <fstream>
@@ -13,14 +12,10 @@
 #include "CombPlots.h"
 //#define MAX_EVENTS 100
 
-
-
-
 using namespace std;
 
 int main(int argc, char** argv)
 {
-
   if(argc<2)
     {
       cout <<"usage: CombPlots rootPath smearingFileName rawSmearingFileName"<<endl;

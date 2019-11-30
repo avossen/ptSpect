@@ -2,7 +2,7 @@
 ///--->in AnaDef.h now
 //#define DEBUG_EVENT  32950
 #define DEBUG_EVENT2 32950
-
+//#define DO_Z_ORDERING
 #define pi0Mass 0.1349766
 #define etaMass 0.548
 //this will be used for the ISR corrections
@@ -3826,7 +3826,7 @@ namespace Belle {
 		      }
 
 		    if(isnan(pidMatrixPositive2[u][v][i][j]) || isnan(matUncertPos2(i,j)) || isnan(matUncertNeg2(i,j)))
-		      {a
+		      {
 			symUncert2=symUncert;
 		      }
 		    //		    symUncert=sqrt(symUncert*symUncert+symUncert2*symUncert2)/2;

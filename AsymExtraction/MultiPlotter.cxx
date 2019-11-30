@@ -158,6 +158,7 @@ void MultiPlotter::loadBinnings()
       binningZ[i].push_back(0.4);
       ////  binningZ.push_back(0.7);
       binningZ[i].push_back(0.5); //// 
+      binningZ[i].push_back(0.6); //// 
   //  binningZ.push_back(0.5);
   //  binningZ.push_back(0.6);
       binningZ[i].push_back(1.11);
@@ -1190,7 +1191,7 @@ void MultiPlotter::savePlots( plotType mPlotType, bool print)
 		  graph.Write();
 
 		}
-	    }
+		}
 	}
       //make sure this is saved...
     }
@@ -1828,7 +1829,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       //      int chargeBin2=hp->chargeType2[i];
       int chargeBin=hp->chargeType[i];
 
-      //      	  cout <<"event nr: " << event.evtNr <<endl;
+      /////           	  cout <<"event nr: " << event.evtNr <<endl;
 
       if(hp->z1[i]>0.1 && hp->z2[i]>0.1 && hp->particleType[i]==0 && hp->chargeType[i]==1)
 	{
@@ -1844,7 +1845,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  cout << std::fixed;
 	  cout <<setprecision(4);
 	  cout <<endl;
-	  cout <<"event nr: " << event.evtNr <<endl;
+	  	  cout <<"event nr: " << event.evtNr <<endl;
 	  if(hp->chargeType[i]==0)
 	    {
 	      	    cout << " same-charged pair";
@@ -2253,8 +2254,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	      cout <<setprecision(4);
 
 	      
-	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
-	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " sys: " << sys <<endl;
+	      //	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
+	      //	      cout <<"event nr: " << event.evtNr << 
+	      ////	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " sys: " << sys <<endl;
 	      //	      cout << weight <<endl;
 	      //		      	      	      	      	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
 	      //		      	                  cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;

@@ -392,13 +392,14 @@ class HadronPair
       //lower perp higher for debug 
       //    if(pinf2.boostedMoms[pionIdx].mag() < pinf1.boostedMoms[pionIdx].mag())
       //	{
-	  kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
+
 	  //	}
 	  //      else
 	  //	{
 	  //	  kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
 	  //	}
-    kT_PiK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
+      kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
+      kT_PiK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
     kT_PiP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[pionIdx]);
     //  kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
 
@@ -412,18 +413,78 @@ class HadronPair
     kT_PK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[protonIdx]);
     kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
 
-    qT_PiPi=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[pionIdx]);
-    qT_PiK=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[kaonIdx]);
-    qT_PiP=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[protonIdx]);
+    qT_PiPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_PiK=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[kaonIdx]);
+    qT_PiP=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx]);
 
 
-    qT_KPi=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[pionIdx]);
-    qT_KK=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[kaonIdx]);
-    qT_KP=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[protonIdx]);
+    qT_KPi=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_KK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[kaonIdx]);
+    qT_KP=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[protonIdx]);
 
-    qT_PPi=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[pionIdx]);
-    qT_PK=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[kaonIdx]);
-    qT_PP=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[protonIdx]);
+    qT_PPi=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_PK=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[kaonIdx]);
+    qT_PP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[protonIdx]);
+
+    bool doZOrdering=false;
+#ifdef DO_Z_ORDERING
+    doZOrdering=true;
+#endif
+
+
+    if(doZOrdering)
+      {
+          if(pinf2.boostedMoms[pionIdx].mag() > pinf1.boostedMoms[pionIdx].mag())
+	    {
+	      kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
+	      qT_PiPi=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[pionIdx]);
+	    }
+          if(pinf2.boostedMoms[kaonIdx].mag() > pinf1.boostedMoms[pionIdx].mag())
+	    {
+	      kT_PiK=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[kaonIdx]);
+	      qT_PiK=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[kaonIdx]);
+	    }
+          if(pinf2.boostedMoms[protonIdx].mag() > pinf1.boostedMoms[pionIdx].mag())
+	    {
+	      kT_PiP=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[protonIdx]);
+	      qT_PiP=getQt(pinf1.boostedLorentzVec[pionIdx],pinf2.boostedLorentzVec[protonIdx]);
+	    }
+
+          if(pinf2.boostedMoms[pionIdx].mag() > pinf1.boostedMoms[kaonIdx].mag())
+	    {
+	      kT_KPi=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[pionIdx]);
+	      qT_KPi=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[pionIdx]);
+	    }
+          if(pinf2.boostedMoms[kaonIdx].mag() > pinf1.boostedMoms[kaonIdx].mag())
+	    {
+	      kT_KK=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[kaonIdx]);
+	      qT_KK=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[kaonIdx]);
+	    }
+          if(pinf2.boostedMoms[protonIdx].mag() > pinf1.boostedMoms[kaonIdx].mag())
+	    {
+	      kT_KP=pinf1.boostedMoms[kaonIdx].perp(pinf2.boostedMoms[protonIdx]);
+	      qT_KP=getQt(pinf1.boostedLorentzVec[kaonIdx],pinf2.boostedLorentzVec[protonIdx]);
+	    }
+
+          if(pinf2.boostedMoms[pionIdx].mag() > pinf1.boostedMoms[protonIdx].mag())
+	    {
+	      kT_PPi=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[pionIdx]);
+	      qT_PPi=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[pionIdx]);
+	    }
+          if(pinf2.boostedMoms[kaonIdx].mag() > pinf1.boostedMoms[protonIdx].mag())
+	    {
+	      kT_PK=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[kaonIdx]);
+	      qT_PK=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[kaonIdx]);
+	    }
+          if(pinf2.boostedMoms[protonIdx].mag() > pinf1.boostedMoms[protonIdx].mag())
+	    {
+	      kT_PP=pinf1.boostedMoms[protonIdx].perp(pinf2.boostedMoms[protonIdx]);
+	      qT_PP=getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[protonIdx]);
+	    }
+
+      }
+
+
 
     ///////---------
 
