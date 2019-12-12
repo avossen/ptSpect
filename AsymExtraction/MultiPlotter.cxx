@@ -973,6 +973,7 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
 
 void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncert)
 {
+  double count=0;
   int numZBins=0;
   ofstream of;
   of.open(filename);
@@ -985,12 +986,19 @@ void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncer
 	}
 
       if(saveUncert)
+	{
 	of << histo->GetBinError(i+1)<<" ";
+	count+=histo->GetBinError(i+1);
+	}
       else
+	{
 	of << histo->GetBinContent(i+1)<<" ";
+	count+=histo->GetBinContent(i+1);
+	}
 
     }
   of<<endl;
+  of<<" total: " << count<<endl;
   of.close();
 
 }
