@@ -14,7 +14,7 @@ const bool PRINT=false;
 
 #include <iomanip>
 #include "TMatrixD.h"
-//#include "ptSpect/mc.h"  //one central place to put the define mc
+#include "ptSpect/mc.h"  //one central place to put the define mc
 #include "event/BelleEvent.h"
 #include "particle/Particle.h"
 #include "ptSpect/TwoHadAsymsCommons.h"
