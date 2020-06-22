@@ -12,7 +12,7 @@
 class NamedExp
 {
  public:
- NamedExp(const char* pathBase, const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):rFile((string(pathBase)+string("/")+string(filenameBase)+nameAdd+".root").c_str(),"recreate")
+  NamedExp(const char* pathBase, const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc, int ftype):rFile((string(pathBase)+string("/")+string(filenameBase)+nameAdd+".root").c_str(),"recreate")
     {
       m_filenameBase=string(filenameBase);
       m_expNr=exNr;
@@ -21,6 +21,7 @@ class NamedExp
       m_uds=uds;
       m_charm=charm;
       m_mc=mc;
+      m_ftype=ftype;
     }
 
 protected:
@@ -31,7 +32,7 @@ protected:
     bool m_charm;
     int m_expNr;
     bool m_onRes;
-
+  int m_ftype;
     TFile rFile;
 };
 

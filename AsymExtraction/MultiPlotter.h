@@ -16,12 +16,14 @@ enum binningType{binType_qTOnly,binType_ThrustOnly,binType_labThetaOnly,binType_
 //enum binningType{ binType_z_z,binType_zOnly,binType_end};
 enum pairType{pairChargeLikesign, pairPN,  pairUnknown,pairTypeEnd};
 enum plotType{plotType_2D ,plotType_end};
+enum fileType{uds,charm,eeuu,eess,eecc,tautau,fileTypeEnd};
+
 //enum pidType{PiPi, PiK, PiP, KPi, KK, KP, PPi, PK, PP, pidTypeEnd};
 
 class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 {
  public:
- MultiPlotter(bool m_useQt,const char* pathBase,const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc):NamedExp(pathBase,filenameBase,nameAdd,exNr,onRes,uds,charm,mc),zCutPi(0.05),zCutPK(0.1),useQt(m_useQt)
+  MultiPlotter(bool m_useQt,const char* pathBase,const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc,int ftype):NamedExp(pathBase,filenameBase,nameAdd,exNr,onRes,uds,charm,mc,ftype),zCutPi(0.05),zCutPK(0.1),useQt(m_useQt)
     {
       numEvts=0;
       hadPairCount=0;

@@ -14,6 +14,7 @@ const int maxKtBins=30;
 class PlotResults   : public TObject
 {
  public:
+  enum fileType{uds,charm,eeuu,eess,eecc,tautau,fileTypeEnd};
   float meanKinBin1;
   float meanKinBin2;
 
@@ -40,6 +41,8 @@ class PlotResults   : public TObject
   bool isUds;
   bool isCharm;
   bool isMC;
+  int fileType;
+  
 
   //1D, 2d, DR
   int calcType;

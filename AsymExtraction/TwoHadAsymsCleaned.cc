@@ -18,7 +18,6 @@ int main(int argc, char** argv)
   cout <<" Computing asymmetries... with argument: " << argv[1] <<endl;
   //  TFile tstFile;
   //  TTree myTree;
-
   //use this for all mc so we have WoA data
 
   Bool_t mcData=false;
@@ -49,7 +48,14 @@ int main(int argc, char** argv)
   bool onResonance=false;
   bool isUds=false;
   bool isCharm=false;
+  bool isEEUU=false;
+  bool isEESS=false;
+  bool isEECC=false;
+  bool isTauTau=false;
 
+  fileType ftype;
+  
+  
   cout <<"folder Name: "<< folderName <<endl;
 
   if(folderName.find("on_resonance")!=string::npos)
@@ -57,9 +63,39 @@ int main(int argc, char** argv)
   if(folderName.find("MC")!=string::npos)
     mcData=true;
   if(folderName.find("uds")!=string::npos)
+    {
     isUds=true;
+    ftype=uds;
+    }
   if(folderName.find("charm")!=string::npos)
-    isCharm=true;
+    {
+      ftype=charm;
+      isCharm=true;
+    }
+if(folderName.find("eeuu")!=string::npos)
+  {
+    isEEUU=true;
+    ftype=eeuu;
+  }
+if(folderName.find("eess")!=string::npos)
+  {
+    ftype=eess;
+    isEESS=true;
+  }
+if(folderName.find("eecc")!=string::npos)
+  {
+    isEECC=true;
+    ftype=eecc;
+  }
+if(folderName.find("tautau")!=string::npos)
+  {
+    ftype=tautau;
+    isTauTau=true;
+  }
+
+
+
+  
 
   char buffer[100];
   if(isCharm)
@@ -201,8 +237,18 @@ int main(int argc, char** argv)
     ss <<"_uds_";
   if(isCharm)
     ss <<"_charm_";
-  if(mcData && !isUds && !isCharm)
-    ss <<"_mcAll_";
+  if(isEEUU)
+    ss <<"_eeuu";
+  if(isEESS)
+    ss <<"_eess";
+  if(isEECC)
+    ss <<"_eecc";
+  if(isTauTau)
+    ss <<"_tautau";
+
+
+  if(mcData && !isUds && !isCharm && !isEEUU &&!isEESS && !isEECC && !isTauTau)
+    ss <<"_mcAll_"; 
   else 
     ss<<"_data_";
 
@@ -213,12 +259,12 @@ int main(int argc, char** argv)
 #endif
 
   cout <<"m_useqt: " << m_useQt <<endl;
-  MultiPlotter smearingPlotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
+  MultiPlotter smearingPlotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,ftype );
   //this one is essentially to save xini for the raw pythia
-  MultiPlotter smearingPlotterRaw(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotterRaw"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData );
-  MultiPlotter plotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+  MultiPlotter smearingPlotterRaw(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotterRaw"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,ftype );
+  MultiPlotter plotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("Normal"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,ftype);
   //  MultiPlotter plotterMC(const_cast<char*>("NormalMC"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
-  MultiPlotter plotterWoA(m_useQt,const_cast<char*>(basePath),const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData);
+  MultiPlotter plotterWoA(m_useQt,const_cast<char*>(basePath),const_cast<char*>("NormalWoA"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,ftype);
   //  MultiPlotter fitPi0SigMinusMix(const_cast<char*>("fitPi0SigMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
   //  MultiPlotter fitPi0BgMinusMix(const_cast<char*>("fitPi0BgMinusMix"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,NUM_PHI_BINS);
 

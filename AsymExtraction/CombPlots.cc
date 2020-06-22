@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 	  cout <<"Plotter Name: " << *it<<endl;
 	  string fullName=(*it)+string(dataMcNameAdd)+(*itFlav);
 	  //I guess this doesn't need an output path
-	  MultiPlotter* pPlotter=new MultiPlotter(m_useQt,const_cast<char*>("."),fullName.c_str(),string(""),0,false,false,false,false);
+	  MultiPlotter* pPlotter=new MultiPlotter(m_useQt,const_cast<char*>("."),fullName.c_str(),string(""),0,false,false,false,false,fileTypeEnd);
 
 	  cout <<" setting plotter name to:" << fullName <<endl;
 	  pPlotter->setName(fullName);
