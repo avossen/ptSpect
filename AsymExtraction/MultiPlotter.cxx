@@ -491,26 +491,71 @@ TH1D*** MultiPlotter::convertAllUnfold2Plots(TH1D* input, int binning,  int char
 //propagated from data1 to data --->actually is set as uncertainty on data1, so all we have to do is propagate...
 //return three cov matrices: uncert due to limited MC statistics (getatdetcovmatrix), stat uncert (getxtau) and PID: propagate pid uncert (sys)
 //with getunfoldcov matrix
-TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D* sys, TH1D** d, TH2D** statCov, TH2D** mcStatCov, TH2D** sysCov, const char* name)
-{  
+TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1, TH1D* data1, TH1D* sys1, TH1D** d, TH2D** statCov, TH2D** mcStatCov, TH2D** sysCov, const char* name)
+{
+
+  cout <<"unfolding with data dim: "  << data1->GetNbinsX() <<endl;
+
+  vector<int> indicesThatIStillHave;
+  vector<int> indicesThatIRemove;
+  indicesThatIStillHave.push_back(350);
+  indicesThatIRemove.push_back(449);
+  indicesThatIRemove.push_back(907);
+  indicesThatIRemove.push_back(1015);
+  
   int countThreshold=0;
   vector<int> lowCountRows;
   for(int ix=0;ix<smearingMatrix1->GetNbinsX();ix++)
     {
       int countX=0;
       int countY=0;
-      for(int iy=0;iy<smearingMatrix1->GetNbinsY();iy++)
+      for(int iy=-1;iy<smearingMatrix1->GetNbinsY()+1;iy++)
 	{
-	  countX+=smearingMatrix1->GetBinContent(ix+1,iy+1);
+	  countX+=smearingMatrix1->GetBinContent(iy+1,ix+1);
+
+	  if(find(indicesThatIStillHave.begin(),indicesThatIStillHave.end(),ix)!=indicesThatIStillHave.end())
+		    {
+		      if(smearingMatrix1->GetBinContent(iy+1,ix+1)>0)
+			cout <<" found entry in "<<ix+1 <<", " << iy+1 << ": " << smearingMatrix1->GetBinContent(ix+1,iy+1) <<endl;
+		    }
+
 	}
       //this row has low counts, let's see if the column is small too
-      if(countX<=countThreshold)
+      //      	  cout <<"index : " << ix <<" rowSum: " << countX <<endl;
+      if(find(indicesThatIStillHave.begin(),indicesThatIStillHave.end(),ix)!=indicesThatIStillHave.end())
 	{
-	  for(int iy=0;iy<smearingMatrix1->GetNbinsY();iy++)
+	  cout <<"index found : " << ix <<" rowSum: " << countX <<endl;
+	}
+      if(find(indicesThatIRemove.begin(),indicesThatIRemove.end(),ix)!=indicesThatIRemove.end())
+	{
+	  cout <<"removed index : " << ix <<" rowSum: " << countX <<endl;
+	}
+      //just check every column
+      //      if(countX<=countThreshold)
+      if(true)
+	{
+	  for(int iy=-1;iy<smearingMatrix1->GetNbinsY()+1;iy++)
 	    {
 	      //switch x and y to check column
-	      countY+=smearingMatrix1->GetBinContent(iy+1,ix+1);
+	      countY+=smearingMatrix1->GetBinContent(ix+1,iy+1);
+	      	  if(find(indicesThatIStillHave.begin(),indicesThatIStillHave.end(),ix)!=indicesThatIStillHave.end())
+		    {
+		      if(smearingMatrix1->GetBinContent(ix+1,iy+1)>0)
+			cout <<" found entry in "<<ix+1 <<", " << iy+1 << ": " << smearingMatrix1->GetBinContent(ix+1,iy+1) <<endl;
+		    }
+
+		  
 	    }
+	  if(find(indicesThatIRemove.begin(),indicesThatIRemove.end(),ix)!=indicesThatIRemove.end())
+	      {
+		cout <<"removed index : " << ix <<" columnSum: " << countY <<endl;
+	      }
+
+	  if(find(indicesThatIStillHave.begin(),indicesThatIStillHave.end(),ix)!=indicesThatIStillHave.end())
+	    {
+	      cout <<"index : " << ix <<" otherDim: " << countY <<endl;
+	    }
+
 	  if(countY<=countThreshold)
 	    {
 	      lowCountRows.push_back(ix);
@@ -518,6 +563,41 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 	}
       
     }
+  //check for diagonal elements
+  for(int ix=0;ix<smearingMatrix1->GetNbinsX();ix++)
+    {
+      	if(find(indicesThatIRemove.begin(),indicesThatIRemove.end(),ix)!=indicesThatIRemove.end())
+	      {
+		cout <<"removed index : " << ix <<" diagonal " << smearingMatrix1->GetBinContent(ix+1,ix+1) <<endl;
+	      }
+
+    if(smearingMatrix1->GetBinContent(ix+1,ix+1)<=countThreshold)
+      {
+	if(find(lowCountRows.begin(),lowCountRows.end(),ix)==lowCountRows.end())
+	  {
+	    lowCountRows.push_back(ix);
+	  }
+
+      }
+    }
+  
+  //check for mcinput ==0
+  for(int ix=0;ix<MC_input1->GetNbinsX();ix++)
+    {
+      	if(find(indicesThatIRemove.begin(),indicesThatIRemove.end(),ix)!=indicesThatIRemove.end())
+	      {
+		cout <<"removed index : " << ix <<" mc input " << MC_input1->GetBinContent(ix+1) <<endl;
+	      }
+
+      if(MC_input1->GetBinContent(ix+1)<=countThreshold)
+	{
+	  if(find(lowCountRows.begin(),lowCountRows.end(),ix)==lowCountRows.end())
+	    {
+	      lowCountRows.push_back(ix);
+	    }
+	  }
+    }
+
   
   cout <<"found " << lowCountRows.size()<<" low count rows " <<endl;
   for(int i=0;i<lowCountRows.size();i++)
@@ -545,11 +625,13 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   cout <<"bins in the beginning: "<< smearingMatrix1->GetNbinsX();
   int initialDimension=smearingMatrix1->GetNbinsX();
   int maxBin=initialDimension-lowCountRows.size();
+  cout <<"maxBin: " << maxBin <<endl;
   cout <<" low countsRows size: "<< lowCountRows.size() <<" maxBins: "<< maxBin<<endl;
   TH2D* smearingMatrix=new TH2D("tmpSm","tmpSm",maxBin,0,maxBin,maxBin,0,maxBin);
   TH1D* MC_input=new TH1D("tmpMCIn","tmpMCIn",maxBin,0,maxBin);
   TH1D* MC_out=new TH1D("tmpMCOut","tmpMCOut",maxBin,0,maxBin);
   TH1D* data=new TH1D("data","data",maxBin,0,maxBin);
+  TH1D* sys=new TH1D("tmpSys","tmpSys",maxBin,0,maxBin);
 
 
   int i2=0;
@@ -563,6 +645,8 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 	  MC_input->SetBinError(i2+1,MC_input1->GetBinError(i+1));
 	  MC_out->SetBinContent(i2+1,MC_out1->GetBinContent(i+1));
 	  MC_out->SetBinError(i2+1,MC_out1->GetBinError(i+1));
+	  sys->SetBinContent(i2+1,sys1->GetBinContent(i+1));
+	  sys->SetBinError(i2+1,sys1->GetBinError(i+1));
 
 	  data->SetBinContent(i2+1,data1->GetBinContent(i+1));
 	  data->SetBinError(i2+1,data1->GetBinError(i+1));
@@ -602,6 +686,14 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
       cout <<data->GetBinContent(i+1) <<" error: " << data->GetBinError(i+1)<<" ";
       ///--->
       //only diagonal
+      cout <<"setting statcov " << i+1 <<", " << i+1<<": " << data->GetBinError(i+1)*data->GetBinError(i+1);
+      cout <<" fraction data: " << data->GetBinError(i+1)/data->GetBinContent(i+1)<<endl;
+      cout <<"setting syscov " << i+1 <<", " << i+1 << ": " << sys->GetBinError(i+1)*sys->GetBinError(i+1);
+      cout <<"should probably be  " << i+1 <<", " << i+1 << ": " << sys->GetBinContent(i+1)*sys->GetBinContent(i+1) <<" (from square of " << sys->GetBinContent(i+1) <<") ";
+      //comparing with charlotte, it seems that sys->GetBinContent gives the correct sys error. The error on that is
+      //just the squar root
+      cout <<" fraction data: " << sys->GetBinError(i+1)/data->GetBinContent(i+1)<<endl;
+      cout <<" or better: " << sys->GetBinContent(i+1)/data->GetBinContent(i+1)<<endl;
       statcovMatrix->SetBinContent(i+1,i+1,data->GetBinError(i+1)*data->GetBinError(i+1));
       syscovMatrix->SetBinContent(i+1,i+1,sys->GetBinContent(i+1)*sys->GetBinContent(i+1));
       //      for(int j =0;j<data->GetNbinsX();j++)
@@ -610,34 +702,35 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 
 	}
     }
+
  
 
 
   cout <<endl<<"smearingMatrix: " <<endl;
   double scalingFactor=1.0;
   //loop seems for scaling which we don't do anyways
-  for(int j =0;j<smearingMatrix->GetNbinsY();j++)
-    {
-      MC_out->SetBinContent(j+1,MC_out->GetBinContent(j+1)/scalingFactor);
-      MC_input->SetBinContent(j+1,MC_input->GetBinContent(j+1)/scalingFactor);
-      data->SetBinContent(j+1,data->GetBinContent(j+1)/scalingFactor);
-      statcovMatrix->SetBinContent(j+1,j+1,statcovMatrix->GetBinContent(j+1,j+1)/scalingFactor);
-      for(int i =0;i<smearingMatrix->GetNbinsX();i++)
-	{
-	  //	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
-	  smearingMatrix->SetBinContent(i+1,j+1,smearingMatrix->GetBinContent(i+1,j+1)/scalingFactor);
-
-	  if(i==j)
-	    {
-	      //      smearingMatrix->SetBinContent(i+1,j+1,50.0);
-	    }
-	  else
-	    {
-	      //	    smearingMatrix->SetBinContent(i+1,j+1,0.0);
-	    }
-	}
-      cout <<endl;
-    }
+////  for(int j =0;j<smearingMatrix->GetNbinsY();j++)
+////    {
+////      MC_out->SetBinContent(j+1,MC_out->GetBinContent(j+1)/scalingFactor);
+////      MC_input->SetBinContent(j+1,MC_input->GetBinContent(j+1)/scalingFactor);
+////      data->SetBinContent(j+1,data->GetBinContent(j+1)/scalingFactor);
+////      statcovMatrix->SetBinContent(j+1,j+1,statcovMatrix->GetBinContent(j+1,j+1)/scalingFactor);
+////      for(int i =0;i<smearingMatrix->GetNbinsX();i++)
+////	{
+////	  //	  cout <<smearingMatrix->GetBinContent(i+1,j+1) <<" " ;	  
+////	  smearingMatrix->SetBinContent(i+1,j+1,smearingMatrix->GetBinContent(i+1,j+1)/scalingFactor);
+////
+////	  if(i==j)
+////	    {
+////	      //      smearingMatrix->SetBinContent(i+1,j+1,50.0);
+////	    }
+////	  else
+////	    {
+////	      //	    smearingMatrix->SetBinContent(i+1,j+1,0.0);
+////	    }
+////	}
+////      //      cout <<endl;
+////    }
   cout <<"smMatrixEnd"<<endl;
   TCanvas cT("c1","c1",0,0,2000,2000);
   cT.SetLogz();
@@ -649,22 +742,57 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   cout <<endl;
   cout <<"--->"<<endl;
   int rank=MC_input->GetNbinsX();
+  //  rank-=100;
+  cout <<"input statcov: " << endl;
+  for(int i=0;i<statcovMatrix->GetNbinsX();i++)
+    {
+      for(int j=0;j<statcovMatrix->GetNbinsY();j++)
+	{
+	  cout<< statcovMatrix->GetBinContent(i+1,j+1)<<" ";
+	}
+      cout <<endl;
+    }
+
   TSVDUnfold* f=new TSVDUnfold(data,statcovMatrix,MC_out,MC_input,smearingMatrix);
-  cout <<"2"<<endl;
-    f->SetNormalize(false);
+  f->SetNormalize(false);
+  cout <<"input statcov: " << endl;
+
+
+  for(int i=0;i<statcovMatrix->GetNbinsX();i++)
+    {
+      for(int j=0;j<statcovMatrix->GetNbinsY();j++)
+	{
+	  cout << statcovMatrix->GetBinContent(i+1,j+1)<<" ";
+	}
+      cout <<endl;
+    }
+  
+
+  
   //  f->SetNormalize(true);
-  cout<<"normalized, using rank "<< rank <<endl;
+    //  cout<<"normalized, using rank--> "<< rank <<endl;
   TH1D* ret=f->Unfold(rank);
   cout <<"use " <<rank <<" ranks " <<endl;
 
-  TH2D* uadetcov=f->GetAdetCovMatrix(10);
-
   cout <<"4"<<endl;
-  TH2D* utaucov= f->GetXtau();
-  (*statCov)=utaucov;
+  //  TH2D* utaucov= f->GetXtau();
+  //    (*statCov)=utaucov;
+   (*statCov)=f->GetUnfoldCovMatrix(statcovMatrix,20);
+  cout <<"output statcov: " << endl;
+  for(int i=0;i<(*statCov)->GetNbinsX();i++)
+    {
+      for(int j=0;j<(*statCov)->GetNbinsY();j++)
+	{
+	  cout << "("<<i+1<<","<<j+1<<": " <<(*statCov)->GetBinContent(i+1,j+1)<<" ";
+	}
+      cout <<endl;
+    }
+    cout <<"1 testing statcov 2,1: "<< (*statCov)->GetBinContent(2,1)<<endl;
+  TH2D* uadetcov=f->GetAdetCovMatrix(10);
   (*mcStatCov)=uadetcov;
+  cout <<"statcov dim: "<< (*statCov)->GetNbinsX()<<endl;
   ///  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,10);
-  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,1);
+  (*sysCov)=f->GetUnfoldCovMatrix(syscovMatrix,10);
 
   //return separate, -->if we would add here, that would also affect our return value, since we only saved the pointer above...
   ///    utaucov->Add(uadetcov);
@@ -674,10 +802,10 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   TH1D* ret2=(TH1D*)ret->Clone(buffer);
   for(int i=0;i<ret2->GetNbinsX();i++)
     {
-      ret2->SetBinError(i,TMath::Sqrt(utaucov->GetBinContent(i,i)));
+      //            ret2->SetBinError(i,TMath::Sqrt(utaucov->GetBinContent(i,i)));
     }
 
-
+  cout <<"2 testing statcov 2,1: "<< (*statCov)->GetBinContent(2,1)<<endl;
   (*d)=f->GetD();
   for(int i=0;i<ret->GetNbinsX();i++)
     {
@@ -695,7 +823,7 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 
   float lowerEdge=ret2->GetBinLowEdge(1);
   float upperEdge=ret2->GetBinLowEdge(ret2->GetNbinsX())+ret2->GetBinWidth(ret2->GetNbinsX());
-
+  cout <<"3 testing statcov 2,1: "<< (*statCov)->GetBinContent(2,1)<<endl;
   sprintf(buffer,"%s_%s_statCov",data->GetName(),name);
   TH2D* statCovFullsize=new TH2D(buffer,buffer,initialDimension,lowerEdge,upperEdge,initialDimension,lowerEdge,upperEdge);
   sprintf(buffer,"%s_%s_mcStatCov",data->GetName(),name);
@@ -711,7 +839,9 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
     {
       cout <<i<<"-->"<<ret2->GetBinContent(i+1)<<", "<<endl;
     }
-
+  cout <<"4 testing statcov 2,1: "<< (*statCov)->GetBinContent(2,1)<<endl;
+  cout <<"filling output statcov" <<endl;
+  redCount=0;
   for(int i=0;i<ret3->GetNbinsX();i++)
     {
       //not dropped
@@ -719,23 +849,29 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
 	{
 	  cout <<i+1 <<"("<<redCount+1<<")-->"<<ret2->GetBinContent(redCount+1)<<endl;
 	  ret3->SetBinContent(i+1,ret2->GetBinContent(redCount+1));
-	  redCount++;
+	  redCount2=0;
 	  for(int j=0;j<ret3->GetNbinsX();j++)
 	    {
 	      if(find(lowCountRows.begin(),lowCountRows.end(),j)==lowCountRows.end())
 		{
+		  if((i==1&& j==0) || (i==0 &&j==1) || (i==0&& j==0))
+		      cout <<"5 testing statcov 2,1: "<< (*statCov)->GetBinContent(2,1)<<endl;
+		    
+		  cout <<i+1<<","<< j+1 <<"("<<redCount+1<<","<<redCount2+1<<")-->"<<(*statCov)->GetBinContent(redCount+1,redCount2+1)<<endl;
 		  statCovFullsize->SetBinContent(i+1,j+1,(*statCov)->GetBinContent(redCount+1,redCount2+1));
 		  sysCovFullsize->SetBinContent(i+1,j+1,(*sysCov)->GetBinContent(redCount+1,redCount2+1));
 		  mcStatCovFullsize->SetBinContent(i+1,j+1,(*mcStatCov)->GetBinContent(redCount+1,redCount2+1));
 		  redCount2++;
 		}
 	    }
+	  cout <<endl;
+	  redCount++;
 	}
-
-      (*statCov)=statCovFullsize;
-      (*sysCov)=sysCovFullsize;
-      (*mcStatCov)=mcStatCovFullsize;
     }
+  (*statCov)=statCovFullsize;
+  (*sysCov)=sysCovFullsize;
+  (*mcStatCov)=mcStatCovFullsize;
+
   return ret3;
 }
 
@@ -971,8 +1107,10 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
   return ret;
 }
 
+
 void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncert)
 {
+  cout <<" printing matrix of size " << histo->GetNbinsX() <<endl;
   double count=0;
   int numZBins=0;
   ofstream of;
@@ -1002,6 +1140,8 @@ void MultiPlotter::printMatrix(TH1D* histo, const char* filename, bool saveUncer
   of.close();
 
 }
+
+
 void MultiPlotter::printMatrix(TH2D* histo, const char* filename, bool saveUncert)
 {
   ofstream of;
@@ -1015,7 +1155,7 @@ void MultiPlotter::printMatrix(TH2D* histo, const char* filename, bool saveUncer
 	  else
 	    of << histo->GetBinContent(i+1,j+1)<<" ";
 	}
-      cout <<endl;
+      //      cout <<endl;
     }
   of<<endl;
   of.close();

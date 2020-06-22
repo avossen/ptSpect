@@ -466,6 +466,11 @@ int main(int argc, char** argv)
 		      TH1D* outputHighSys;
 		      TH1D* outputLowSys;
 		      cout <<"writing pidCorrected" <<endl;
+
+		      sprintf(buffer,"xini_binning%d_pid%d_charge_%d.txt",b,p,c);
+		      MultiPlotter::printMatrix(xini,buffer);
+		      sprintf(buffer,"bini_binning%d_pid%d_charge_%d.txt",b,p,c);
+		      MultiPlotter::printMatrix(bini,buffer);
 		      sprintf(buffer,"pidCorrected_binning%d_pid%d_charge_%d.txt",b,p,c);
 		      MultiPlotter::printMatrix(combinedHisto,buffer);
 		      sprintf(buffer,"pidCorrectedUncert_binning%d_pid%d_charge_%d.txt",b,p,c);
@@ -477,7 +482,10 @@ int main(int argc, char** argv)
 		      sprintf(buffer,"_binning%d_pid%d_charge_%d.png",b,p,c);
 		      if(!closureTest)
 			{
+			  cout <<"unfolding w/o closure test .." <<endl;
 			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			  cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
+			  cout <<"printing unfolding output " <<endl;
 			  sprintf(buffer,"unfolded_binning%d_pid%d_charge_%d.txt",b,p,c);
 			  MultiPlotter::printMatrix(output,buffer);
 			  sprintf(buffer,"statCov_binning%d_pid%d_charge_%d.txt",b,p,c);
@@ -498,8 +506,9 @@ int main(int argc, char** argv)
 			    {
 			      combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
 			    }
-
+			  cout <<"unfolding .." <<endl;
 			   output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			   cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
 			}
 		      ///--->save debugs
 
