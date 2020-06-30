@@ -776,9 +776,9 @@ TH1D* MultiPlotter::unfold(TH2D* smearingMatrix1, TH1D* MC_input1,TH1D* MC_out1,
   cout <<"use " <<rank <<" ranks " <<endl;
 
   cout <<"4"<<endl;
-  //  TH2D* utaucov= f->GetXtau();
-  //    (*statCov)=utaucov;
-  (*statCov)=f->GetUnfoldCovMatrix(statcovMatrix,1200);
+    TH2D* utaucov= f->GetXtau();
+      (*statCov)=utaucov;
+  //  (*statCov)=f->GetUnfoldCovMatrix(statcovMatrix,1200);
   cout <<"output statcov: " << endl;
   for(int i=0;i<(*statCov)->GetNbinsX();i++)
     {
