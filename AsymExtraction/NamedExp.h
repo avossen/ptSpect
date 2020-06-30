@@ -14,6 +14,9 @@ class NamedExp
  public:
   NamedExp(const char* pathBase, const char* filenameBase,string nameAdd, int exNr, bool onRes, bool uds, bool charm,bool mc, int ftype):rFile((string(pathBase)+string("/")+string(filenameBase)+nameAdd+".root").c_str(),"recreate")
     {
+
+     string tmpFName= (string(pathBase)+string("/")+string(filenameBase)+nameAdd+".root");
+     cout <<"creating file " <<tmpFName.c_str()<<endl;
       m_filenameBase=string(filenameBase);
       m_expNr=exNr;
       m_onRes=onRes;

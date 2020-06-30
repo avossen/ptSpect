@@ -1238,7 +1238,7 @@ void MultiPlotter::savePlots( plotType mPlotType, bool print)
   rFile.cd();
   cout <<" makeing tree.. " << endl;
   TTree *tree = new TTree("PlotTree","PlotTree");
-  cout <<"about to branch" <<endl;
+  cout <<"about to branch" <<tree <<endl;
   tree->Branch("PlotBranch","PlotResults",&loc_plotResults,32000,99);
 
   cout <<"save plot after branch" <<endl;
@@ -2437,6 +2437,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*firstKin);
 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*secondKin);
+	  //	  cout <<"filling mean val for kt bin : " << kTBin <<" with kT: " << kT << " weight: " << weight <<endl;
 	  meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*kT);
 
 
