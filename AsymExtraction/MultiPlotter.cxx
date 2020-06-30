@@ -1231,11 +1231,14 @@ void MultiPlotter::printDebug(plotType mPlotType)
 
 void MultiPlotter::savePlots( plotType mPlotType, bool print)
 {
+  cout <<"in save plots " << endl;
   PlotResults* m_plotResults=plotResults;
   PlotResults* loc_plotResults=0;
-
+  cout <<" accessing file " << endl;
   rFile.cd();
+  cout <<" makeing tree.. " << endl;
   TTree *tree = new TTree("PlotTree","PlotTree");
+  cout <<"about to branch" <<endl;
   tree->Branch("PlotBranch","PlotResults",&loc_plotResults,32000,99);
 
   cout <<"save plot after branch" <<endl;
