@@ -494,8 +494,6 @@ int main(int argc, char** argv)
 			  MultiPlotter::printMatrix(*mcStatCov,buffer);
 			  sprintf(buffer,"sysCov_binning%d_pid%d_charge_%d.txt",b,p,c);
 			  MultiPlotter::printMatrix(*sysCov,buffer);
-
-
 			  //			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 			  //			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 		      //for closure test, bini is output....
@@ -511,18 +509,13 @@ int main(int argc, char** argv)
 			   cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
 			}
 		      ///--->save debugs
-
-
-
 		      ///-->just for tmp
 		       //		      output=combinedHisto;
 		      output->Draw();
-
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.pdf",b,p,c);
 		      cnvs.SaveAs(buffer);
-
 		      ////---->now we should save the unfolded result into the plotResults again and save the whole plotter
 		      pPlotter->setHistogram(b,c,p,combinedHisto,combinedHistoUpperSys,combinedHistoLowerSys);
 

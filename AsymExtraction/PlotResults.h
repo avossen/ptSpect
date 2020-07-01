@@ -113,6 +113,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	}
 
 
+      fileType=rhs.fileType;
   isUds=rhs.isUds;
   isCharm=rhs.isCharm;
   isMC=rhs.isMC;
