@@ -929,7 +929,7 @@ void MultiPlotter::setHistogram(int binning, int chargeType, int pidType, TH1D* 
 
     }
 
-}
+    }
 }
 //void MultiPlotter::getIntAsymmetry(float a[3], float ea[3],int binningType,int chargeType, bool save1D)
 

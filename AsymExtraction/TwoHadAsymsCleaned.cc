@@ -53,7 +53,7 @@ int main(int argc, char** argv)
   bool isEECC=false;
   bool isTauTau=false;
 
-  fileType ftype;
+  fileType ftype=data;
   
   
   cout <<"folder Name: "<< folderName <<endl;

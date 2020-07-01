@@ -16,7 +16,7 @@ enum binningType{binType_qTOnly,binType_ThrustOnly,binType_labThetaOnly,binType_
 //enum binningType{ binType_z_z,binType_zOnly,binType_end};
 enum pairType{pairChargeLikesign, pairPN,  pairUnknown,pairTypeEnd};
 enum plotType{plotType_2D ,plotType_end};
-enum fileType{uds,charm,eeuu,eess,eecc,tautau,fileTypeEnd};
+enum fileType{uds,charm,eeuu,eess,eecc,tautau,data,fileTypeEnd};
 
 //enum pidType{PiPi, PiK, PiP, KPi, KK, KP, PPi, PK, PP, pidTypeEnd};
 
