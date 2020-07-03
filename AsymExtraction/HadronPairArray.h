@@ -209,8 +209,8 @@ struct HadronPairArray:public ReaderBase
   //the pid dependent cuts (z, kT) should be done for the correct hypothesis
 
   //changed the upper cut to something high, since we are now doing a pid depdendent upper cut
-
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(100.0), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.8)//kTCut(5.31145668)
+  ///changed the thetaCMSLower to 0.9 (from 0.8) based on Charlottes study
+ HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(100.0), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.9)//kTCut(5.31145668)
   {
     zOrdered=false;
     followFlip=false;
