@@ -68,6 +68,100 @@ namespace Belle {
 	mGZBins.push_back(0.75);
 	mGZBins.push_back(1.1);
       }
+
+
+    //id or heavier
+    bool hasHeavyQuark(int idhep, int heavyQuarkId)
+    {
+
+      //check baryons first
+      if(idhep<10000  && idhep > 1000)
+	{
+	  if(ihep> heavyQuarkId*1000)
+	    return true;
+
+	  return false;
+	}
+
+      //modulo 10000 to focus on the 'hundreds' for excited mesons and baryons
+      idhep=idhep%1000;
+
+      if(idhep >=200)
+	{
+	  if(idhep>=heavyQuarkId*100)
+	    {
+	      return true;
+	    }
+	  else
+	    {
+	      return false;
+	    }
+	}
+
+      return false;
+
+    }
+
+
+    //parameter is the child particle and if we check for ud (pions,protons for which a strange in the heritage signals weak decay or kaon (only charm))
+    bool isWeakDecay(Gen_hepevt_Manager::iterator gen_it, int heaviestQuark)
+    {
+      ///if pdg<100 --> end of the line (string, quark etc)
+      if(gen_it->mother()==0)
+	return false;
+      if(abs(gen_it->mother()->idhep())<100)
+	return false;
+
+      int motherId=abs(gen_it->mother()->idhep());
+      Gen_hepevt_Manager& gen_hepevt_mgr = Gen_hepevt_Manager::get_manager();
+      Gen_hepevt& mother=gen_it->mother();
+      //strong decay of quarkonium
+      //j/psi is 443, phi 333
+      if((motherId%1000)=443) 
+	return false;
+      if((motherId%1000)=333) 
+	return false;
+      //seems to come from heavier quark, now check if that mother has other daughters with the heavy quark
+      if(hasHeavyQuark(motherId,heaviestQuark))
+	{
+	  //for each daugher check
+	  int n_children = mother.daLast() - mother.daFirst() + 1;
+
+	  genhep_vec *children = new genhep_vec();
+
+	  for(int i=0; i<n_children; i++) {
+
+	    Panther_ID ID0(mother.daFirst()+i);
+	    if(ID0==0)
+	      {
+	  //	  if(PRINT)
+	  //	    cout <<"wrong!!!" <<endl;
+		break;
+	      }
+	    Gen_hepevt& temp = gen_hepevt_mgr(ID0);
+
+	    //found kid
+	    if (temp) 
+	      {
+		//another id has the heavy quark
+		if(hasHeavyQuark(abs(temp->idhep()),heaviestQuark))
+		  {
+		    return false;
+		  }
+		//	children->push_back(&temp);
+	      }
+	  }
+
+	  return true;
+	}
+
+
+
+      
+    }
+
+
+
       int getIdxFromGeantId(int geantId)
       {
 	if(fabs(geantId)==lc_pPlus)
@@ -470,7 +564,7 @@ namespace Belle {
       for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
 	{
 
-	  //	  isWeakDecay(gent_it);
+	   isWeakDecay(gen_it);
 	  ///check if it was weak decay
 	  int geantID=abs(gen_it->idhep());//plus is ok, since it is the abs value
 	  //for now, take all stable charged particles
