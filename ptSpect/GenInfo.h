@@ -469,6 +469,9 @@ namespace Belle {
       //      cout <<"iterating" <<endl;
       for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
 	{
+
+	  //	  isWeakDecay(gent_it);
+	  ///check if it was weak decay
 	  int geantID=abs(gen_it->idhep());//plus is ok, since it is the abs value
 	  //for now, take all stable charged particles
 	  if(gen_it->isthep()!=1) //isthep==1: stable, ==2, unstable
