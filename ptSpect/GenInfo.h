@@ -32,6 +32,9 @@
 #include "fastjet/ClusterSequence.hh"
 #include <iostream>
 
+
+#define LESS_FIELDS
+
 using namespace fastjet;
 using namespace std;
 
@@ -207,26 +210,34 @@ namespace Belle {
       addArrayF("z1_mcWoA");
       addArrayF("z2_mcWoA");
 
+#ifndef LESS_FIELDS
       addArrayF("labTheta1_mcWoA");
       addArrayF("labTheta2_mcWoA");
       
       addArrayF("labPhi1_mcWoA");
       addArrayF("labPhi2_mcWoA");
 
+#endif
       addArrayF("cmsTheta1_mcWoA");
       addArrayF("cmsTheta2_mcWoA");
 
+#ifndef LESS_FIELDS      
       addArrayF("cmsPhi1_mcWoA");
       addArrayF("cmsPhi2_mcWoA");
 
       addArrayF("thrustProj1_mcWoA");
       addArrayF("thrustProj2_mcWoA");
 
+#endif      
       addArrayF("kT_mcWoA");
       //hadron quad level
       //qT
+
+#ifndef LESS_FIELDS      
       addArrayF("HadDiffTheta_mcWoA");
       addArrayF("HadDiffPhi_mcWoA");
+#endif
+      
       addArrayF("qT_mcWoA");
 
       //hadron pair level seems to be fine
@@ -338,26 +349,29 @@ namespace Belle {
 	    float cmsPhi1=dynamic_cast<ParticleInfo&>(pair->firstHadron->userInfo()).cmsPhi;
 	    float cmsPhi2=dynamic_cast<ParticleInfo&>(pair->secondHadron->userInfo()).cmsPhi;
 	
-	
+#ifndef LESS_FIELDS	
 	    tData.dataF.push_back(labTheta1);
 	    tData.dataF.push_back(labTheta2);
 	    
 	    tData.dataF.push_back(labPhi1);
 	    tData.dataF.push_back(labPhi2);
-
+#endif
 	
 	    tData.dataF.push_back(cmsTheta1);
 	    tData.dataF.push_back(cmsTheta2);
-	    
+#ifndef LESS_FIELDS	    
 	    tData.dataF.push_back(cmsPhi1);
 	    tData.dataF.push_back(cmsPhi2);
 
 	    tData.dataF.push_back(pair->firstHadron->p3().dot(cmThrust)/(pair->firstHadron->p3().mag()*cmThrust.mag()));
 	    tData.dataF.push_back(pair->secondHadron->p3().dot(cmThrust)/(pair->secondHadron->p3().mag()*cmThrust.mag()));
+#endif
+	    
 	    tData.dataF.push_back(pair->kT);
+#ifndef LESS_FIELDS      	    
 	    tData.dataF.push_back(pair->diffTheta);
 	    tData.dataF.push_back(pair->diffPhi);
-
+#endif
 	    tData.dataF.push_back(pair->qT);
 
 	    tData.dataI.push_back(pair->hadCharge);      
