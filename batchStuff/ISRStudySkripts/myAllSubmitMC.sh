@@ -52,6 +52,7 @@ echo "#BSUB -o  /group/belle/users/vossen/ptSpectOut/ISRStudies/$myDir/jobId_$su
 echo "#BSUB -e  /group/belle/users/vossen/ptSpectOut/ISRStudies/$myDir/jobId_$subCounter.err" >> $targetShFile
 echo "#BSUB -J ISRStudy_$subCounter"  >> $targetShFile 
 cat batchHead2.sh >> $targetShFile 
+echo "module put_parameter ptSpect onlyGen\\7" >> $targetShFile
 echo "module put_parameter ptSpect rfname\\/group/belle/users/vossen/ptSpect/ISRStudies/$myDir/job_$subCounter.root" >> $targetShFile
 cat batchMiddle.sh >> $targetShFile
 echo "process_event /btmp/$fWOExt 0" >> $targetShFile

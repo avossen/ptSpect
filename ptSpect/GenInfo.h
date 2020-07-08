@@ -27,7 +27,12 @@
 #include "ptSpect/Savable.h"
 #include "ptSpect/ParticleInfoMass.h"
 #include "ptSpect/DebugHistos.h"
+#include "tables/mctype.h"
 #include BELLETDF_H
+#include MDST_H
+#include EVTCLS_H
+#include "particle/Particle.h"
+#include "particle/utility.h"
 
 #include "fastjet/ClusterSequence.hh"
 #include <iostream>
@@ -77,7 +82,7 @@ namespace Belle {
       //check baryons first
       if(idhep<10000  && idhep > 1000)
 	{
-	  if(ihep> heavyQuarkId*1000)
+	  if(idhep> heavyQuarkId*1000)
 	    return true;
 
 	  return false;
@@ -104,31 +109,43 @@ namespace Belle {
 
 
     //parameter is the child particle and if we check for ud (pions,protons for which a strange in the heritage signals weak decay or kaon (only charm))
-    bool isWeakDecay(Gen_hepevt_Manager::iterator gen_it, int heaviestQuark)
+    bool isWeakDecay(Gen_hepevt& candidate, int heaviestQuark)
     {
-      ///if pdg<100 --> end of the line (string, quark etc)
-      if(gen_it->mother()==0)
-	return false;
-      if(abs(gen_it->mother()->idhep())<100)
-	return false;
-
-      int motherId=abs(gen_it->mother()->idhep());
+      //      cout <<"checking if " << candidate.idhep() <<" is from weak decay" <<endl;
       Gen_hepevt_Manager& gen_hepevt_mgr = Gen_hepevt_Manager::get_manager();
-      Gen_hepevt& mother=gen_it->mother();
+      Gen_hepevt& mother=candidate.mother();
+
+      ///if pdg<100 --> end of the line (string, quark etc)
+      if(mother==0)
+	{
+	  //	  cout <<"mother 0" <<endl;
+	return false;
+	}
+      int motherId=abs(mother.idhep());      
+      if(motherId<100)
+	{
+	  //	  cout <<"mother some sort of string: " << motherId <<endl;
+	  return false;
+	}
+
+      //      cout <<"motherid is : "<< motherId <<endl;
       //strong decay of quarkonium
       //j/psi is 443, phi 333
-      if((motherId%1000)=443) 
-	return false;
-      if((motherId%1000)=333) 
-	return false;
+      int motherIdMod1000=motherId%1000;
+
+      if(motherIdMod1000==443 || motherIdMod1000==333) 
+	{
+	  //	  cout <<"quarkonium" <<endl;
+	  return false;
+	}
       //seems to come from heavier quark, now check if that mother has other daughters with the heavy quark
+      //      cout <<"check if mother has heavier quark " <<endl;
       if(hasHeavyQuark(motherId,heaviestQuark))
 	{
+	  //	  cout <<"mother has heavier quark " <<endl;
 	  //for each daugher check
 	  int n_children = mother.daLast() - mother.daFirst() + 1;
-
-	  genhep_vec *children = new genhep_vec();
-
+	  //	  cout <<"check " << n_children <<" children "<<endl;
 	  for(int i=0; i<n_children; i++) {
 
 	    Panther_ID ID0(mother.daFirst()+i);
@@ -139,24 +156,30 @@ namespace Belle {
 		break;
 	      }
 	    Gen_hepevt& temp = gen_hepevt_mgr(ID0);
-
+	    //	    cout <<"checking child " << temp.idhep() <<endl;
+	    //don't look into the current candidate again
+	    if(temp==candidate)
+	      {
+		//			cout <<"this is us..." <<endl;
+		continue;
+	      }
 	    //found kid
 	    if (temp) 
 	      {
 		//another id has the heavy quark
-		if(hasHeavyQuark(abs(temp->idhep()),heaviestQuark))
+		if(hasHeavyQuark(abs(temp.idhep()),heaviestQuark))
 		  {
+		    //		    cout <<" another child has heavy quark " <<endl;
 		    return false;
 		  }
 		//	children->push_back(&temp);
 	      }
 	  }
-
+	  //	  cout <<"no other child has heavy quark" <<endl;
 	  return true;
 	}
-
-
-
+      //      cout <<"mother is light... keep checking" <<endl;
+      return isWeakDecay(mother,heaviestQuark);
       
     }
 
@@ -222,9 +245,9 @@ namespace Belle {
 
     void finalize()
     {
-      cout <<"gi write" <<endl;
+      //      cout <<"gi write" <<endl;
       tData.pDataTree->Write();
-      cout <<" done gi write " <<endl;
+      //      cout <<" done gi write " <<endl;
     }
 
     void fillInf()
@@ -235,8 +258,9 @@ namespace Belle {
     }
 
     void doAll(vector<Particle*>& ap, bool eventCut)
+
     {
-      //      cout <<"do all.." <<endl;
+      //            cout <<"do all.." <<endl;
       //hopefully after thust computation
       //  if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
       //      if(cmThrustMag<cuts::minThrust|| abs(cmThrust.z()/cmThrust.mag()> cuts::maxThrustZ))
@@ -310,7 +334,6 @@ namespace Belle {
       
       addArrayF("labPhi1_mcWoA");
       addArrayF("labPhi2_mcWoA");
-
 #endif
       addArrayF("cmsTheta1_mcWoA");
       addArrayF("cmsTheta2_mcWoA");
@@ -321,7 +344,6 @@ namespace Belle {
 
       addArrayF("thrustProj1_mcWoA");
       addArrayF("thrustProj2_mcWoA");
-
 #endif      
       addArrayF("kT_mcWoA");
       //hadron quad level
@@ -342,7 +364,7 @@ namespace Belle {
       addArrayI("particleType1_mcWoA");
       addArrayI("chargeType2_mcWoA");
       addArrayI("particleType2_mcWoA");
-    
+      addArrayI("isWeakDecay");    
       //missing on event level:
       //thrustTheta
       //thrustThetaLab
@@ -357,6 +379,8 @@ namespace Belle {
 
       addFieldI("runNr");
       addFieldI("evtNr");
+
+
 
       tData.initialized=true;
     };
@@ -475,9 +499,10 @@ namespace Belle {
 	    tData.dataI.push_back(pair->hadPType1);
 	    tData.dataI.push_back(pair->hadCharge2);      
 	    tData.dataI.push_back(pair->hadPType2);
+	    tData.dataI.push_back(pair->isWeakDecay);
 
 	  }
-	//	cout <<"4"<<endl;      
+		//	cout <<"4"<<endl;      
 	numF=tData.dataF.size();  //always the same, 
 	numI=tData.dataI.size(); 
 	//how many array values do we have? At this point we haven't added event data yet...
@@ -563,8 +588,6 @@ namespace Belle {
       //      cout <<"iterating" <<endl;
       for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
 	{
-
-	   isWeakDecay(gen_it);
 	  ///check if it was weak decay
 	  int geantID=abs(gen_it->idhep());//plus is ok, since it is the abs value
 	  //for now, take all stable charged particles
@@ -596,6 +619,31 @@ namespace Belle {
 	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
 	  pinf.boostedMoms[getIdxFromGeantId(geantID)]=boostedVec.vect();
 	  pinf.boostedLorentzVec[getIdxFromGeantId(geantID)]=boostedVec;
+	  //strange
+	  int heaviestQuark=3;
+	  if(geantID==lc_kPlus)
+	    {
+	      heaviestQuark=4;
+	      //	      cout <<"checking if kaon comes from weak decay" <<endl;
+	    }
+	  else
+	    {
+	      if(geantID==lc_piPlus)
+		{
+		  //		cout <<"checking if pion comes from weak decay"<<endl;
+		}
+	      if(geantID==lc_pPlus)
+		{
+		  //		cout <<"checking if proton comes from weak decay"<<endl;
+		}
+	    }
+
+
+	  if(isWeakDecay(*gen_it,heaviestQuark))
+	    pinf.isWeakDecay=1;
+	  else
+	    pinf.isWeakDecay=0;
+
 	  //	  cout <<"geant id is : "<< geantID <<" index: "<< getIdxFromGeantId(geantID) <<endl;
 	  //	  cout <<"adding particle with z: "<< m_z <<endl;
 	  //need some cutoff so we are not swamped with pairs. This should be the same as in the analysis
@@ -713,12 +761,19 @@ namespace Belle {
 		  hp->secondHadron=*it;
 	
 	      }
-
+		    
 		  //done in HadronPair::compute now...
 		  //	      nhp->hadCharge=AnaDef::PN;
 		  //	      hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
 		  //first hemi
 		  hp->compute();
+		  ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
+		  ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+
+		  if(pinf1.isWeakDecay || pinf2.isWeakDecay)
+		    hp->isWeakDecay=1;
+		  else
+		    hp->isWeakDecay=0;
 		  //		  cout <<" creating pair with z1: "<< hp->z1 <<" z2: "<< hp->z2 <<endl;
 		  v_hadronPairs.push_back(hp);
 

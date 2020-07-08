@@ -1,3 +1,4 @@
+
 //#define DEBUG_EVENT 287880//please no output
 ///--->in AnaDef.h now
 //#define DEBUG_EVENT  32950
@@ -601,7 +602,7 @@ namespace Belle {
       }
 
 
-    //    cout <<"value of onlygen: "<< onlyGen_ << ", onlyGen: " << onlyGen <<endl;
+    //       cout <<"value of onlygen: "<< onlyGen_ << ", onlyGen: " << onlyGen <<endl;
 
     bool eventCut=false;
     int evtNr;
@@ -609,11 +610,17 @@ namespace Belle {
     /////for xcheck
 
     if(Belle_event_Manager::get_manager().begin()==Belle_event_Manager::get_manager().end())
-      return;
-
-    evtNr=Belle_event_Manager::get_manager().begin()->EvtNo();
-    runNr=Belle_event_Manager::get_manager().begin()->RunNo();
-
+      {
+	//	cout <<"no event manager " <<endl;
+	if(!onlyGen)
+	  return;
+	evtNr=0;
+	runNr=0;
+      }
+    else{
+      evtNr=Belle_event_Manager::get_manager().begin()->EvtNo();
+      runNr=Belle_event_Manager::get_manager().begin()->RunNo();
+    }
     kinematics::runNr=runNr;
     kinematics::evtNr=evtNr;
 
@@ -2669,6 +2676,7 @@ namespace Belle {
 	    if(kaon.charge()+pion.charge()!=0) continue;
 	    HepLorentzVector p_d0=pion.p()+kaon.p();
 	    double m=p_d0.mag();
+
 
 
 

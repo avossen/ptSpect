@@ -17,6 +17,7 @@ class ParticleInfo:public ParticleUserInfo
   //identified as
   int idAs;
   int charge;
+  int isWeakDecay;
 
   float pidProbabilities[5];
   float pidProbabilities2[5];

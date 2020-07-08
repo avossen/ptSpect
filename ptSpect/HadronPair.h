@@ -30,7 +30,10 @@ class HadronPair
       hadPType1=AnaDef::SH_TypeUnknown;
       hadPType2=AnaDef::SH_TypeUnknown;
 
+      isWeakDecay=0;
+
     };
+  int isWeakDecay;
   float m_dotProduct[25];
   bool secondRun;
   bool thrustMethod;
