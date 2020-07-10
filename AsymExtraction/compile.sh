@@ -11,7 +11,8 @@ rootcint -f PlotRes_Dict.C -c  PlotResults.h
 ###clang++ $CFLAGS TwoHadAsymsCleaned.cc TwoHadAsymsCommons.cc MultiPlotter.cxx HadronPairArray.cxx PlotRes_Dict.C PlotResults.cxx -o TwoHadAsymsCMod
 #clang $CFLAGS TwoHadAsymsCleaned.cc TwoHadAsymsCommons.cc MultiPlotter.cxx HadronPairArray.cxx PlotRes_Dict.C PlotResults.cxx -o TwoHadAsymsCMod 
 ###c++ $CFLAGS CombPlots.cc TwoHadAsymsCommons.cc PlotRes_Dict.C MultiPlotter.cxx HadronPairArray.cxx PlotResults.cxx -o CombPlots
-c++ $CFLAGS drawNonQQContrib.cxx TwoHadAsymsCommons.cc PlotRes_Dict.C MultiPlotter.cxx HadronPairArray.cxx PlotResults.cxx -o drawNonQQContrib
+###c++ $CFLAGS drawNonQQContrib.cxx TwoHadAsymsCommons.cc PlotRes_Dict.C MultiPlotter.cxx HadronPairArray.cxx PlotResults.cxx -o drawNonQQContrib
+c++ $CFLAGS drawRadSysContrib.cxx TwoHadAsymsCommons.cc PlotRes_Dict.C MultiPlotter.cxx HadronPairArray.cxx PlotResults.cxx -o drawRadSysContrib
 #clang $CFLAGS CombPlots.cc TwoHadAsymsCommons.cc PlotRes_Dict.C MultiPlotter.cxx HadronPairArray.cxx PlotResults.cxx -o CombPlots
 #c++ $CFLAGS SysRatio.cc TwoHadAsymsCommons.cc PlotRes_Dict.C MultiPlotter.cxx HadronPairArray.cxx PlotResults.cxx -o SysRatio
 #c++ $CFLAGS TwoHadAsymsCleaned.cc TwoHadAsymsCommons.cc MultiFitter.cxx HadronQuadArray.cxx HadronPairArrays.cxx -o TwoHadAsymsC

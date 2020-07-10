@@ -144,6 +144,7 @@ int main(int argc, char** argv)
 
 	      //check if the  result we are reading right now is compatible with the 
 	      //flavor we are looking for
+	      //anyways only doing "all" here...
 	      if((*itFlav)==string("_charm"))
 		{
 		  if(!plotResultsYes->isCharm)
