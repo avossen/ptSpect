@@ -291,6 +291,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     double***** meanValues_kin1;
     double***** meanValues_kin2;
     double****** meanValues_kT;
+  double****** weakDecayFraction;
 };
 
 

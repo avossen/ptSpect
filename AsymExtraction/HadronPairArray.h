@@ -400,7 +400,7 @@ struct HadronPairArray:public ReaderBase
 
 	if(mMCFlag==mcFlagWoA)
 	  {
-	    branchNamesI.push_back(isWeakDecay);
+	    branchPointersI.push_back(isWeakDecay);
 	  }
 	if(mMCFlag!=mcFlagNone)
 	  {

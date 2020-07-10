@@ -30,6 +30,8 @@ class PlotResults   : public TObject
   float kTValues2[maxKtBins];
   float kTMeans[maxKtBins];
 
+  float weakDecayFraction[maxKtBins];
+  
 
   int numKtValues;
 

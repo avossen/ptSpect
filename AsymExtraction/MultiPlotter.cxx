@@ -83,6 +83,7 @@ void MultiPlotter::doPlots(bool print)
 
 
 			  plotResults[resIdx].kTMeans[ktBin]=meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  plotResults[resIdx].weakDecayFraction[ktBin]=weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  if(bt==binType_z_z && chargeBin==0)
 			    {
 			      if(print)
@@ -97,10 +98,10 @@ void MultiPlotter::doPlots(bool print)
 			  plotResults[resIdx].meanKinBin1=meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
 			  plotResults[resIdx].meanKinBin2=meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]/locCount;
 			}
-			  else{
-			    plotResults[resIdx].meanKinBin1=0;
-			    plotResults[resIdx].meanKinBin2=0;
-			  }
+		      else{
+			plotResults[resIdx].meanKinBin1=0;
+			plotResults[resIdx].meanKinBin2=0;
+		      }
 
 
 		      plotResults[resIdx].firstKinBin=firstBin;
@@ -2439,7 +2440,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*secondKin);
 	  //	  cout <<"filling mean val for kt bin : " << kTBin <<" with kT: " << kT << " weight: " << weight <<endl;
 	  meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*kT);
-
+	  weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=hp->isWeakDecay[i];
 
 	  if(chargeBin==pairChargeLikesign && pidBin==PiPi && bt==binType_z_z)
 	    {

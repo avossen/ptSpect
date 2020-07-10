@@ -1,3 +1,4 @@
+
 #include "TLegend.h"
 #include <iostream>
 #include <fstream>
@@ -65,8 +66,6 @@ int main(int argc, char** argv)
   cout <<"got " << vYesISRFilenames.size() <<" and " << vNoISRFilenames.size() <<" filenames " <<endl;
   //assuming that we have to combine uds and charm
   int numPlotters=vYesISRFilenames.size()/2;
-
-
 
   enum flavor{flavUds,flavCharm,flavAll,flavEnd};
   enum onOffRes{res_on,res_off,resEnd};
