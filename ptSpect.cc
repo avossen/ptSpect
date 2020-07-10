@@ -12,6 +12,7 @@
 //const bool onlyGen=true;
 const bool PRINT=false;
 
+#define LESS_FIELDS
 
 #include <iomanip>
 #include "TMatrixD.h"

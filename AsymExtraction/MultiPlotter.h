@@ -142,6 +142,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
       meanValues_kin1=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins);
       meanValues_kin2=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins);
       meanValues_kT=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
+      //only from MC
+      weakDecayFraction=allocateArray<double>(numKinematicBinning,NumPIDs,NumCharges,maxKinBins,maxKinBins,numKtBins);
 
     };
   bool useQt;

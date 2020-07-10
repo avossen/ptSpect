@@ -5,14 +5,15 @@ counter=0;
 
 dateString=`date +%d%b%Y`
 
-for tune in 13
+#for tune in 13
+for tune in 12 13 14
 #for tune in 00 01 10 11 12 13 14
 do
-for yn in yes 
-#for yn in yes no
+#for yn in yes 
+for yn in yes no
 do
-for spec in uds 
-#for spec in uds charm 
+#for spec in uds 
+for spec in uds charm 
 do
 subCounter=0;
 myDir=genMC_red_Tune$tune\_ISR$yn\_$spec

@@ -657,6 +657,11 @@ namespace Belle {
 	      delete np;
 	      continue;
 	    }
+	  if(boostedVec.theta()<0.9 || boostedVec.theta()>2.4)
+	    {
+	      delete np;
+	      continue;
+	    }
 	  //theta should be the one in the lab system as before...
 	  pinf.labTheta=labTheta;
 	  pinf.labPhi=labPhi;

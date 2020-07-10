@@ -193,6 +193,8 @@ struct HadronPairArray:public ReaderBase
 
 
   int chargeType[Max_ArrSize];
+  int isWeakDecay[Max_ArrSize];
+
   int particleType[Max_ArrSize];
 
 
@@ -395,6 +397,11 @@ struct HadronPairArray:public ReaderBase
 	branchPointersI.push_back(chargeType);
 	branchPointersI.push_back(particleType);
 
+
+	if(mMCFlag==mcFlagWoA)
+	  {
+	    branchNamesI.push_back(isWeakDecay);
+	  }
 	if(mMCFlag!=mcFlagNone)
 	  {
 	  }
@@ -573,6 +580,7 @@ struct HadronPairArray:public ReaderBase
 	//unfortunately the naming convention was not kept...
 	if(mMCFlag==mcFlagWoA)
 	  {
+	    branchNamesI.push_back("isWeakDecay");
 	    //	    branchNamesI.push_back("motherGenID"+sAdd+"1"+addendum);
 	    //	    branchNamesI.push_back("motherGenID"+sAdd+"2"+addendum);
 	  }
