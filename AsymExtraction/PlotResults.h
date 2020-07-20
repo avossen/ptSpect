@@ -92,6 +92,11 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	      
 	      kTMeans[i]=1.0/(kTValues[i]+rhs.kTValues[i])*(kTMeans[i]*kTValues[i] + rhs.kTMeans[i]*rhs.kTValues[i]);
 	    }
+	  //just assign the rhs side. Assume that we are not really adding files 
+	  //	  if(weakDecayFraction[i]!=0 && rhs.weakDecayFraction[i]!=0)
+	    {
+	      weakDecayFraction[i]=rhs.weakDecayFraction[i];
+	    }
 	  kTValues[i]+=rhs.kTValues[i];
 	  kTValues1[i]+=rhs.kTValues1[i];
 	  kTValues2[i]+=rhs.kTValues2[i];
@@ -126,6 +131,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
   secondKinBin=rhs.secondKinBin;
   resultIndex=rhs.resultIndex;
   pidBin=rhs.pidBin;
+
   return *this;
       
 };
