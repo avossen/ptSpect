@@ -348,6 +348,7 @@ namespace Belle {
     cout <<" Q is : "<<kinematics::Q<< endl;
     kinematics::firstElectronCM.boost(kinematics::CMBoost);
     kinematics::secondElectronCM.boost(kinematics::CMBoost);
+    cout <<"coming back from run init " <<endl;
     return;
   }
 
@@ -595,13 +596,18 @@ namespace Belle {
   // event function
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
+
     //        cout <<"debug event : " << DEBUG_EVENT <<endl;
     bool onlyGen=false;
     if(onlyGen_>0.0)
       {
+	//	cout <<"only gen! " <<endl;
 	onlyGen=true;
       }
-
+    //    cout <<" not only gen " <<endl;
+#ifdef MC 
+    //    cout <<"MC!!" <<endl;
+#endif
 
     //       cout <<"value of onlygen: "<< onlyGen_ << ", onlyGen: " << onlyGen <<endl;
 

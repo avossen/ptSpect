@@ -2058,7 +2058,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 
 
-	  weight1=hp->p_PiK[i];
+	  weight1=hp->p_PiK1[i];
 	  weight2=hp->p_PiK2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_PiK[i];
@@ -2074,7 +2074,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
 
-	  weight1=hp->p_PiP[i];
+	  weight1=hp->p_PiP1[i];
 	  weight2=hp->p_PiP2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_PiP[i];
@@ -2089,7 +2089,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p)|| dotProduct >0.0)
 	     continue;
 
-	  weight1=hp->p_KPi[i];
+	  weight1=hp->p_KPi1[i];
 	  weight2=hp->p_KPi2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_KPi[i];
@@ -2103,7 +2103,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->dotProduct=hp->dp_KK[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
-	  weight1=hp->p_KK[i];
+	  weight1=hp->p_KK1[i];
 	  weight2=hp->p_KK2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_KK[i];
@@ -2117,7 +2117,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->dotProduct=hp->dp_KP[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
-	  weight1=hp->p_KP[i];
+	  weight1=hp->p_KP1[i];
 	  weight2=hp->p_KP2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_KP[i];
@@ -2133,7 +2133,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->dotProduct=hp->dp_PPi[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
-	  weight1=hp->p_PPi[i];
+	  weight1=hp->p_PPi1[i];
 	  weight2=hp->p_PPi2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_PPi[i];
@@ -2147,7 +2147,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->dotProduct=hp->dp_PK[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct >0.0)
 	    continue;
-	  weight1=hp->p_PK[i];
+	  weight1=hp->p_PK1[i];
 	  weight2=hp->p_PK2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_PK[i];
@@ -2162,7 +2162,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  this->dotProduct=hp->dp_PP[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p)|| dotProduct > 0.0)
 	    continue;
-	  weight1=hp->p_PP[i];
+	  weight1=hp->p_PP1[i];
 	  weight2=hp->p_PP2[i];
 	  //	  weight=(weight1+weight2)/2;
 	  weight=hp->p_PP[i];

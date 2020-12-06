@@ -34,8 +34,6 @@ HadronPairArray& HadronPairArray::operator=(HadronPairArray rhs)
 
 void HadronPairArray::setSingleElement(int pairCounter,HadronPairArray& hp,int index)
 {
-
-
   z1[pairCounter]=hp.z1[index];
   z2[pairCounter]=hp.z1[index];
 
@@ -54,7 +52,6 @@ void HadronPairArray::setSingleElement(int pairCounter,HadronPairArray& hp,int i
   particleType2[pairCounter]=hp.particleType2[index];
 
   cut[pairCounter]=hp.cut[index];
-
 
 };
 
