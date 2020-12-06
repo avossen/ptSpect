@@ -19,7 +19,9 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-
+  //calculated from the ratio of woa, no fix mdst mc exp 55
+  float uds_charm_ratio=1.634170926;
+  
   bool m_useQt=false;
   //should have hadronPairArray where this is defined included
 #ifdef USE_QT
@@ -58,6 +60,7 @@ int main(int argc, char** argv)
       cout <<" adding " << line <<" to no " << endl;
       vNoISRFilenames.push_back(line);
     }
+  cout <<" closing list " <<endl;
   listNoISR.close();
   srand(time(NULL));
 
@@ -86,11 +89,13 @@ int main(int argc, char** argv)
 
   //  float a[3];
   //  float ea[3];
-
+  cout <<" going through flavors " <<endl;
   for(vector<string>::iterator itFlav=flavor.begin();itFlav!=flavor.end();itFlav++)
     {
+      cout <<"flavor: "<< *itFlav<<endl;
       for(int iP=0;iP<numPlotters;iP++)
 	{
+	  cout << iP << " of " << numPlotters << endl;
       //woA plotter
 	  chAllYes=new TChain("PlotTree");
 	  chAllNo=new TChain("PlotTree");
@@ -155,11 +160,29 @@ int main(int argc, char** argv)
 		  if(plotResultsYes->isCharm)
 		    continue;
 		}
+
+//	      if(plotResultsYes->isUds)
+//		{
+//		  cout <<"looking at uds, weighting..." <<endl;
+//		  plotResultsYes->weight(uds_charm_ratio);
+//		}
+//	      if(plotResultsNo->isUds)
+//		{
+//		  	  cout <<"looking at uds, weighting..." <<endl;
+//			  plotResultsNo->weight(uds_charm_ratio);
+//		}
+//	      if(!plotResultsYes->isUds || !plotResultsNo->isUds)
+//		{
+//		  cout <<" this is charm, no weighting " <<endl;
+//		}
+	      //the weighting is a function of the plotter. So if we need it, we need to keep the plotter for
+	      //uds and charm separate
+	      
 	      pWoAPlotterYes->plotResults[plotResultsYes->resultIndex]+=(*plotResultsYes);
 	      pWoAPlotterNo->plotResults[plotResultsNo->resultIndex]+=(*plotResultsNo);
 	    }
 	  vPlottersYes.push_back(pWoAPlotterYes);
-	  vPlottersNo.push_back(pWoAPlotterNo);
+ 	  vPlottersNo.push_back(pWoAPlotterNo);
 	}
     }
   
@@ -219,8 +242,6 @@ int main(int argc, char** argv)
 			
 			}
 		    }
-
-
 		}
 
 	      ofstream f;

@@ -14,7 +14,8 @@
 #include "HadronPairArray.h"
 #include "CombPlots.h"
 //#define MAX_EVENTS 100
-
+float uds_charm_ratio=1.634170926;
+//float uds_charm_ratio=1;
 using namespace std;
 
 int main(int argc, char** argv)
@@ -103,8 +104,6 @@ int main(int argc, char** argv)
     }
 
   srand(time(NULL));
-
-
   //reduced asymmetries for charm, uds, all
 
   setStyleOpts();
@@ -118,7 +117,8 @@ int main(int argc, char** argv)
 
   TChain** myChains[4];
   cout <<"after chains " <<endl;
-  string names[]={"uds","charm"};  
+  //added the combined as the last index
+  string names[]={"uds","charm","nd","nd","combined"};  
   string plotterName=string("NormalWoA");
   MultiPlotter** plotters[4];
   for(int i=0;i<4;i++)
@@ -140,8 +140,6 @@ int main(int argc, char** argv)
 	  myChains[i][j]=new TChain("PlotTree");
 	  myChains[i][j]->Add((string(paths[i][j])+"/"+plotterName+"_*.root").c_str());
 
-
-
 	  sprintf(buffer,"%s_%s_%i_%i",plotterName.c_str(),dataMcNameAdd,i,j);
 	  string fullName=string(buffer);
 	  plotters[i][j]=new MultiPlotter(m_useQt,const_cast<char*>("."),(fullName+names[i]).c_str(),string(""),0,false,false,false,false,fileTypeEnd);
@@ -158,30 +156,38 @@ int main(int argc, char** argv)
 	      plotters[i][j]->plotResults[plotResults->resultIndex]+=(*plotResults);
 	    }
 	  cout <<"done with entries.." <<endl;
+	  if(i==udsyes || i==udsno)
+	    {
+	      cout <<"weighting uds " << endl;
+	      plotters[i][j]->weight(uds_charm_ratio);
+	    }
+	  else
+	    {
+	      cout <<"charm, not weighted " << endl;
+	    }
 	}
     }
-
   //should have now filled all plotters, do the histos
-
   int binningType=binType_z_z;
-    int pidBin=0; //pipi
+  int pidBin=0; //pipi
   //    int pidBin=2; //pipi
   int chargeBin=likesign; //same charge
-
   int maxFirstBin=plotters[0][0]->maxKinMap[pidBin][binningType].first;
   int maxSecondBin=plotters[0][0]->maxKinMap[pidBin][binningType].second;
   int resIdx=plotters[0][0]->getResIdx(binningType,pidBin,chargeBin,0,0);
   int numKtBins=plotters[0][0]->plotResults[resIdx].numKtValues;
-  TGraph*** graphs[4];
-  TGraph*** graphsWeak[4];
-  for(int i=0;i<4;i++)
+  //not sure why the dimension is 4 but let's use i==4 (so changed max to 5) for the combined (0,1 corresponds to uc=1, might use 2,3 for mixed,...)
+  //changed
+  TGraph*** graphs[5];
+  TGraph*** graphsWeak[5];
+  for(int i=0;i<5;i++)
     {
       graphsWeak[i]=new TGraph**[numFiles];
       graphs[i]=new TGraph**[numFiles];
       for(int j=0;j<numFiles;j++)
 	{
-	      graphs[i][j]=new TGraph*[maxFirstBin];
-	      graphsWeak[i][j]=new TGraph*[maxFirstBin];
+	  graphs[i][j]=new TGraph*[maxFirstBin];
+	  graphsWeak[i][j]=new TGraph*[maxFirstBin];
 	}
     }
     
@@ -206,8 +212,13 @@ int main(int argc, char** argv)
     }
   //0 uds, 1 charm
   cout <<"running over " << numKtBins <<" kt bins " <<endl;
-    for(int i=0;i<2;i++)
+    for(int i=0;i<5;i++)
     {
+      if(i==2 || i==3)
+	{
+	  //not implemented yet
+	  continue;
+	}
       for(int j=0;j<numFiles;j++)
 	{
 	  for(int zbin=0;zbin<maxFirstBin;zbin++)
@@ -221,24 +232,58 @@ int main(int argc, char** argv)
 	      for(int k=0;k<numKtBins;k++)
 		{
 		  //    cout <<"filling x,y num " << j <<" with mean: " << plotters[i]->plotResults[resIdx].kTMeans[j] <<" value: "<< plotters[i]->plotResults[resIdx].kTValues[j]  <<endl;
-		  //look at the no radiation (i+1) 
-		  double kTMean=plotters[2*i+1][j]->plotResults[resIdx].kTMeans[k];
-		  double kTVal=plotters[2*i+1][j]->plotResults[resIdx].kTValues[k];
-		  double kTValWRad=plotters[2*i][j]->plotResults[resIdx].kTValues[k];
-		  cout <<"ktMean: "<< kTMean <<" ktVal: "<< kTVal <<" ktValWRad: " << kTValWRad <<endl;
-		  if(kTMean==0 || isnan(kTMean)|| kTVal==0||isnan(kTVal) )
+		  //look at the no radiation (i+1)
+		  double kTMean=0;
+		  double kTVal=0;
+		  double kTValWRad=0;
+		  double weakRatio=0;
+
+		  float kTValU=0;
+		  float kTValC=0;
+		  float weakRatioU=0;
+		  float weakRatioC=0;
+		  switch(i)
 		    {
+		    case 0:
+		    case 1:
+		      kTMean=plotters[2*i+1][j]->plotResults[resIdx].kTMeans[k];
+		      kTVal=plotters[2*i+1][j]->plotResults[resIdx].kTValues[k];
+		      kTValWRad=plotters[2*i][j]->plotResults[resIdx].kTValues[k];
+		      weakRatio=plotters[2*i+1][j]->plotResults[resIdx].weakDecayFraction[k];
+		      break;
+		    case 4:
+		      //just take one of the uds/charm for the means
+		      kTMean=plotters[1][j]->plotResults[resIdx].kTMeans[k];
+		      kTValU=plotters[1][j]->plotResults[resIdx].kTValues[k];
+		      kTValC=plotters[3][j]->plotResults[resIdx].kTValues[k];
+		      kTVal=kTValU+kTValC;
+		      kTValWRad=plotters[0][j]->plotResults[resIdx].kTValues[k]+plotters[2][j]->plotResults[resIdx].kTValues[k];
+		      weakRatioU=plotters[1][j]->plotResults[resIdx].weakDecayFraction[k];
+		      weakRatioC=plotters[3][j]->plotResults[resIdx].weakDecayFraction[k];
+		      weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
+		      break;
+		    default:
+		      cout <<"i is wrong " <<endl;
+		    }
+		  
+		  cout <<"ktMean: "<< kTMean <<" ktVal: "<< kTVal <<" ktValWRad: " << kTValWRad <<endl;
+		  if(kTMean==0 || isnan(kTMean)|| kTVal==0||isnan(kTVal) || kTValWRad==0)
+		    {
+		      cout <<"invalid point " <<endl;
 		      missPoints++;
 		      continue;
 		    }
-
+		
 		  //		  double ratio=(kTVal-kTValWRad)/kTVal;
 		  //Ralf shows it this way, so do the same for comparison
 		  double ratio=kTVal/kTValWRad;
-		  float weakRatio=plotters[2*i+1][j]->plotResults[resIdx].weakDecayFraction[k];
+		  
 		  cout <<"zbin: "<< zbin <<" ktBin: " << k <<" mean: "<< kTMean << "ratio: "<< ratio <<" weakratio: " << weakRatio <<endl;
 		  if(ratio>maxVals[zbin])
-		    maxVals[zbin]=ratio;
+		    {
+		      cout <<"setting maxVal to " << ratio <<endl;
+		      maxVals[zbin]=ratio;
+		    }
 		  if(ratio<minVals[zbin])
 		    {
 		      minVals[zbin]=ratio;
@@ -253,7 +298,7 @@ int main(int argc, char** argv)
 		  YWeak[k]=weakRatio;
 		}
 	      cout <<"making graphs " << i <<endl;
-	      sprintf(buffer,"graph_%s_file%i",names[i].c_str(),j);
+	      sprintf(buffer,"graph_%s_file%i_%i",names[i].c_str(),j,i);
 	      cout <<"name : " << buffer <<endl;
 	      graphs[i][j][zbin]=new TGraph(numKtBins-missPoints,X,Y);
 	      graphs[i][j][zbin]->SetName(buffer);
@@ -267,7 +312,6 @@ int main(int argc, char** argv)
 	      graphsWeak[i][j][zbin]->SetMarkerColor(colors[j%5]);
 	      //	  graphs[i][zbin]->SetMarkerSize(2);
 	      graphsWeak[i][j][zbin]->SetMarkerStyle(markerStyles[j%5]);
-
 	    }
 	}
     }
@@ -279,14 +323,24 @@ int main(int argc, char** argv)
   if(minCCount>12)
     minCCount=12;
 
-  for(int uc=0;uc<2;uc++)
+
+  cout <<"minCCount: "<< minCCount <<endl;
+  for(int uc=0;uc<5;uc++)
     {
+      if(uc==2 || uc==3)
+	{
+	  //not implemented yet
+	  continue;
+	}
+
       for(int i=0;i<minCCount;i++)
 	{
+	  if(i==6)
+	    {
+	      cout <<"minVals: "<< minVals[i] <<" max vals : "<< maxVals[i] <<endl;
+	    }
 	  TVirtualPad* p=c.cd(i+1);
       //      p->SetLogy();
-
-	  
 	  graphs[uc][0][i]->GetYaxis()->SetRangeUser(minVals[i]-0.5*fabs(minVals[i]),maxVals[i]+0.5*fabs(maxVals[i]));
 	  graphs[uc][0][i]->GetXaxis()->SetRangeUser(0,maxValsX[i]*1.2);
 	  graphs[uc][0][i]->Draw("AP");      
@@ -304,22 +358,30 @@ int main(int argc, char** argv)
       legend->Draw();
       if(uc==0)
 	sprintf(buffer,"radCorr_uds.png");
-      else
+      if(uc==1)
 	sprintf(buffer,"radCorr_charm.png");
+      if(uc==4)
+	sprintf(buffer,"radCorr_all.png");
       c.SaveAs(buffer);
     }
 
   ///weak stuff:
 
-  for(int uc=0;uc<2;uc++)
+  for(int uc=0;uc<5;uc++)
     {
+      if(uc==2 || uc==3)
+	{
+	  //not implemented yet
+	  continue;
+	}
+
       for(int i=0;i<minCCount;i++)
 	{
 	  TVirtualPad* p=c.cd(i+1);
       //      p->SetLogy();
-	  graphsWeak[0][0][i]->GetYaxis()->SetRangeUser(0,1.0);
-	  graphsWeak[0][0][i]->GetXaxis()->SetRangeUser(0,maxValsX[i]*1.2);
-	  graphsWeak[0][0][i]->Draw("AP");      
+	  graphsWeak[uc][0][i]->GetYaxis()->SetRangeUser(0,1.0);
+	  graphsWeak[uc][0][i]->GetXaxis()->SetRangeUser(0,maxValsX[i]*1.2);
+	  graphsWeak[uc][0][i]->Draw("AP");      
 	  for(int j=1;j<numFiles;j++)
 	    {
 	      graphsWeak[0][j][i]->Draw("SAME P");      
@@ -334,8 +396,11 @@ int main(int argc, char** argv)
       legend->Draw();
       if(uc==0)
 	sprintf(buffer,"weakDecay_uds.png");
-      else
+      if(uc==1)
 	sprintf(buffer,"weakDecay_charm.png");
+      if(uc==4)
+	sprintf(buffer,"weakDecay_all.png");
+
       c.SaveAs(buffer);
     }
 

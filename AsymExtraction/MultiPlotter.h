@@ -150,6 +150,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //
     //    void setFitReuslt();
   unsigned int getNumKtBins(){return numKtBins;};
+  //multiply plot results with the weight factor
+  void weight(float weightFactor);
 
   bool cutOnDotProduct(HadronPairArray* hp, int index, int pidBin);
   bool pidDependentCut(float z1, float z2, float kT, int pid);

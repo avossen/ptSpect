@@ -1179,7 +1179,8 @@ void MultiPlotter::printDebug(plotType mPlotType)
   char buffer1[200];
   int binningType=binType_z_z;
   int pidType=PiPi;
-  int chargeType=pairChargeLikesign;
+  //  int chargeType=pairChargeLikesign;
+    int chargeType=pairPN;
   //  for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
     {
       //      for(int pidType=0;pidType<9;pidType++)
@@ -2758,7 +2759,32 @@ void MultiPlotter::reorder(float* mX, float* mY, float* mYErr, int numBins)
       cout <<"mX["<<i-firstXBin <<"] from tmpX["<<counter<<"] is " <<  mX[i-firstXBin]<<endl;
     }
 }
+void MultiPlotter::weight(float weightFactor)
+{
+  for(int bt=binType_z_z; bt<binType_end;bt++)
+    {
+      for(int chargeBin=0;chargeBin<2;chargeBin++)
+	{
+	  for(int pidBin=0;pidBin<NumPIDs;pidBin++)
+	    {
+	      for(int firstBin=0;firstBin<maxKinMap[pidBin][bt].first;firstBin++)
+		{
+		  for(int secondBin=0;secondBin<maxKinMap[pidBin][bt].second;secondBin++)
+		    {
+		      int resIdx=getResIdx(bt,pidBin,chargeBin,firstBin,secondBin);
+		      for(unsigned int ktBin=0;ktBin<numKtBins;ktBin++)
+			{
+			  plotResults[resIdx].kTValues[ktBin]*=weightFactor;
+			  plotResults[resIdx].kTValues1[ktBin]*=weightFactor;
+			  plotResults[resIdx].kTValues2[ktBin]*=weightFactor;
+			}
+		    }
+		}
+	    }
+	}
+    }
 
+}
 
 const int MultiPlotter::numKinematicBinning=7;
 const int MultiPlotter::NumCharges=3;

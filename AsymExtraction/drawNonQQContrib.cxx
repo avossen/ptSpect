@@ -16,6 +16,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+  bool setDataToZero=true;
   if(argc<5)
     {
       cout <<"usage: drawNonQQContrib eeuu eess eecc tautau data"<<endl;
@@ -137,6 +138,32 @@ int main(int argc, char** argv)
       maxVals[i]=0;
       maxValsX[i]=0;
     }
+
+
+  ///////save to txt ----
+  for(int i=0;i<5;i++)
+    {
+      if(i==0)
+	cout <<"printing eeuu " <<endl;
+      if(i==1)
+	cout <<"printing eess " <<endl;
+      if(i==2)
+	cout <<"printing eecc " <<endl;
+      if(i==3)
+	cout <<"printing eetautau " <<endl;
+
+
+      if(i>3)
+	cout <<"printing data " <<endl;
+
+      plotters[i]->printDebug(plotType_2D);
+    }
+
+
+
+  /////
+
+  
   for(int i=0;i<5;i++)
     {
       for(int zbin=0;zbin<maxFirstBin;zbin++)
@@ -152,6 +179,8 @@ int main(int argc, char** argv)
 	      double kTMean=plotters[i]->plotResults[resIdx].kTMeans[j];
 	      double kTVal=plotters[i]->plotResults[resIdx].kTValues[j];
 	      //non qq is 5 streams, data only one
+	      if(setDataToZero && i==4)
+		kTVal=0;
 	      if(i==4)
 		kTVal*=5;
 	      if(kTVal>maxVals[zbin])
