@@ -7,11 +7,11 @@ fileDict={'eeuu':{},'eess':{},'eecc':{},'tautau':{}}
 
 
 for exp in range(31,73,2):
-    expStr='ex'+str(exp)
-    print("looking at exp"+expStr)
+    expStr='e'+str(exp)
+#    print("looking at exp "+expStr)
     for c in conf:
         filename='nagoya_'+c+'_continuum.txt'
- #       print("opening " + filename)
+        print("opening " + filename)
         f=open(filename)
         fileDict[c][expStr]=[]
         for line in f:
@@ -29,7 +29,7 @@ os.system("mkdir /group/belle/users/vossen/ptSpect/nonQQStudies/")
 os.system("mkdir /group/belle/users/vossen/ptSpectOut/nonQQStudies/")
 #for exp in range(31,73,2):
 for exp in range(55,57,2):
-    expStr='ex'+str(exp)
+    expStr='e'+str(exp)
     for c in conf:
 #counter for output job files
         counter =0
@@ -41,7 +41,7 @@ for exp in range(55,57,2):
         os.system("mkdir "+strDir)
         os.system("mkdir /group/belle/users/vossen/ptSpect/nonQQStudies/"+strDir)
         os.system("mkdir /group/belle/users/vossen/ptSpectOut/nonQQStudies/"+strDir)
-
+#        print("we have "+str(numFiles)+" and counter is: "+str(fileCounter))
         while fileCounter<numFiles:
             targetShFile=strDir+"/job_"+c+"_"+str(counter)+".sh"
             print("target file: "+targetShFile)

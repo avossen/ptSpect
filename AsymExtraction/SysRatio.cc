@@ -122,7 +122,6 @@ int main(int argc, char** argv)
 	  MultiPlotter* pWoAPlotterYes=new MultiPlotter(m_useQt,const_cast<char*>("."),fullNameYes.c_str(),string(""),0,false,false,false,false);	  
 	  MultiPlotter* pWoAPlotterNo=new MultiPlotter(m_useQt,const_cast<char*>("."),fullNameNo.c_str(),string(""),0,false,false,false,false);	  
 
-
 	  pWoAPlotterYes->setName(fullNameYes);
 	  pWoAPlotterNo->setName(fullNameNo);
 	  //has to be 0!!

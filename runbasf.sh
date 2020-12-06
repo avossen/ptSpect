@@ -30,7 +30,9 @@ initialize
 nprocess set 0
 histogram define ${HBKFILE}
 
-process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/04/all/0127/continuum/15/evtgen-uds-04-all-e000055r001585-b20090127_0910.mdst 0
+
+process_event /group/belle/nagoya/cp201910/chai/sgt2/bfactory/belle_data/caseB/mcprod/b20090127_0910.2/tautau.e55.0/continuum/07/tautau-e000055r000793-b20090127_0910-0.mdst 0
+#process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/04/all/0127/continuum/15/evtgen-uds-04-all-e000055r001585-b20090127_0910.mdst 0
 
 # process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001602-b20090127_0910.mdst 0
 # process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/05/all/0127/continuum/16/evtgen-uds-05-all-e000055r001603-b20090127_0910.mdst 0
