@@ -27,12 +27,19 @@ int main(int argc, char** argv)
   char* basePath=argv[2];
   char* argMCFlag=argv[3];
   kMCFlags isMC=mcFlagNone;
-
+  //needed for nonqq
+  bool truePID=false;
 
   if(argc==4 && string(argMCFlag).find("mc")!=string::npos)
     {
       cout <<"using mc info" <<endl;
       isMC=mcAsData;
+    }
+  //smeared kinematics but true PID. Needed for the nonqq subtraction
+  if(argc==4 && string(argMCFlag).find("truePID")!=string::npos)
+    {
+      isMC=mcAsData;
+      truePID=true;
     }
 
   srand(time(NULL));
@@ -338,6 +345,7 @@ if(folderName.find("tautau")!=string::npos)
       
       hadPair.afterFill(myEvent.evtNr,false);
       //           cout <<"mc after fill " <<endl;
+      //set correct pids for nonqq
       if(isMC!=mcFlagNone)
 	{
 	  //	  	    cout <<"filling mc pair " <<endl;
@@ -345,6 +353,12 @@ if(folderName.find("tautau")!=string::npos)
 	  hadPairMC->afterFill(myEvent.evtNr,false);
 	  //	    cout <<"done " <<endl;
 	}
+      if(truePID)
+	{
+	  hadPair.setPID(hadPairMC->particleType,hadPairMC->numPairs);
+
+	}
+
       //      cout <<endl<<endl;
       for(int i=0;i<hadPair.numPairs;i++)
 	{
