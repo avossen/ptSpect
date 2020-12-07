@@ -897,144 +897,146 @@ struct HadronPairArray:public ReaderBase
 	//in the woa we do not split up into the different combinations and weights, since we know the truth, so do this here with weights 1 and 0
 	if(mMCFlag==mcFlagWoA || mMCFlag==mcFlagMC)
 	  {
+	    setPID(particleType,numPairs);
 	    //qt <--> kt flip shold have been done already
 
-	    p_PiPi[i]=0.0;
-	    p_PiK[i]=0.0;
-	    p_PiP[i]=0.0;
-	    p_KPi[i]=0.0;
-	    p_KK[i]=0.0;
-	    p_KP[i]=0.0;
-	    p_PPi[i]=0.0;
-	    p_PK[i]=0.0;
-	    p_PP[i]=0.0;
-
-	    p_PiPi1[i]=0.0;
-	    p_PiK1[i]=0.0;
-	    p_PiP1[i]=0.0;
-	    p_KPi1[i]=0.0;
-	    p_KK1[i]=0.0;
-	    p_KP1[i]=0.0;
-	    p_PPi1[i]=0.0;
-	    p_PK1[i]=0.0;
-	    p_PP1[i]=0.0;
-
-
-	    p_PiPi2[i]=0.0;
-	    p_PiK2[i]=0.0;
-	    p_PiP2[i]=0.0;
-	    p_KPi2[i]=0.0;
-	    p_KK2[i]=0.0;
-	    p_KP2[i]=0.0;
-	    p_PPi2[i]=0.0;
-	    p_PK2[i]=0.0;
-	    p_PP2[i]=0.0;
-
-	    
-	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;
-	    if(particleType[i]<0)
-	      {
-		cout <<"pid < 0" <<endl;
-
-		cut[i]=1;
-		continue;
-	      }
-	    switch(particleType[i])
-	      {
-	      case PiPi:
-		//		cout <<"got pion pair" <<endl;
-		p_PiPi[i]=1.0;
-		p_PiPi1[i]=1.0;
-		p_PiPi2[i]=1.0;
-		kT_PiPi[i]=kT[i];
-		z1_PiPi[i]=z1[i];
-		z2_PiPi[i]=z2[i];
-		break;
-	      case PiK:
-		p_PiK[i]=1.0;
-		p_PiK1[i]=1.0;
-		p_PiK2[i]=1.0;
-		kT_PiK[i]=kT[i];
-		z1_PiK[i]=z1[i];
-		z2_PiK[i]=z2[i];
-
-		break;
-	      case PiP:
-		p_PiP[i]=1.0;
-		p_PiP1[i]=1.0;
-		p_PiP2[i]=1.0;
-		kT_PiP[i]=kT[i];
-		z1_PiP[i]=z1[i];
-		z2_PiP[i]=z2[i];
-
-		break;
-
-	      case KPi:
-		p_KPi[i]=1.0;
-		p_KPi1[i]=1.0;
-		p_KPi2[i]=1.0;
-		kT_KPi[i]=kT[i];
-		z1_KPi[i]=z1[i];
-		z2_KPi[i]=z2[i];
-
-		break;
-	      case KK:
-		p_KK[i]=1.0;
-		p_KK1[i]=1.0;
-		p_KK2[i]=1.0;
-		kT_KK[i]=kT[i];
-		z1_KK[i]=z1[i];
-		z2_KK[i]=z2[i];
-
-		break;
-	      case KP:
-		p_KP[i]=1.0;
-		p_KP1[i]=1.0;
-		p_KP2[i]=1.0;
-		kT_KP[i]=kT[i];
-		z1_KP[i]=z1[i];
-		z2_KP[i]=z2[i];
-
-		break;
-	      case PPi:
-		p_PPi[i]=1.0;
-		p_PPi1[i]=1.0;
-		p_PPi2[i]=1.0;
-		kT_PPi[i]=kT[i];
-		z1_PPi[i]=z1[i];
-		z2_PPi[i]=z2[i];
-
-		break;
-	      case PK:
-		p_PK[i]=1.0;
-		p_PK1[i]=1.0;
-		p_PK2[i]=1.0;
-		kT_PK[i]=kT[i];
-		z1_PK[i]=z1[i];
-		z2_PK[i]=z2[i];
-
-		break;
-	      case PP:
-		p_PP[i]=1.0;
-		p_PP1[i]=1.0;
-		p_PP2[i]=1.0;
-		kT_PP[i]=kT[i];
-		z1_PP[i]=z1[i];
-		z2_PP[i]=z2[i];
-
-		break;
-	      case UNKNOWN:
-		//		cout <<"unknown pid " <<endl;
-		cut[i]=1;
-		continue;
-		break;
-
-	      default:
-		cout <<"wrong pid in after fill : " << particleType[i] <<" particle type " << particleType[i]<<"charge type : "<< chargeType[i]<<endl;
-		cout <<"p_PiPi: " << p_PiPi[i] << " kt_pip : "<< kT_PiPi[i] <<endl;
-	      }
-
-
+////	    p_PiPi[i]=0.0;
+////	    p_PiK[i]=0.0;
+////	    p_PiP[i]=0.0;
+////	    p_KPi[i]=0.0;
+////	    p_KK[i]=0.0;
+////	    p_KP[i]=0.0;
+////	    p_PPi[i]=0.0;
+////	    p_PK[i]=0.0;
+////	    p_PP[i]=0.0;
+////
+////	    p_PiPi1[i]=0.0;
+////	    p_PiK1[i]=0.0;
+////	    p_PiP1[i]=0.0;
+////	    p_KPi1[i]=0.0;
+////	    p_KK1[i]=0.0;
+////	    p_KP1[i]=0.0;
+////	    p_PPi1[i]=0.0;
+////	    p_PK1[i]=0.0;
+////	    p_PP1[i]=0.0;
+////
+////
+////	    p_PiPi2[i]=0.0;
+////	    p_PiK2[i]=0.0;
+////	    p_PiP2[i]=0.0;
+////	    p_KPi2[i]=0.0;
+////	    p_KK2[i]=0.0;
+////	    p_KP2[i]=0.0;
+////	    p_PPi2[i]=0.0;
+////	    p_PK2[i]=0.0;
+////	    p_PP2[i]=0.0;
+////
+////	    
+////	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;
+////
+////	    if(particleType[i]<0)
+////	      {
+////		cout <<"pid < 0" <<endl;
+////
+////		cut[i]=1;
+////		continue;
+////	      }
+////	    switch(particleType[i])
+////	      {
+////	      case PiPi:
+////		//		cout <<"got pion pair" <<endl;
+////		p_PiPi[i]=1.0;
+////		p_PiPi1[i]=1.0;
+////		p_PiPi2[i]=1.0;
+////		kT_PiPi[i]=kT[i];
+////		z1_PiPi[i]=z1[i];
+////		z2_PiPi[i]=z2[i];
+////		break;
+////	      case PiK:
+////		p_PiK[i]=1.0;
+////		p_PiK1[i]=1.0;
+////		p_PiK2[i]=1.0;
+////		kT_PiK[i]=kT[i];
+////		z1_PiK[i]=z1[i];
+////		z2_PiK[i]=z2[i];
+////
+////		break;
+////	      case PiP:
+////		p_PiP[i]=1.0;
+////		p_PiP1[i]=1.0;
+////		p_PiP2[i]=1.0;
+////		kT_PiP[i]=kT[i];
+////		z1_PiP[i]=z1[i];
+////		z2_PiP[i]=z2[i];
+////
+////		break;
+////
+////	      case KPi:
+////		p_KPi[i]=1.0;
+////		p_KPi1[i]=1.0;
+////		p_KPi2[i]=1.0;
+////		kT_KPi[i]=kT[i];
+////		z1_KPi[i]=z1[i];
+////		z2_KPi[i]=z2[i];
+////
+////		break;
+////	      case KK:
+////		p_KK[i]=1.0;
+////		p_KK1[i]=1.0;
+////		p_KK2[i]=1.0;
+////		kT_KK[i]=kT[i];
+////		z1_KK[i]=z1[i];
+////		z2_KK[i]=z2[i];
+////
+////		break;
+////	      case KP:
+////		p_KP[i]=1.0;
+////		p_KP1[i]=1.0;
+////		p_KP2[i]=1.0;
+////		kT_KP[i]=kT[i];
+////		z1_KP[i]=z1[i];
+////		z2_KP[i]=z2[i];
+////
+////		break;
+////	      case PPi:
+////		p_PPi[i]=1.0;
+////		p_PPi1[i]=1.0;
+////		p_PPi2[i]=1.0;
+////		kT_PPi[i]=kT[i];
+////		z1_PPi[i]=z1[i];
+////		z2_PPi[i]=z2[i];
+////
+////		break;
+////	      case PK:
+////		p_PK[i]=1.0;
+////		p_PK1[i]=1.0;
+////		p_PK2[i]=1.0;
+////		kT_PK[i]=kT[i];
+////		z1_PK[i]=z1[i];
+////		z2_PK[i]=z2[i];
+////
+////		break;
+////	      case PP:
+////		p_PP[i]=1.0;
+////		p_PP1[i]=1.0;
+////		p_PP2[i]=1.0;
+////		kT_PP[i]=kT[i];
+////		z1_PP[i]=z1[i];
+////		z2_PP[i]=z2[i];
+////
+////		break;
+////	      case UNKNOWN:
+////		//		cout <<"unknown pid " <<endl;
+////		cut[i]=1;
+////		continue;
+////		break;
+////
+////	      default:
+////		cout <<"wrong pid in after fill : " << particleType[i] <<" particle type " << particleType[i]<<"charge type : "<< chargeType[i]<<endl;
+////		cout <<"p_PiPi: " << p_PiPi[i] << " kt_pip : "<< kT_PiPi[i] <<endl;
+////	      }
+////
+////
 	  }//end test for mc
 	//	cout <<"good id" <<endl;
 	///------------------
@@ -1215,6 +1217,149 @@ struct HadronPairArray:public ReaderBase
 
   }
 
+  //to set a determined (e.g. true) pid. needed for nonQQ, where we use the smearing but correct pid
+  void setPID(int* pid, int numEntries)
+{
+  for(int i=0;i<numEntries;i++)
+    {
+	    p_PiPi[i]=0.0;
+	    p_PiK[i]=0.0;
+	    p_PiP[i]=0.0;
+	    p_KPi[i]=0.0;
+	    p_KK[i]=0.0;
+	    p_KP[i]=0.0;
+	    p_PPi[i]=0.0;
+	    p_PK[i]=0.0;
+	    p_PP[i]=0.0;
+
+	    p_PiPi1[i]=0.0;
+	    p_PiK1[i]=0.0;
+	    p_PiP1[i]=0.0;
+	    p_KPi1[i]=0.0;
+	    p_KK1[i]=0.0;
+	    p_KP1[i]=0.0;
+	    p_PPi1[i]=0.0;
+	    p_PK1[i]=0.0;
+	    p_PP1[i]=0.0;
+
+
+	    p_PiPi2[i]=0.0;
+	    p_PiK2[i]=0.0;
+	    p_PiP2[i]=0.0;
+	    p_KPi2[i]=0.0;
+	    p_KK2[i]=0.0;
+	    p_KP2[i]=0.0;
+	    p_PPi2[i]=0.0;
+	    p_PK2[i]=0.0;
+	    p_PP2[i]=0.0;
+
+	    
+	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;
+	    if(pid[i]<0)
+	      {
+		cout <<"pid < 0" <<endl;
+
+		cut[i]=1;
+		continue;
+	      }
+	    switch(pid[i])
+	      {
+	      case PiPi:
+		//		cout <<"got pion pair" <<endl;
+		p_PiPi[i]=1.0;
+		p_PiPi1[i]=1.0;
+		p_PiPi2[i]=1.0;
+		kT_PiPi[i]=kT[i];
+		z1_PiPi[i]=z1[i];
+		z2_PiPi[i]=z2[i];
+		break;
+	      case PiK:
+		p_PiK[i]=1.0;
+		p_PiK1[i]=1.0;
+		p_PiK2[i]=1.0;
+		kT_PiK[i]=kT[i];
+		z1_PiK[i]=z1[i];
+		z2_PiK[i]=z2[i];
+
+		break;
+	      case PiP:
+		p_PiP[i]=1.0;
+		p_PiP1[i]=1.0;
+		p_PiP2[i]=1.0;
+		kT_PiP[i]=kT[i];
+		z1_PiP[i]=z1[i];
+		z2_PiP[i]=z2[i];
+
+		break;
+
+	      case KPi:
+		p_KPi[i]=1.0;
+		p_KPi1[i]=1.0;
+		p_KPi2[i]=1.0;
+		kT_KPi[i]=kT[i];
+		z1_KPi[i]=z1[i];
+		z2_KPi[i]=z2[i];
+
+		break;
+	      case KK:
+		p_KK[i]=1.0;
+		p_KK1[i]=1.0;
+		p_KK2[i]=1.0;
+		kT_KK[i]=kT[i];
+		z1_KK[i]=z1[i];
+		z2_KK[i]=z2[i];
+
+		break;
+	      case KP:
+		p_KP[i]=1.0;
+		p_KP1[i]=1.0;
+		p_KP2[i]=1.0;
+		kT_KP[i]=kT[i];
+		z1_KP[i]=z1[i];
+		z2_KP[i]=z2[i];
+
+		break;
+	      case PPi:
+		p_PPi[i]=1.0;
+		p_PPi1[i]=1.0;
+		p_PPi2[i]=1.0;
+		kT_PPi[i]=kT[i];
+		z1_PPi[i]=z1[i];
+		z2_PPi[i]=z2[i];
+
+		break;
+	      case PK:
+		p_PK[i]=1.0;
+		p_PK1[i]=1.0;
+		p_PK2[i]=1.0;
+		kT_PK[i]=kT[i];
+		z1_PK[i]=z1[i];
+		z2_PK[i]=z2[i];
+
+		break;
+	      case PP:
+		p_PP[i]=1.0;
+		p_PP1[i]=1.0;
+		p_PP2[i]=1.0;
+		kT_PP[i]=kT[i];
+		z1_PP[i]=z1[i];
+		z2_PP[i]=z2[i];
+
+		break;
+	      case UNKNOWN:
+		//		cout <<"unknown pid " <<endl;
+		cut[i]=1;
+		continue;
+		break;
+
+	      default:
+		cout <<"wrong pid in after fill : " << pid[i] <<" particle type " << particleType[i]<< endl;//"charge type : "<< chargeType[i]<<endl;
+		//		cout <<"p_PiPi: " << p_PiPi[i] << " kt_pip : "<< kT_PiPi[i] <<endl;
+	      }
+
+
+    }
+}
 
   //clone this guy...
   HadronPairArray& operator =(HadronPairArray rhs);
