@@ -33,9 +33,10 @@ int main(int argc, char** argv)
 
   set<int> zOnlyResIdx;
 
-  if(argc!=3)
+  if(argc!=5)
     {
-      cout <<"2 arguments needed!!|" <<endl;
+      cout <<"usage: sysRatio yesUDS noUDS yesCharm noCharm"<<endl;
+      //      cout <<"2 arguments needed!!|" <<endl;
       exit(0);
     }
 

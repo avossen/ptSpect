@@ -15,6 +15,7 @@
 #include "CombPlots.h"
 //#define MAX_EVENTS 100
 float uds_charm_ratio=1.634170926;
+//float uds_charm_ratio=1.0;
 //float uds_charm_ratio=1;
 using namespace std;
 
@@ -167,7 +168,94 @@ int main(int argc, char** argv)
 	    }
 	}
     }
-  //should have now filled all plotters, do the histos
+  //should have now filled all plotters, 
+  ///calculate ratios 
+  int maxCombBin=10000;
+  float maxRatio[maxCombBin];
+  float minRatio[maxCombBin];
+
+  //only 0 and 1 valid for the getHistogram
+  //however, it looks like only z_z (so the binning index 0 is saved in by MultiPlotter)
+  for(int binningType=0; binningType<1;binningType++)
+    {
+      for(int pidBin=0;pidBin<3;pidBin++)
+	{
+	  for(int chargeBin=0;chargeBin<2;chargeBin++)
+	    {
+	      for(int i=0;i<maxCombBin;i++)
+		{
+		  maxRatio[i]=-1000.0;
+		  minRatio[i]=1000.0;
+		}
+	      //maxX should be ==maxY
+	      int maxX=0;
+
+	      for(int iF=0;iF<numFiles;iF++)
+		{
+
+		  ///
+		  sprintf(buffer,"bt_%d_pB_%d_cp_%d_if_%d",binningType,pidBin,chargeBin,iF);
+
+		  
+		  //histo dimensions should already be correct for that pid
+		  TH1D* histoY_UDS=plotters[udsyes][iF]->getHistogram(binningType,chargeBin,pidBin,buffer);
+		  TH1D* histoN_UDS=plotters[udsno][iF]->getHistogram(binningType,chargeBin,pidBin,buffer);
+		  TH1D* histoY_Charm=plotters[charmyes][iF]->getHistogram(binningType,chargeBin,pidBin,buffer);
+		  TH1D* histoN_Charm=plotters[charmno][iF]->getHistogram(binningType,chargeBin,pidBin,buffer);
+		  
+		  maxX=histoY_UDS->GetNbinsX();
+		  if(maxX!=histoN_UDS->GetNbinsX())
+		    {
+		      cout <<" y and n not the same dimension!" <<endl;
+		      cout <<"no: "<< histoN_UDS->GetNbinsX() <<" yes: "<< maxX <<endl;
+		      exit(0);
+		    }
+
+		  for(int iX=0;iX<histoY_UDS->GetNbinsX();iX++)
+		    {
+		      cout <<" we have " << histoY_UDS->GetNbinsX() <<" entries " <<endl;
+		      float wISR=histoY_UDS->GetBinContent(iX+1)+histoY_Charm->GetBinContent(iX+1);
+		      float woISR=histoN_UDS->GetBinContent(iX+1)+histoN_Charm->GetBinContent(iX+1);
+		      //		      float woISR=histoN->GetBinContent(iX+1);
+		      //    cout <<"w ISR: " << wISR <<" wo: " << woISR <<endl;
+		      //at least at high  wISR should be much less
+
+
+
+		      
+		      if(woISR>0)
+			{
+			  float ratio=woISR/wISR;
+			  if(ratio>maxRatio[iX])
+			    {
+			      maxRatio[iX]=ratio;
+			    }
+			  if(ratio<minRatio[iX])
+			    {
+			      minRatio[iX]=ratio;
+			    }
+			
+			}
+		    }
+		}
+
+	      ofstream f;
+	      char buffer[300];
+	      sprintf(buffer,"ISRCorr_binning_%d_charge_%d_pid_%d.txt",binningType,chargeBin,pidBin);
+	      f.open(buffer);
+	      for(int iX=0;iX<maxX;iX++)
+		{
+		  f << maxRatio[iX] << " " << minRatio[iX] << " ";
+		}
+
+	    }
+
+	}
+    }
+
+
+  ///  
+  //do the histos
   int binningType=binType_z_z;
   int pidBin=0; //pipi
   //    int pidBin=2; //pipi
