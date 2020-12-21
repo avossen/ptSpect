@@ -16,6 +16,8 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+
+    cout <<"unlikesign: "<< unlikesign <<" likesign: "<<likesign <<endl;
   bool setDataToZero=true;
   if(argc<5)
     {

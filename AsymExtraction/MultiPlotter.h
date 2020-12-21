@@ -163,7 +163,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     void setBinningMap();
     void doPlots(bool print=false);
     void savePlots(plotType,bool print=false);
-    void printDebug(plotType);
+  void printDebug(plotType, int chargeType=pairPN);
 
     //needs to be set for debug purposes
     int evtNr;

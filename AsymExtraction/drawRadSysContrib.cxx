@@ -14,13 +14,22 @@
 #include "HadronPairArray.h"
 #include "CombPlots.h"
 //#define MAX_EVENTS 100
+
+#define DEBUG
+
+#ifdef DEBUG
+float uds_charm_ratio=1.0;
+#else
 float uds_charm_ratio=1.634170926;
-//float uds_charm_ratio=1.0;
+#endif
+
 //float uds_charm_ratio=1;
 using namespace std;
 
 int main(int argc, char** argv)
 {
+
+  cout <<"unlikesign: "<< unlikesign <<" likesign: "<<likesign <<endl;
   char buffer[400];
   enum fileType{udsyes, udsno, charmyes, charmno,fileTypeEnd};  
   bool m_useQt=false;
@@ -215,7 +224,11 @@ int main(int argc, char** argv)
 		    {
 		      cout <<" we have " << histoY_UDS->GetNbinsX() <<" entries " <<endl;
 		      float wISR=histoY_UDS->GetBinContent(iX+1)+histoY_Charm->GetBinContent(iX+1);
+		      #ifndef DEBUG
 		      float woISR=histoN_UDS->GetBinContent(iX+1)+histoN_Charm->GetBinContent(iX+1);
+		      #else
+		      	float	      woISR=histoY_UDS->GetBinContent(iX+1);
+#endif
 		      //		      float woISR=histoN->GetBinContent(iX+1);
 		      //    cout <<"w ISR: " << wISR <<" wo: " << woISR <<endl;
 		      //at least at high  wISR should be much less
@@ -225,7 +238,11 @@ int main(int argc, char** argv)
 		      
 		      if(woISR>0)
 			{
+			  #ifndef DEBUG
 			  float ratio=woISR/wISR;
+			  #else
+			  		  float ratio=woISR;
+			  #endif
 			  if(ratio>maxRatio[iX])
 			    {
 			      maxRatio[iX]=ratio;

@@ -1167,7 +1167,7 @@ void MultiPlotter::printMatrix(TH2D* histo, const char* filename, bool saveUncer
 
 
 //just print a textfile with the bin content for the cross check
-void MultiPlotter::printDebug(plotType mPlotType)
+void MultiPlotter::printDebug(plotType mPlotType, int chargeType)
 {
   cout <<"print debug, weightSum "<<weightSum <<endl;
   PlotResults* m_plotResults=plotResults;
@@ -1180,7 +1180,7 @@ void MultiPlotter::printDebug(plotType mPlotType)
   int binningType=binType_z_z;
   int pidType=PiPi;
   //  int chargeType=pairChargeLikesign;
-    int chargeType=pairPN;
+  //    int chargeType=pairPN;
   //  for(int binningType=binType_labTheta_z; binningType<binType_end;binningType++)
     {
       //      for(int pidType=0;pidType<9;pidType++)
