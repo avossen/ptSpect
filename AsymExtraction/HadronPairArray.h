@@ -1218,40 +1218,41 @@ struct HadronPairArray:public ReaderBase
   }
 
   //to set a determined (e.g. true) pid. needed for nonQQ, where we use the smearing but correct pid
-  void setPID(int* pid, int numEntries)
-{
-  for(int i=0;i<numEntries;i++)
-    {
-	    p_PiPi[i]=0.0;
-	    p_PiK[i]=0.0;
-	    p_PiP[i]=0.0;
-	    p_KPi[i]=0.0;
-	    p_KK[i]=0.0;
-	    p_KP[i]=0.0;
-	    p_PPi[i]=0.0;
-	    p_PK[i]=0.0;
-	    p_PP[i]=0.0;
-
-	    p_PiPi1[i]=0.0;
-	    p_PiK1[i]=0.0;
-	    p_PiP1[i]=0.0;
-	    p_KPi1[i]=0.0;
-	    p_KK1[i]=0.0;
-	    p_KP1[i]=0.0;
-	    p_PPi1[i]=0.0;
-	    p_PK1[i]=0.0;
-	    p_PP1[i]=0.0;
-
-
-	    p_PiPi2[i]=0.0;
-	    p_PiK2[i]=0.0;
-	    p_PiP2[i]=0.0;
-	    p_KPi2[i]=0.0;
-	    p_KK2[i]=0.0;
-	    p_KP2[i]=0.0;
-	    p_PPi2[i]=0.0;
-	    p_PK2[i]=0.0;
-	    p_PP2[i]=0.0;
+  void setPID(int (&pid)[Max_ArrSize], int numEntries)
+  {
+    for(int i=0;i<numEntries;i++)
+      {
+	//	cout <<"i: "<< i << " pid: " << pid[i] <<endl;
+	p_PiPi[i]=0.0;
+	p_PiK[i]=0.0;
+	p_PiP[i]=0.0;
+	p_KPi[i]=0.0;
+	p_KK[i]=0.0;
+	p_KP[i]=0.0;
+	p_PPi[i]=0.0;
+	p_PK[i]=0.0;
+	p_PP[i]=0.0;
+	
+	p_PiPi1[i]=0.0;
+	p_PiK1[i]=0.0;
+	p_PiP1[i]=0.0;
+	p_KPi1[i]=0.0;
+	p_KK1[i]=0.0;
+	p_KP1[i]=0.0;
+	p_PPi1[i]=0.0;
+	p_PK1[i]=0.0;
+	p_PP1[i]=0.0;
+	
+	
+	p_PiPi2[i]=0.0;
+	p_PiK2[i]=0.0;
+	p_PiP2[i]=0.0;
+	p_KPi2[i]=0.0;
+	p_KK2[i]=0.0;
+	p_KP2[i]=0.0;
+	p_PPi2[i]=0.0;
+	p_PK2[i]=0.0;
+	p_PP2[i]=0.0;
 
 	    
 	    //	    cout <<"looking at particle type: "<< particleType[i] <<endl;

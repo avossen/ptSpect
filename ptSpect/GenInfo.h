@@ -908,7 +908,7 @@ namespace Belle {
       for(Gen_hepevt_Manager::iterator gen_it=gen_hep_Mgr.begin();gen_it!=gen_hep_Mgr.end();gen_it++)
 	{
 
-	  //	 	  cout << setw(6)<< gen_it->get_ID() << " |  "  << setw(6)<<gen_it->isthep() << " | " << setw(6)<<gen_it->idhep()  <<" | " <<  setw(6)<< gen_it->moFirst() <<" | " <<setw(6)<< gen_it->moLast() << " | " <<  setw(6)<<gen_it->daFirst() <<" | " <<setw(6)<< gen_it->daLast() <<" | " <<setw(6)<< gen_it->PX() << " | " << setw(6)<< gen_it->PY() <<" | " << setw(6)<< gen_it->PZ() <<" | " <<setw(6)<< gen_it->E() << " | " << setw(6)<< gen_it->M() <<" | " << setw(6)<< gen_it->VX() << " | " << setw(6)<< gen_it->VY() << " | " << setw(6)<< gen_it->VZ() << " | " << setw(6)<< gen_it->T() <<endl;
+	  //	  	 	  cout << setw(6)<< gen_it->get_ID() << " |  "  << setw(6)<<gen_it->isthep() << " | " << setw(6)<<gen_it->idhep()  <<" | " <<  setw(6)<< gen_it->moFirst() <<" | " <<setw(6)<< gen_it->moLast() << " | " <<  setw(6)<<gen_it->daFirst() <<" | " <<setw(6)<< gen_it->daLast() <<" | " <<setw(6)<< gen_it->PX() << " | " << setw(6)<< gen_it->PY() <<" | " << setw(6)<< gen_it->PZ() <<" | " <<setw(6)<< gen_it->E() << " | " << setw(6)<< gen_it->M() <<" | " << setw(6)<< gen_it->VX() << " | " << setw(6)<< gen_it->VY() << " | " << setw(6)<< gen_it->VZ() << " | " << setw(6)<< gen_it->T() <<endl;
 
 	  //look for ISR photons. In hepevt these are photons that come from the virtual photon
 	  if(gen_it->idhep()==22 && gen_it->mother() && gen_it->mother().idhep()==10022)
@@ -1031,14 +1031,17 @@ namespace Belle {
 
 	}
 
-      //      cout <<" sum Px: "<< pxSum << " sum Py: " << pySum <<" sumPz: "<< pzSum << " sumPe: "<< eSum<<endl;
-      //	cout << lv_q1->px() <<" " <<lv_q1->py() << " " << lv_q1->pz() <<" " << lv_q1->e() <<endl;
-      //	cout << lv_q2->px() <<" " <<lv_q2->py() << " " << lv_q2->pz() <<" " << lv_q2->e() <<endl;
-      //	cout <<"p Sum: " << m_px << " " << m_py << " " << m_pz << " " << m_e <<endl;
-      //	cout <<"pVp Sum: " << m_pxVp << " " << m_pyVp << " " << m_pzVp << " " << m_eVp <<endl;
-      //	    cout <<"num Quarks: " <<numQuarks<<endl;
-
-      quarkAngle= lv_q1->angle(*lv_q2);
+///           cout <<" sum Px: "<< pxSum << " sum Py: " << pySum <<" sumPz: "<< pzSum << " sumPe: "<< eSum<<endl;
+///	    cout <<"num Quarks: " <<numQuarks<<endl;
+///     	cout << lv_q1->px() <<" " <<lv_q1->py() << " " << lv_q1->pz() <<" " << lv_q1->e() <<endl;
+///     	cout << lv_q2->px() <<" " <<lv_q2->py() << " " << lv_q2->pz() <<" " << lv_q2->e() <<endl;
+///     	cout <<"p Sum: " << m_px << " " << m_py << " " << m_pz << " " << m_e <<endl;
+///     	cout <<"pVp Sum: " << m_pxVp << " " << m_pyVp << " " << m_pzVp << " " << m_eVp <<endl;
+     
+      if(numQuarks>=2)
+	quarkAngle= lv_q1->angle(*lv_q2);
+      else
+	quarkAngle=0;
 
       HepLorentzVector boostP(m_px,m_py,m_pz,m_e);
       HepLorentzVector boostP2(m_px2,m_py2,m_pz2,m_e2);
@@ -1051,8 +1054,12 @@ namespace Belle {
       //	cout <<"p Sum Boosted: " << boostP.px() << " " << boostP.py() << " " << boostP.pz() << " " << boostP.e()<< " " << abs(boostP.pz())+boostP.e()<<endl;
       //	cout <<"p Sum Boosted2: " << boostP2.px() << " " << boostP2.py() << " " << boostP2.pz() << " " << boostP2.e()<< " " << abs(boostP2.pz())+boostP2.e()<<endl;
       //	cout <<"p SumVp Boosted: " << boostPVp.px() << " " << boostPVp.py() << " " << boostPVp.pz() << " " << boostPVp.e()<< " " << abs(boostPVp.pz())+boostPVp.e()<<endl;
-      delete lv_q1;
-      delete lv_q2;
+
+      //maybe we didn't even get quarks... nonqq files don't seem to have them...
+      if(lv_q1!=0)
+	delete lv_q1;
+      if(lv_q2!=0)
+	delete lv_q2;
 
     
       ////////////////jet algos....

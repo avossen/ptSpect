@@ -38,6 +38,7 @@ int main(int argc, char** argv)
   //smeared kinematics but true PID. Needed for the nonqq subtraction
   if(argc==4 && string(argMCFlag).find("truePID")!=string::npos)
     {
+      cout <<"using true pid " << endl;
       isMC=mcAsData;
       truePID=true;
     }
@@ -231,7 +232,7 @@ if(folderName.find("tautau")!=string::npos)
 
   cout << "done event " << endl;
   cout <<"how many? "<<endl;
-  Int_t nevents=chAll->GetEntries();
+  Long64_t nevents=chAll->GetEntries();
   cout <<"we have " << nevents <<endl;
   //NUM_PHI_BINS angular bins
   stringstream ss;
@@ -287,10 +288,10 @@ if(folderName.find("tautau")!=string::npos)
   plotterWoA.setName("NormalWoA");
   if(chWoA)
     {
-      Int_t neventsWoA=chWoA->GetEntries();
+      Long64_t neventsWoA=chWoA->GetEntries();
       cout <<"we have " << neventsWoA <<" WoA events" <<endl;
 
-      for(long i=0;i<neventsWoA;i++)
+      for(Long64_t i=0;i<neventsWoA;i++)
 	{
 #ifdef MAX_EVENTS
 	  if(i>MAX_EVENTS)
@@ -320,7 +321,7 @@ if(folderName.find("tautau")!=string::npos)
   if(chWoA)
     plotterWoA.doPlots();
 
-  for(long i=0;i<nevents;i++)
+  for(Long64_t i=0;i<nevents;i++)
     {
 #ifdef MAX_EVENTS
       if(i>MAX_EVENTS)
@@ -355,8 +356,9 @@ if(folderName.find("tautau")!=string::npos)
 	}
       if(truePID)
 	{
+	  //	  cout <<"setting mc " <<endl;
 	  hadPair.setPID(hadPairMC->particleType,hadPairMC->numPairs);
-
+	  //	  cout <<"done " << endl;
 	}
 
       //      cout <<endl<<endl;

@@ -194,7 +194,7 @@ public:
 
       Gen_hepevt gph1;
       Gen_hepevt gph2;
-
+      //      cout <<"getting gph" <<endl;
       gph1=get_hepevt(pair->firstHadron->mdstCharged());
       gph2=get_hepevt(pair->secondHadron->mdstCharged());
 
@@ -212,7 +212,7 @@ public:
 	      return;
 	    }
 	}
-
+      //      cout <<"getting gph2_2" <<endl;
       /////////////////////////////////
       Gen_hepevt pGph1=gph1;
       Gen_hepevt pGph2=gph2;
@@ -229,18 +229,26 @@ public:
 	//this is the theta before boost!
 	float labTheta=boostedVec.theta();
 	float labPhi=boostedVec.phi();
-
+	//	cout <<"2"<<endl;
 	boostedVec.boost(kinematics::CMBoost);
 	v_p[i]->userInfo(ParticleInfo()); //gets deleted in destructor of Particle
+	//	cout <<"3"<<endl;
 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(v_p[i]->userInfo());
-	pinf.motherGenId=v_g[i]->mother().idhep();
+	//	cout <<"4"<< " i: "<< i <<endl;
+	//	cout <<"mother pointer: "<< v_g[i]->mother()<<endl;
+	//	cout <<"idhep: "<<v_g[i]->mother().idhep() << endl;
+	if(v_g[i]->mother()!=0)
+	  pinf.motherGenId=v_g[i]->mother().idhep();
+	else
+	  pinf.motherGenId=0;
 
+	//	cout <<"5"<<endl;
 	float m_z=2*boostedVec.t()/kinematics::Q;
 	//	cout <<"z is : " << m_z <<endl;
 	int geantID=abs(v_g[i]->idhep());
-	//	cout <<"looking at index " << i << " idhep: "<< geantID <<endl;
+	//		cout <<"looking at index " << i << " idhep: "<< geantID <<endl;
 
-	//this is mc, so the z is independent of the pid (we know the pid). But because the compute function
+		//this is mc, so the z is independent of the pid (we know the pid). But because the compute function
 	//in HadronPair puts the value of z[0] (pion) as the default, we use it here.
 	pinf.z[0]=m_z;
 
