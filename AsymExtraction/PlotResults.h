@@ -94,8 +94,20 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	    }
 	  //just assign the rhs side. Assume that we are not really adding files 
 	  //	  if(weakDecayFraction[i]!=0 && rhs.weakDecayFraction[i]!=0)
+	  if((kTValues[i]+rhs.kTValues[i])>0)
 	    {
-	      weakDecayFraction[i]=rhs.weakDecayFraction[i];
+	      //we haven't added to the kT values yet...
+	      //total weak decays
+	      double origDecayFraction=weakDecayFraction[i];
+	      if(isnan(weakDecayFraction[i]))
+		origDecayFraction=0.0;
+	      double rhsWeakDecays=rhs.weakDecayFraction[i];
+	      if(isnan(rhsWeakDecays))
+		{
+		  rhsWeakDecays=0.0;
+		}
+	      weakDecayFraction[i]=origDecayFraction*kTValues[i]+rhsWeakDecays*rhs.kTValues[i];
+	      weakDecayFraction[i]/=(kTValues[i]+rhs.kTValues[i]);
 	    }
 	  kTValues[i]+=rhs.kTValues[i];
 	  kTValues1[i]+=rhs.kTValues1[i];

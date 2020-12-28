@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 		      #ifndef DEBUG
 		      float woISR=histoN_UDS->GetBinContent(iX+1)+histoN_Charm->GetBinContent(iX+1);
 		      #else
-		      	float	      woISR=histoY_UDS->GetBinContent(iX+1);
+		      	float	      woISR=histoN_Charm->GetBinContent(iX+1);
 #endif
 		      //		      float woISR=histoN->GetBinContent(iX+1);
 		      //    cout <<"w ISR: " << wISR <<" wo: " << woISR <<endl;
