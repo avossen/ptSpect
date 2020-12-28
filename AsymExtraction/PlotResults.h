@@ -82,6 +82,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
       double intCount=0;
       for(int i=0;i<maxKtBins;i++)
 	{
+	  cout <<" combining ktbin : " << i <<endl;
 	  intRhsCount+=rhs.kTValues[i];
 	  intCount+= kTValues[i];
 	  
@@ -102,12 +103,17 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	      if(isnan(weakDecayFraction[i]))
 		origDecayFraction=0.0;
 	      double rhsWeakDecays=rhs.weakDecayFraction[i];
+	      if(origDecayFraction > 1.0 || rhsWeakDecays > 1.0)
+		{cout <<"fraction greater one" <<endl;}
 	      if(isnan(rhsWeakDecays))
 		{
 		  rhsWeakDecays=0.0;
 		}
+	      //	      total weak decays
 	      weakDecayFraction[i]=origDecayFraction*kTValues[i]+rhsWeakDecays*rhs.kTValues[i];
 	      weakDecayFraction[i]/=(kTValues[i]+rhs.kTValues[i]);
+	      cout <<"combining fractions: " << origDecayFraction <<" and " << rhsWeakDecays << " to " << weakDecayFraction[i]<<endl;
+	      cout <<"ktVals: "<< kTValues[i] <<" rhs ktValues: "<< rhs.kTValues[i] <<endl;
 	    }
 	  kTValues[i]+=rhs.kTValues[i];
 	  kTValues1[i]+=rhs.kTValues1[i];

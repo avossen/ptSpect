@@ -143,8 +143,10 @@ int main(int argc, char** argv)
   cout <<"before the loop" <<endl;
   for(int i=udsyes;i<fileTypeEnd;i++)
     {
+      cout <<"file type:"<< i <<endl;
       for(int j=0;j<numFiles;j++)
 	{
+	  cout <<"file number: "<< j <<endl;
 	  cout <<"accessing chain " << i <<  " file : "<< j <<endl;
 	  cout <<" adding: "<< (string(paths[i][j])+"/"+plotterName+"_*.root").c_str() <<endl;
 	  myChains[i][j]=new TChain("PlotTree");
@@ -162,7 +164,14 @@ int main(int argc, char** argv)
 	    {
 	  //	  cout <<"getting entry " << i <<endl;
 	  //	  float locW[3]={0.0,0.0,0.0};
+	      
 	      myChains[i][j]->GetEntry(k);
+	      cout <<"combining result index: "<< plotResults->resultIndex <<endl;
+	      cout << "binning: "<< plotters[i][j]->getBinningTypeFromIdx(plotResults->resultIndex)<<" "<<plotResults->binningType;
+	      cout << " pid: "<< plotters[i][j]->getPidTypeFromIdx(plotResults->resultIndex)<<" " << plotResults->pidBin;
+	      cout << " charge: "<< plotters[i][j]->getChargeTypeFromIdx(plotResults->resultIndex)<<" " << plotResults->chargeBin;
+	      cout << " first kin: "<< plotters[i][j]->getFirstKinBinFromIdx(plotResults->resultIndex) << " " << plotResults->firstKinBin;
+	      cout << " second kin: "<< plotters[i][j]->getSecondKinBinFromIdx(plotResults->resultIndex) << " " << plotResults->secondKinBin;
 	      plotters[i][j]->plotResults[plotResults->resultIndex]+=(*plotResults);
 	    }
 	  cout <<"done with entries.." <<endl;

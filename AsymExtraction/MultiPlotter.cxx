@@ -81,9 +81,9 @@ void MultiPlotter::doPlots(bool print)
 			      cout <<", sqrt: "<< sqrt(uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][ktBin])<<endl;
 			    }
 
-
 			  plotResults[resIdx].kTMeans[ktBin]=meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
 			  plotResults[resIdx].weakDecayFraction[ktBin]=weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][ktBin]/counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin];
+			  //			  cout <<" weakFraction: " << weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][ktBin] << " counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][ktBin] <<" xxx: " <<  plotResults[resIdx].weakDecayFraction[ktBin] <<endl;
 			  if(bt==binType_z_z && chargeBin==0)
 			    {
 			      if(print)
@@ -1726,7 +1726,7 @@ void MultiPlotter::addSmearingEntry(HadronPairArray* hp1, HadronPairArray* hp2, 
 
 
      //     cout <<" first (data) z: "<< hp1->z1[i] <<endl;
-     //     cout <<" first (data) z2: "<< hp1->z2[i] <<endl;
+     //     cout <<" firpst (data) z2: "<< hp1->z2[i] <<endl;
      
      //     cout <<" second  (mc) z: "<< hp2->z1[i] << " pid: " << pidZ1 <<endl;
      //     cout <<" second  (mc) z2: "<< hp2->z2[i] << " pid: " << pidZ2 <<endl;
@@ -2421,7 +2421,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 
 	  /////
+	  //	  cout <<"increasing counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]<<endl;
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
+	  //	  cout <<" now: " <<  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]<<endl;
 	  counts1[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight1;
 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight2;
 	  uncertainties[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*weight);
@@ -2441,8 +2443,18 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin]+=(weight*secondKin);
 	  //	  cout <<"filling mean val for kt bin : " << kTBin <<" with kT: " << kT << " weight: " << weight <<endl;
 	  meanValues_kT[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=(weight*kT);
-	  weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=hp->isWeakDecay[i];
 
+	  //need to multiply by weight since otherwise even in the woa case we are adding weight 0 events
+	  weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight*hp->isWeakDecay[i];
+	  //	  cout <<"weakDecayFracinevent: " << weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin]<<" " <<endl;
+	  if(weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]>counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin])
+	    {
+	      //	      	      cout <<" weight: " << weight <<endl;
+	      //	      	      cout << " weak greater counts " << weakDecayFraction[bt][pidBin][chargeBin][firstBin][secondBin][kTBin] << " is greater than " << counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin] <<endl;
+	    }
+	   
+
+	  
 	  if(chargeBin==pairChargeLikesign && pidBin==PiPi && bt==binType_z_z)
 	    {
 	      if(print)

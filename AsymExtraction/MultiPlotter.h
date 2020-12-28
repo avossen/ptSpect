@@ -198,6 +198,27 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
 	return binningType*NumPIDs*NumCharges*maxKinBins*maxKinBins+pidType*NumCharges*maxKinBins*maxKinBins+chargeType*maxKinBins*maxKinBins+firstKinBin*maxKinBins+secondKinBin;
       }
 
+  int getBinningTypeFromIdx(int idx)
+  {
+    return floor(idx/(NumPIDs*NumCharges*maxKinBins*maxKinBins));
+  }
+  int getPidTypeFromIdx(int idx)
+  {
+    return floor((idx%(NumPIDs*NumCharges*maxKinBins*maxKinBins))/(NumCharges*maxKinBins*maxKinBins));
+  }
+  int getChargeTypeFromIdx(int idx)
+  {
+    return floor((idx%(NumCharges*maxKinBins*maxKinBins))/(maxKinBins*maxKinBins));
+  }
+  int getFirstKinBinFromIdx(int idx)
+  {
+    return floor((idx%(maxKinBins*maxKinBins))/(maxKinBins));
+  }
+  int getSecondKinBinFromIdx(int idx)
+  {
+    return idx%maxKinBins;
+  }
+  
     void saveSmearingMatrix();
     void saveXini();
     static const int NumCharges;
