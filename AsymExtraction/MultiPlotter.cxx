@@ -2423,6 +2423,12 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  /////
 	  //	  cout <<"increasing counts: "<< counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]<<endl;
 	  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight;
+	  if(weight==0)
+	    {
+	      //	      cout <<"weight zero for bt: "<< bt <<" pid: "<< pidBin <<" charge: "<< chargeBin <<" k1: " <<firstBin <<" k2: "<< secondBin <<" Ktbin: "<< kTBin <<endl; 
+	    }
+
+	  
 	  //	  cout <<" now: " <<  counts[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]<<endl;
 	  counts1[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight1;
 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin]+=weight2;
@@ -2789,6 +2795,8 @@ void MultiPlotter::weight(float weightFactor)
 			  plotResults[resIdx].kTValues[ktBin]*=weightFactor;
 			  plotResults[resIdx].kTValues1[ktBin]*=weightFactor;
 			  plotResults[resIdx].kTValues2[ktBin]*=weightFactor;
+			  //shouldn't have to weight the weakDecayFraction since we are already weighting the kTValue
+			  //
 			}
 		    }
 		}

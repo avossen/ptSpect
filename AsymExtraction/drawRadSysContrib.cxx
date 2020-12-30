@@ -15,7 +15,7 @@
 #include "CombPlots.h"
 //#define MAX_EVENTS 100
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 float uds_charm_ratio=1.0;
@@ -194,6 +194,9 @@ int main(int argc, char** argv)
 
   //only 0 and 1 valid for the getHistogram
   //however, it looks like only z_z (so the binning index 0 is saved in by MultiPlotter)
+  //not thetat this is a speciality of 'getHistogram', in the more general case (e.g. used for resIdx, the index
+  //for z_z is 6 but in the getHistogram function that gets translated
+  
   for(int binningType=0; binningType<1;binningType++)
     {
       for(int pidBin=0;pidBin<3;pidBin++)
@@ -213,7 +216,6 @@ int main(int argc, char** argv)
 
 		  ///
 		  sprintf(buffer,"bt_%d_pB_%d_cp_%d_if_%d",binningType,pidBin,chargeBin,iF);
-
 		  
 		  //histo dimensions should already be correct for that pid
 		  TH1D* histoY_UDS=plotters[udsyes][iF]->getHistogram(binningType,chargeBin,pidBin,buffer);
@@ -232,6 +234,11 @@ int main(int argc, char** argv)
 		  for(int iX=0;iX<histoY_UDS->GetNbinsX();iX++)
 		    {
 		      cout <<" we have " << histoY_UDS->GetNbinsX() <<" entries " <<endl;
+		      if(iX==0)
+			{
+			  cout <<"uds w rad: "<< histoY_UDS->GetBinContent(iX+1) <<" charm w rad : " << histoY_Charm->GetBinContent(iX+1) <<endl;
+			  			  cout <<"uds wo rad: "<< histoN_UDS->GetBinContent(iX+1) <<" charm wo rad : " << histoN_Charm->GetBinContent(iX+1) <<endl;
+			}
 		      float wISR=histoY_UDS->GetBinContent(iX+1)+histoY_Charm->GetBinContent(iX+1);
 		      #ifndef DEBUG
 		      float woISR=histoN_UDS->GetBinContent(iX+1)+histoN_Charm->GetBinContent(iX+1);
@@ -242,13 +249,14 @@ int main(int argc, char** argv)
 		      //    cout <<"w ISR: " << wISR <<" wo: " << woISR <<endl;
 		      //at least at high  wISR should be much less
 
-
-
-		      
+	      
 		      if(woISR>0)
 			{
 			  #ifndef DEBUG
 			  float ratio=woISR/wISR;
+			  if(iX==0)
+			    cout <<"ratio1: "<< ratio <<endl;
+
 			  #else
 			  		  float ratio=woISR;
 			  #endif
@@ -326,6 +334,12 @@ int main(int argc, char** argv)
     }
   //0 uds, 1 charm
   cout <<"running over " << numKtBins <<" kt bins " <<endl;
+  //there is not really a point for running till 5. We only use 0,1 and 4 signifiying uds,charm and all.
+  //it is really not used to index the plotters (udsyes, udsno etc... I guess 2,3 could be with radiation...
+  ofstream fweak;
+  sprintf(buffer,"WeakFraction_binning_%d_charge_%d_pid_%d.txt",binningType,chargeBin,pidBin);
+  fweak.open(buffer);
+
     for(int i=0;i<5;i++)
     {
       if(i==2 || i==3)
@@ -333,83 +347,121 @@ int main(int argc, char** argv)
 	  //not implemented yet
 	  continue;
 	}
+      //this would be the different tunes
       for(int j=0;j<numFiles;j++)
 	{
 	  for(int zbin=0;zbin<maxFirstBin;zbin++)
 	    {
-	      cout <<"looking at uds/charm: "<< i << " file: "<< j <<", zbin : "<< zbin <<endl;
-	      //diagonal bins
-	      resIdx=plotters[0][0]->getResIdx(binningType,pidBin,chargeBin,zbin,zbin);
-	      cout <<"residx2 : "<< resIdx <<endl;
 	      int missPoints=0;
-
-	      for(int k=0;k<numKtBins;k++)
+	      for(int zbin2=0;zbin2<maxSecondBin;zbin2++)
+	      //	      int zbin2=zbin;
 		{
-		  //    cout <<"filling x,y num " << j <<" with mean: " << plotters[i]->plotResults[resIdx].kTMeans[j] <<" value: "<< plotters[i]->plotResults[resIdx].kTValues[j]  <<endl;
-		  //look at the no radiation (i+1)
-		  double kTMean=0;
-		  double kTVal=0;
-		  double kTValWRad=0;
-		  double weakRatio=0;
+		  cout <<"looking at uds/charm: "<< i << " file: "<< j <<", zbin : "<< zbin <<endl;
+		  //diagonal bins
+		  resIdx=plotters[0][0]->getResIdx(binningType,pidBin,chargeBin,zbin,zbin2);
+		  cout <<"residx2 : "<< resIdx <<endl;
 
-		  float kTValU=0;
-		  float kTValC=0;
-		  float weakRatioU=0;
-		  float weakRatioC=0;
-		  switch(i)
+
+		  for(int k=0;k<numKtBins;k++)
 		    {
-		    case 0:
-		    case 1:
-		      kTMean=plotters[2*i+1][j]->plotResults[resIdx].kTMeans[k];
-		      kTVal=plotters[2*i+1][j]->plotResults[resIdx].kTValues[k];
-		      kTValWRad=plotters[2*i][j]->plotResults[resIdx].kTValues[k];
-		      weakRatio=plotters[2*i+1][j]->plotResults[resIdx].weakDecayFraction[k];
+		      //    cout <<"filling x,y num " << j <<" with mean: " << plotters[i]->plotResults[resIdx].kTMeans[j] <<" value: "<< plotters[i]->plotResults[resIdx].kTValues[j]  <<endl;
+		      //look at the no radiation (i+1)
+		      double kTMean=0;
+		      double kTVal=0;
+		      double kTValWRad=0;
+		      double weakRatio=0;
+		      
+		      float kTValU=0;
+		      float kTValC=0;
+		      float weakRatioU=0;
+		      float weakRatioC=0;
+		      if(k==0 && i==4)
+			{
+			  cout <<"first bin uds w isr " << plotters[udsyes][j]->plotResults[resIdx].kTValues[k];
+			  cout <<"charm  w isr " << plotters[charmyes][j]->plotResults[resIdx].kTValues[k];
+			  cout <<"first bin uds wo isr " << plotters[udsno][j]->plotResults[resIdx].kTValues[k];
+			  cout <<"charm  wo isr " << plotters[charmno][j]->plotResults[resIdx].kTValues[k];
+			  
+			}
+		      //i:0 udsyes, 1: udsno ...4: doesn't exist in plotters, I guess introduced here as 'combined'
+		      switch(i)
+			{
+			  //2*i+1 is 3 for case 1, so charmno, for i=0 it would be udsno,
+			  //so interpreting i as uds/charm it gives uds/charm no
+			case 0:
+			case 1:
+			  kTMean=plotters[2*i+1][j]->plotResults[resIdx].kTMeans[k];
+			  kTVal=plotters[2*i+1][j]->plotResults[resIdx].kTValues[k];
+			  kTValWRad=plotters[2*i][j]->plotResults[resIdx].kTValues[k];
+			  weakRatio=plotters[2*i+1][j]->plotResults[resIdx].weakDecayFraction[k];
 		      break;
-		    case 4:
-		      //just take one of the uds/charm for the means
-		      kTMean=plotters[1][j]->plotResults[resIdx].kTMeans[k];
-		      kTValU=plotters[1][j]->plotResults[resIdx].kTValues[k];
-		      kTValC=plotters[3][j]->plotResults[resIdx].kTValues[k];
-		      kTVal=kTValU+kTValC;
-		      kTValWRad=plotters[0][j]->plotResults[resIdx].kTValues[k]+plotters[2][j]->plotResults[resIdx].kTValues[k];
-		      weakRatioU=plotters[1][j]->plotResults[resIdx].weakDecayFraction[k];
-		      weakRatioC=plotters[3][j]->plotResults[resIdx].weakDecayFraction[k];
-		      weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
-		      break;
-		    default:
-		      cout <<"i is wrong " <<endl;
-		    }
+			case 4:
+			  //just take one of the uds/charm for the means--> [1], [3] corresponds to udsno, charmo
+			  kTMean=plotters[udsno][j]->plotResults[resIdx].kTMeans[k];
+			  kTValU=plotters[udsno][j]->plotResults[resIdx].kTValues[k];
+			  kTValC=plotters[charmno][j]->plotResults[resIdx].kTValues[k];
+			  //kTvalues should already be correctly weighted
+			  kTVal=kTValU+kTValC;
+			  //[0] and [2] are udsyes, charmyes
+			  kTValWRad=plotters[udsyes][j]->plotResults[resIdx].kTValues[k]+plotters[charmyes][j]->plotResults[resIdx].kTValues[k];
+			  weakRatioU=plotters[udsno][j]->plotResults[resIdx].weakDecayFraction[k];
+			  weakRatioC=plotters[charmno][j]->plotResults[resIdx].weakDecayFraction[k];
+			  //I guess we could have just added the plotters...
+			  weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
+			  //write weakratio to file
+			  fweak <<" " << weakRatio;
+			  break;
+			default:
+			  cout <<"i is wrong " <<endl;
+			}
 		  
-		  cout <<"ktMean: "<< kTMean <<" ktVal: "<< kTVal <<" ktValWRad: " << kTValWRad <<endl;
-		  if(kTMean==0 || isnan(kTMean)|| kTVal==0||isnan(kTVal) || kTValWRad==0)
-		    {
-		      cout <<"invalid point " <<endl;
-		      missPoints++;
-		      continue;
-		    }
+		      cout <<"ktMean: "<< kTMean <<" ktVal: "<< kTVal <<" ktValWRad: " << kTValWRad <<endl;
+		      if(kTMean==0 || isnan(kTMean)|| kTVal==0||isnan(kTVal) || kTValWRad==0)
+			{
+			  cout <<"invalid point " <<endl;
+			  
+			  //misspoints is only important for the graph where we only do diagonal points..
+			  if(zbin==zbin2)
+			    {
+			      missPoints++;
+			    }
+			  continue;
+		      
+			}
 		
-		  //		  double ratio=(kTVal-kTValWRad)/kTVal;
-		  //Ralf shows it this way, so do the same for comparison
-		  double ratio=kTVal/kTValWRad;
+		      //		  double ratio=(kTVal-kTValWRad)/kTVal;
+		      //Ralf shows it this way, so do the same for comparison
+		      double ratio=kTVal/kTValWRad;
+		      if(k==0 && i==4)
+			cout <<"ratio2: "<< ratio <<endl;
+
+
+
+		      //for plots, only look at diagonal
+		      if(zbin==zbin2)
+			{
+			  cout <<"zbin: "<< zbin <<" ktBin: " << k <<" mean: "<< kTMean << "ratio: "<< ratio <<" weakratio: " << weakRatio <<endl;			  
+			  if(ratio>maxVals[zbin])
+			    {
+			      cout <<"setting maxVal to " << ratio <<endl;
+			      maxVals[zbin]=ratio;
+			    }
+			  if(ratio<minVals[zbin])
+			    {
+			      minVals[zbin]=ratio;
+			      cout <<" setting new minVal for zbin " << zbin <<" ratio: "<< ratio <<" ktbin: "<< k <<" ktmean: "<< kTMean<<endl;
+			    }
+		      
+			  if(kTMean>maxVals[zbin])
+			    maxValsX[zbin]=kTMean;
 		  
-		  cout <<"zbin: "<< zbin <<" ktBin: " << k <<" mean: "<< kTMean << "ratio: "<< ratio <<" weakratio: " << weakRatio <<endl;
-		  if(ratio>maxVals[zbin])
-		    {
-		      cout <<"setting maxVal to " << ratio <<endl;
-		      maxVals[zbin]=ratio;
-		    }
-		  if(ratio<minVals[zbin])
-		    {
-		      minVals[zbin]=ratio;
-		      cout <<" setting new minVal for zbin " << zbin <<" ratio: "<< ratio <<" ktbin: "<< k <<" ktmean: "<< kTMean<<endl;
+			  X[k]=kTMean;
+			  Y[k]=ratio;
+			  YWeak[k]=weakRatio;
+			}
+		  
 		    }
 
-		  if(kTMean>maxVals[zbin])
-		    maxValsX[zbin]=kTMean;
-		  
-		  X[k]=kTMean;
-		  Y[k]=ratio;
-		  YWeak[k]=weakRatio;
 		}
 	      cout <<"making graphs " << i <<endl;
 	      sprintf(buffer,"graph_%s_file%i_%i",names[i].c_str(),j,i);
