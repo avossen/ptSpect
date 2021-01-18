@@ -133,7 +133,7 @@ namespace Belle {
       //j/psi is 443, phi 333
       int motherIdMod1000=motherId%1000;
 
-      if(motherIdMod1000==443 || motherIdMod1000==333) 
+      if(motherIdMod1000==443 || motherIdMod1000==333|| motherIdMod1000==441 || motherIdMod1000==445) 
 	{
 	  //	  cout <<"quarkonium" <<endl;
 	  return false;

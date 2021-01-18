@@ -105,7 +105,7 @@ inline PlotResults& PlotResults::operator +=(const PlotResults& rhs)
 	      double rhsWeakDecays=rhs.weakDecayFraction[i];
 	      if(origDecayFraction > 1.0 || rhsWeakDecays > 1.0)
 		{cout <<"fraction greater one" <<endl;}
-	      if(isnan(rhsWeakDecays))
+	      if(::isnan(rhsWeakDecays))
 		{
 		  rhsWeakDecays=0.0;
 		}

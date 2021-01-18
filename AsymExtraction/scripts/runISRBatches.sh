@@ -17,7 +17,7 @@ do
 myDir=genMC_red_Tune$tune\_ISR$yn\_$spec
 myDirOut=ISROut_Tune$tune\_ISR$yn\_$spec
 mkdir $HOME/$myDirOut
-for batch in 1 2 3 4 
+for batch in 1 2 3
 do
 
 
