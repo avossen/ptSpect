@@ -102,6 +102,9 @@ namespace Belle {
 	      return false;
 	    }
 	}
+      //special case for K_L which has particle code 130, so doesn't fit the usual scheme
+      if(idhep==130 && heavyQuarkId==3)
+	return true;
 
       return false;
 
@@ -623,6 +626,8 @@ namespace Belle {
 	  int heaviestQuark=3;
 	  if(geantID==lc_kPlus)
 	    {
+	      //need to set them to the next higher quark id (so 4 for kaons that contain strange (id 3)),
+	      //this is because we check e.g. for >400. If that would be >300 we would find the same again
 	      heaviestQuark=4;
 	      //	      cout <<"checking if kaon comes from weak decay" <<endl;
 	    }

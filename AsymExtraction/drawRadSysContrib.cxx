@@ -407,7 +407,16 @@ int main(int argc, char** argv)
 			  weakRatioU=plotters[udsno][j]->plotResults[resIdx].weakDecayFraction[k];
 			  weakRatioC=plotters[charmno][j]->plotResults[resIdx].weakDecayFraction[k];
 			  //I guess we could have just added the plotters...
-			  weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
+			  if(kTValU+kTValC>0)
+			    weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
+			  else
+			    weakRatio=0;
+
+			  if(::isnan(weakRatio))
+			    {
+			      cout <<"weakratio is nan: uds: "<< weakRatioU <<" charm: " << weakRatioC <<endl;
+			      cout <<" ktValU: "<< kTValU <<" kTValC: "<< kTValC <<endl;
+			    }
 			  //write weakratio to file
 			  fweak <<" " << weakRatio;
 			  break;
