@@ -211,6 +211,8 @@ private:
   float getDecayDistPN();
   Hep3Vector getVertex(bool firstHemi);
 
+  TH1D* pi0MassHisto;
+
   TH1D* histoD0Spect;
   TH1D* histoDStar;
   TH1D* histoPiSlowMom;

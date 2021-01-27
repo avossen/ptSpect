@@ -72,7 +72,7 @@ using namespace std;
 #define PY_B 521
 
 //#define SAVE_HISTOS
-#define XCHECK
+//#define XCHECK
 
 #define D0Mass 1.865
 #define D0Width 0.6
@@ -132,6 +132,8 @@ namespace Belle {
       {
 	//	zVals[i]=0;
       }
+
+
 
     //    histoD0Spect=new TH1D("d0spect","d0spect",1000,0,3.0);
     //    histoDStar=new TH1D("dStarspect","dStarspect",300,1.8,5.0);
@@ -269,6 +271,7 @@ namespace Belle {
     loadPIDMatrix();
     //do this after the PID matrix load, so we don't have to deal with changing root directories
     m_file=new TFile(rFileName,"recreate");
+    ///    pi0MassHisto=new TH1D("pi0Mass","pi0Mass",2000,0,0.5);
   }
 
 
@@ -1259,15 +1262,62 @@ namespace Belle {
 	float pLab=sqrt(px*px+py*py+pz*pz);
 	//      cout <<"pi0mass: "<< mass <<endl;≈
 
+	Hep3Vector photVec1(pi0.gamma(0).px(),pi0.gamma(0).py(),pi0.gamma(0).pz());
+	Hep3Vector photVec2(pi0.gamma(1).px(),pi0.gamma(1).py(),pi0.gamma(1).pz());
+	float photTheta1= photVec1.theta();
+	photTheta1=180*(photTheta1/TMath::Pi());
+	float photTheta2= photVec2.theta();
+	photTheta2=180*(photTheta2/TMath::Pi());
+
+
 	float g1Energy= sqrt(pi0.gamma(0).px()*pi0.gamma(0).px()+pi0.gamma(0).py()*pi0.gamma(0).py()+pi0.gamma(0).pz()*pi0.gamma(0).pz());
 	float g2Energy= sqrt(pi0.gamma(1).px()*pi0.gamma(1).px()+pi0.gamma(1).py()*pi0.gamma(1).py()+pi0.gamma(1).pz()*pi0.gamma(1).pz());
+
+	if(g1Energy<cuts::minGammaEBarrel|| g2Energy<cuts::minGammaEBarrel)
+	  {
+	    continue;
+	  }
+
+	if(photTheta1 >cuts::barrelThetaMax) 
+	  {
+	    if(g1Energy<cuts::minGammaEEndcapBkwd)
+	      {
+		continue;
+	      }
+	  }
+	if(photTheta1< cuts::barrelThetaMin)
+	  {
+	    if(g1Energy<cuts::minGammaEEndcapFwd)
+	      {
+		continue;
+	      }
+	  }
+
+	if(photTheta2 >cuts::barrelThetaMax) 
+	  {
+	    if(g2Energy<cuts::minGammaEEndcapBkwd)
+	      {
+		continue;
+	      }
+	  }
+	if(photTheta2< cuts::barrelThetaMin)
+	  {
+	    if(g2Energy<cuts::minGammaEEndcapFwd)
+	      {
+		continue;
+	      }
+	  }
+
 	//	cout <<"pi0 gamma1: "<< g1Energy <<" gamma2: "<< g2Energy <<endl;
-       	if(g1Energy < 0.1 || g2Energy < 0.1)
-	  continue;
-
-
+	//       	if(g1Energy < 0.1 || g2Energy < 0.1)
 	Hep3Vector h3Vect(px,py,pz);
 	float E=sqrt(mass*mass+h3Vect.mag2());
+	//	  continue;
+	///	if(E>0.35 &&E<0.45)
+	///	  pi0MassHisto->Fill(pi0.mass());
+
+
+
 	HepLorentzVector boostedVec(h3Vect,E);
 	boostedVec.boost(kinematics::CMBoost);
 
@@ -1339,7 +1389,7 @@ namespace Belle {
 	double e9oe25 =aux.e9oe25();
 	double gammaE=sqrt(px*px+py*py+pz*pz);
 	HepLorentzVector boostedVec(px,py,pz,gammaE);
-	Hep3Vector photVec(px,py,pz);
+
 	boostedVec.boost(kinematics::CMBoost);
 	v_gammaE.push_back(gammaE);
 
@@ -1349,6 +1399,7 @@ namespace Belle {
 	    //	    cout <<" loosing photon in barrel due to energy cut " << gammaE<<endl;
 	    continue;
 	  }
+	Hep3Vector photVec(px,py,pz);
 	float photTheta= photVec.theta();
 	photTheta=180*(photTheta/TMath::Pi());
 	if(photTheta >cuts::barrelThetaMax) 
@@ -2488,7 +2539,7 @@ namespace Belle {
       }
 
     pTreeSaver->finalize();
-
+    ///    pi0MassHisto->Write();
     //    histoD0Spect->Write();
     //    histoDStar->Write();
     //    histoPiSlowMom->Write();

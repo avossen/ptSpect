@@ -76,16 +76,16 @@ namespace Belle {
 
 
     //id or heavier
-    bool hasHeavyQuark(int idhep, int heavyQuarkId)
+    int hasHeavyQuark(int idhep, int heavyQuarkId)
     {
 
       //check baryons first
       if(idhep<10000  && idhep > 1000)
 	{
 	  if(idhep> heavyQuarkId*1000)
-	    return true;
+	    return floor(idhep/1000);
 
-	  return false;
+	  return 0;
 	}
 
       //modulo 10000 to focus on the 'hundreds' for excited mesons and baryons
@@ -95,18 +95,18 @@ namespace Belle {
 	{
 	  if(idhep>=heavyQuarkId*100)
 	    {
-	      return true;
+	      return floor(idhep/100);
 	    }
 	  else
 	    {
-	      return false;
+	      return 0;
 	    }
 	}
       //special case for K_L which has particle code 130, so doesn't fit the usual scheme
       if(idhep==130 && heavyQuarkId==3)
-	return true;
+	return 3;
 
-      return false;
+      return 0;
 
     }
 
@@ -114,41 +114,43 @@ namespace Belle {
     //parameter is the child particle and if we check for ud (pions,protons for which a strange in the heritage signals weak decay or kaon (only charm))
     bool isWeakDecay(Gen_hepevt& candidate, int heaviestQuark)
     {
-      //      cout <<"checking if " << candidate.idhep() <<" is from weak decay" <<endl;
+      //            cout <<"checking if " << candidate.idhep() <<" is from weak decay" <<endl;
       Gen_hepevt_Manager& gen_hepevt_mgr = Gen_hepevt_Manager::get_manager();
       Gen_hepevt& mother=candidate.mother();
 
       ///if pdg<100 --> end of the line (string, quark etc)
       if(mother==0)
 	{
-	  //	  cout <<"mother 0" <<endl;
+	  //	    cout <<"mother 0" <<endl;
 	return false;
 	}
       int motherId=abs(mother.idhep());      
       if(motherId<100)
 	{
-	  //	  cout <<"mother some sort of string: " << motherId <<endl;
+	  //	  	  cout <<"mother some sort of string: " << motherId <<endl;
 	  return false;
 	}
 
-      //      cout <<"motherid is : "<< motherId <<endl;
+      //       cout <<"motherid is : "<< motherId <<endl;
       //strong decay of quarkonium
       //j/psi is 443, phi 333
       int motherIdMod1000=motherId%1000;
 
       if(motherIdMod1000==443 || motherIdMod1000==333|| motherIdMod1000==441 || motherIdMod1000==445) 
 	{
-	  //	  cout <<"quarkonium" <<endl;
+	  //	    cout <<"quarkonium" <<endl;
 	  return false;
 	}
       //seems to come from heavier quark, now check if that mother has other daughters with the heavy quark
-      //      cout <<"check if mother has heavier quark " <<endl;
-      if(hasHeavyQuark(motherId,heaviestQuark))
+
+      int motherHeavyQuark=hasHeavyQuark(motherId,heaviestQuark);
+      //          cout <<"check if mother has heavier quark " <<motherHeavyQuark<<endl;
+      if(motherHeavyQuark)
 	{
 	  //	  cout <<"mother has heavier quark " <<endl;
 	  //for each daugher check
 	  int n_children = mother.daLast() - mother.daFirst() + 1;
-	  //	  cout <<"check " << n_children <<" children "<<endl;
+	  //	  	  cout <<"check " << n_children <<" children "<<endl;
 	  for(int i=0; i<n_children; i++) {
 
 	    Panther_ID ID0(mother.daFirst()+i);
@@ -159,7 +161,7 @@ namespace Belle {
 		break;
 	      }
 	    Gen_hepevt& temp = gen_hepevt_mgr(ID0);
-	    //	    cout <<"checking child " << temp.idhep() <<endl;
+	    //	    	    cout <<"checking child " << temp.idhep() <<endl;
 	    //don't look into the current candidate again
 	    if(temp==candidate)
 	      {
@@ -170,18 +172,20 @@ namespace Belle {
 	    if (temp) 
 	      {
 		//another id has the heavy quark
-		if(hasHeavyQuark(abs(temp.idhep()),heaviestQuark))
+		int kidHeavyQuark=hasHeavyQuark(abs(temp.idhep()),heaviestQuark);
+		//		cout <<"kid has heavy quark: " <<kidHeavyQuark<<endl;
+		if(kidHeavyQuark==motherHeavyQuark)
 		  {
-		    //		    cout <<" another child has heavy quark " <<endl;
+		    //		    	    cout <<" another child has heavy quark " <<endl;
 		    return false;
 		  }
 		//	children->push_back(&temp);
 	      }
 	  }
-	  //	  cout <<"no other child has heavy quark" <<endl;
+	  //	  	  cout <<"no other child has heavy quark" <<endl;
 	  return true;
 	}
-      //      cout <<"mother is light... keep checking" <<endl;
+      //          cout <<"mother is light... keep checking" <<endl;
       return isWeakDecay(mother,heaviestQuark);
       
     }
