@@ -211,6 +211,11 @@ private:
   float getDecayDistPN();
   Hep3Vector getVertex(bool firstHemi);
 
+  //for generated files w/o event numbers we just increment
+  int evtCount;
+
+  TH1D* pi0MassHisto;
+
   TH1D* histoD0Spect;
   TH1D* histoDStar;
   TH1D* histoPiSlowMom;

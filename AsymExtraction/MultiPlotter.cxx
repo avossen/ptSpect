@@ -1967,6 +1967,9 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
     }
   bool alreadyInc=false;
 
+  //for xcheck
+  int numWeak=0;
+  int numStrong=0;
   for(int i=0;i<hp->numPairs;i++)
     {
       if(hp->cut[i] )
@@ -2348,10 +2351,10 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    {
 	      if(hp->particleType[i]==PiPi && p==PiPi)
 		{
-		  //		  cout <<" found pipi, z1 pipi: " << hp->z1_PiPi[i]<<" z2: "<< hp->z2_PiPi[i];
+		  		  cout <<" found pipi, z1 pipi: " << hp->z1_PiPi[i]<<" z2: "<< hp->z2_PiPi[i];
 		  //		  cout <<" kt pipi: " << hp->kT_PiPi[i] <<" weight: " << hp->p_PiPi[i] <<endl;
 		  //		  cout <<"hadron pType: " << hp->particleType[i];
-		  //		  cout <<" z1: " << hp->z1[i] <<", z2: " <<hp->z2[i];
+		  		  cout <<" z1: " << hp->z1[i] <<", z2: " <<hp->z2[i];
 		  //		  cout <<" kt: "<< hp->kT[i]<<endl;
 		  
 
@@ -2401,16 +2404,25 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  
 	  /////for x-check, looking at PiPi weights
 	  //	  if(hp->chargeType[i]==0 && p==PiPi && this->z1 <0.1 && this->z2 < 0.1 && this->kT < 0.45)
-	  if(hp->chargeType[i]==0 && p==PiPi)
+	  if(hp->chargeType[i]==0 && hp->particleType[i]==PiPi&&  p==PiPi && bt==binType_z_z)
 	    {
 	      weightSum+=weight;
 	      cout << std::fixed;
 	      cout <<setprecision(4);
 
 	      
+
 	      //	      cout <<"event nr: " << event.evtNr << " weight: " << weight <<endl;
 	      //	      cout <<"event nr: " << event.evtNr << 
-	      ////	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " sys: " << sys <<endl;
+	      //	            cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " sys: " << sys <<endl;
+	      //  cout << "event nr: "<< event.evtNr-1 <<" z1: " << hp->z1[i] <<" z2: "<< hp->z2[i] << " cms theta1: " << hp->cmsTheta1[i]<<" cms theta2: " <<hp->cmsTheta2[i]<< "  weak: " << hp->isWeakDecay[i]<<endl;
+
+	      if(hp->isWeakDecay[i])
+		numWeak++;
+	      else
+		numStrong++;
+
+
 	      //	      cout << weight <<endl;
 	      //		      	      	      	      	      	      cout << "accepted z1: " << this->z1 <<" z2: "<< this->z2 << " kT: "<< this->kT<< " weight1: "<<weight1 <<" weight2: "<< weight2 << " weight: "<< weight<< endl;
 	      //		      	                  cout <<"originally identified as " << getParticlePairName(hp->particleType[i]) <<" theta cms1: "<< hp->cmsTheta1[i] <<" theta cms2: "<< hp->cmsTheta2[i]<<endl;
@@ -2473,16 +2485,18 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 		      cout <<" counts2 : " << 	  counts2[bt][pidBin][chargeBin][firstBin][secondBin][kTBin];
 		      cout <<" mean1 : "<< 	  meanValues_kin1[bt][pidBin][chargeBin][firstBin][secondBin];
 		      cout <<" mean2 : "<< 	  meanValues_kin2[bt][pidBin][chargeBin][firstBin][secondBin];
-
+		      
 		}
 	    }
-
-
-
-
 	}
 	}
     }
+    if(numWeak>0 || numStrong>0)
+      {
+  //    cout <<"event nr: " << event.evtNr-1 <<" num weak: "<< numWeak << " num strong: "<< numStrong<<endl;
+      }
+
+
 };
 
 void MultiPlotter::setBinningMap()

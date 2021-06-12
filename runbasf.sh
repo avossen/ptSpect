@@ -21,7 +21,7 @@ path add_condition main >:0:analysis
 path add_condition main <=:0:KILL
 path add_module analysis ${MODULE}
 module put_parameter ptSpect rfname\/home/belle/vossen/myProjects/ptSpect/mcEx55.root
-#module put_parameter ptSpect onlyGen\7
+module put_parameter ptSpect onlyGen\7
 module put_parameter fix_mdst Make_pi0_option\2
 module put_parameter fix_mdst Make_pi0_lower_limit\-20.0
 module put_parameter fix_mdst Make_pi0_upper_limit\25.0
@@ -30,8 +30,7 @@ initialize
 nprocess set 0
 histogram define ${HBKFILE}
 
-process_event /group/belle/nagoya/cp201910/chai/sgt2/bfactory/belle_data/caseB/mcprod/b20090127_0910.4/eecc.e55.3/continuum/08/eecc-e00005\
-5r000805-b20090127_0910-3.mdst 0
+#process_event /group/belle/nagoya/cp201910/chai/sgt2/bfactory/belle_data/caseB/mcprod/b20090127_0910.4/eecc.e55.3/continuum/08/eecc-e000055r000805-b20090127_0910-3.mdst 0
 #process_event /group/belle/nagoya/cp201910/chai/sgt2/bfactory/belle_data/caseB/mcprod/b20090127_0910.2/tautau.e55.0/continuum/07/tautau-e000055r000793-b20090127_0910-0.mdst 0
 #process_event /group/belle/bdata_b/mcprod/dat/e000055/evtgen/uds/04/all/0127/continuum/15/evtgen-uds-04-all-e000055r001585-b20090127_0910.mdst 0
 
@@ -58,9 +57,10 @@ process_event /group/belle/nagoya/cp201910/chai/sgt2/bfactory/belle_data/caseB/m
 #process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
 
 #job 25
+
 #process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001660-b20090127_0910.mdst 1000000
-#process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
-#process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/08/HadronBJ-e000055r000821-b20090127_0910.mdst 0
+#process_event /group/belle/hsm/bfs/fsn051/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001621-b20090127_0910.mdst 0
+process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/08/HadronBJ-e000055r000821-b20090127_0910.mdst 0
 
 #process_event /group/belle/bdata_b/dstprod/dat/e000055/HadronBJ/0127/continuum/16/HadronBJ-e000055r001602-b20090127_0910.mdst 100000
 
