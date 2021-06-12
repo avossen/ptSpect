@@ -9,15 +9,15 @@ HOME=/home/belle/vossen/myProjects/ptSpect/AsymExtraction
 for tune in 13 
 do
 #for yn in yes 
-for yn in no
+for yn in yes no
 do
 #for spec in uds 
-for spec in uds charm 
+for spec in charm
 do
 myDir=genMC_red_Tune$tune\_ISR$yn\_$spec
 myDirOut=ISROut_Tune$tune\_ISR$yn\_$spec
 mkdir $HOME/$myDirOut
-for batch in 1 2 3 4 5
+for batch in  1
 do
 
 

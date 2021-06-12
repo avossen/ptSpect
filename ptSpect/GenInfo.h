@@ -125,6 +125,11 @@ namespace Belle {
 	return false;
 	}
       int motherId=abs(mother.idhep());      
+      if(motherId==15)
+	{
+	  //tau
+	  return true;
+	}
       if(motherId<100)
 	{
 	  //	  	  cout <<"mother some sort of string: " << motherId <<endl;

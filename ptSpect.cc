@@ -322,6 +322,8 @@ namespace Belle {
   // begin_run function
   void ptSpect::begin_run(BelleEvent* evptr, int* status)
   {
+    evtCount=0;
+    //    cout <<"begin runb " <<endl;
       cout <<"debug event : " << DEBUG_EVENT <<endl;
     //    cout <<" in begin run... " <<endl;
     IpProfile::begin_run();
@@ -599,7 +601,7 @@ namespace Belle {
   // event function
   void ptSpect::event(BelleEvent* evptr, int* status)
   {
-
+    evtCount++;
     //        cout <<"debug event : " << DEBUG_EVENT <<endl;
     bool onlyGen=false;
     if(onlyGen_>0.0)
@@ -624,7 +626,8 @@ namespace Belle {
 	//	cout <<"no event manager " <<endl;
 	if(!onlyGen)
 	  return;
-	evtNr=0;
+	evtNr=evtCount;
+	//	cout <<"evtNr: "<< evtCount <<endl;
 	runNr=0;
       }
     else{

@@ -218,6 +218,12 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
   {
     return idx%maxKinBins;
   }
+
+  //for the gen files w/o valid event number we have to set it manually
+  void setEvtCount(long count)
+  {
+    evtCount=count;
+  }
   
     void saveSmearingMatrix();
     void saveXini();
@@ -234,6 +240,8 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //actually for Collins paper reply
     long hadPairCount;
     long numEvts;
+
+    long evtCount;
 
     double weightSum;
 

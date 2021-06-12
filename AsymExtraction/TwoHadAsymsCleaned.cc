@@ -184,8 +184,8 @@ if(folderName.find("tautau")!=string::npos)
   if(dataMCFlag==mcFlagMC)
     cout <<"mc Flag!! " <<endl;
   HadronPairArray hadPair(chAll,dataMCFlag);
-  ///  hadPair.zOrdered=true;
-  hadPair.zOrdered=false;
+  //   hadPair.zOrdered=true;
+    hadPair.zOrdered=false;
 
   kMCFlags hadMCFlag=dataMCFlag;
   if(isMC==mcAsData)
@@ -201,7 +201,8 @@ if(folderName.find("tautau")!=string::npos)
       hadPairMC=new HadronPairArray(chAll,hadMCFlag);
       hadPairMC->followFlip=true;
       hadPairMC->relatedHP=&hadPair;
-      hadPairMC->zOrdered=false;
+           hadPairMC->zOrdered=false;
+      //      hadPairMC->zOrdered=true;
     }
 
   cout <<"done with had pairs....." <<endl;
@@ -224,7 +225,9 @@ if(folderName.find("tautau")!=string::npos)
       pMyEventWoA=new MEvent(chWoA,mcFlagWoA);
       pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
       //      pHadPairWoA->zOrdered=true;
-      pHadPairWoA->zOrdered=false;
+      //      cout<<"print woa array: "<<endl;
+      //      pHadPairWoA->print();
+	  pHadPairWoA->zOrdered=false;
     }
 
 
@@ -309,9 +312,16 @@ if(folderName.find("tautau")!=string::npos)
 	    }
 	  //  cout <<"woa after fill " <<endl;
 	  pHadPairWoA->afterFill();
+	  //            cout<<"print woa array: "<<endl;
+	    
+
 	  //  cout <<"done " <<endl;
 	  //	  	  cout <<"adding woa had quad to plotter... " <<endl;
+	  plotterWoA.setEvtCount(i);
+	  //	  cout <<"adding woa " <<endl;
+	  //            pHadPairWoA->print();
 	  plotterWoA.addHadPairArray(pHadPairWoA, *pMyEventWoA);
+
 	  //	  cout <<"runNumber: " << pMyEventWoA->runNr <<" eventNumber: "<< pMyEventWoA->evtNr <<endl;
 	  smearingPlotterRaw.evtNr=pMyEventWoA->evtNr;
 	  smearingPlotterRaw.addXiniEntry(pHadPairWoA);

@@ -615,7 +615,7 @@ struct HadronPairArray:public ReaderBase
 	    //	    cout <<" z1: " << z1[i] <<  " z2: " << z2[i] <<endl;
 	  }
 
-
+	//cout <<"evt : " << evtNr <<" looking at pair with z1: " << z1[i] << " z2: " << z2[i] << " kt: " << kT[i] <<endl;
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    cout <<"looking at pair with z1: " << z1[i] << " z2: " << z2[i] << " kt: " << kT[i] <<endl;

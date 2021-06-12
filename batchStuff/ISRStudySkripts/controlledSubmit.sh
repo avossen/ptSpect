@@ -8,7 +8,7 @@ do
 for yn in yes no
 #for yn in no
 do
-for spec in uds charm 
+for spec in  uds charm 
 #for spec in charm
 do
 myDir=genMC_red_Tune$tune\_ISR$yn\_$spec
