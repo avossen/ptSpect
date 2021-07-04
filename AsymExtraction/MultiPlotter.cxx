@@ -2046,7 +2046,15 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  weight1=hp->p_PiPi1[i];
 	  weight2=hp->p_PiPi2[i];
 	  //weight=(weight1+weight2)/2;
+
 	  weight=hp->p_PiPi[i];
+	  //
+	  //
+	  ////for xcheck, do unweighted
+	  //if(hp->particleType[i]==0)
+	  //	    weight=1;
+	  //	  else
+	  //	    weight=0;
 	  
 	  //cout <<"looking at weight1: "<< weight1 <<" weight2: " << weight2 <<" weight: "<< weight <<endl;
 	  sys=hp->ep_PiPi[i];
