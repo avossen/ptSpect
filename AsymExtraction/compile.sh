@@ -1,5 +1,5 @@
 #!/bin/bash
-export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
+#export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
 rm PlotRes_Dict.*
 CFLAGS="-std=gnu++0x -Wall -ggdb `root-config --cflags --libs` "
 #-DDEFAULT_SYSROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -DC_INCLUDE_DIRS=:/usr/local/include:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.0/include:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include:/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include:/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks

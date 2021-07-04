@@ -15,7 +15,7 @@
 #include "CombPlots.h"
 //#define MAX_EVENTS 100
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 float uds_charm_ratio=1.0;
@@ -178,6 +178,7 @@ int main(int argc, char** argv)
 	  if(i==udsyes || i==udsno)
 	    {
 	      cout <<"weighting uds " << endl;
+	      //
 	      plotters[i][j]->weight(uds_charm_ratio);
 	    }
 	  else
@@ -408,9 +409,19 @@ int main(int argc, char** argv)
 			  weakRatioC=plotters[charmno][j]->plotResults[resIdx].weakDecayFraction[k];
 			  //I guess we could have just added the plotters...
 			  if(kTValU+kTValC>0)
-			    weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
+			    {
+			      weakRatio=(weakRatioU*kTValU+weakRatioC*kTValC)/(kTValU+kTValC);
+			      //			      cout <<"weakratio: "<< weakRatio <<endl;
+			    //for Charlotte:
+			      			          	      weakRatio=weakRatioU*kTValU;
+			      //		      	      weakRatio=(1-weakRatioU)*kTValU;
+			      //			       weakRatio=weakRatioC*kTValC;
+			      ///			      			      weakRatio=(1-weakRatioC)*kTValC;
+			    }
 			  else
+			    {
 			    weakRatio=0;
+			    }
 
 			  if(::isnan(weakRatio))
 			    {
@@ -472,6 +483,7 @@ int main(int argc, char** argv)
 		    }
 
 		}
+	    
 	      cout <<"making graphs " << i <<endl;
 	      sprintf(buffer,"graph_%s_file%i_%i",names[i].c_str(),j,i);
 	      cout <<"name : " << buffer <<endl;
