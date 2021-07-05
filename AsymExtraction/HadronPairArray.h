@@ -7,7 +7,7 @@
 
 #include "ReaderBase.h"
 #include "TMath.h"
-//#define USE_QT
+#define USE_QT
 //300 is also the number in the Treesaver, so cannot be larger...
 #define Max_ArrSize 300
 
@@ -498,6 +498,18 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("qT_PPi");
 	    branchNames.push_back("qT_PK");
 	    branchNames.push_back("qT_PP");
+
+	    branchNames.push_back("dp_PiPi");
+	    branchNames.push_back("dp_PiK");
+	    branchNames.push_back("dp_PiP");
+	    
+	    branchNames.push_back("dp_KPi");
+	    branchNames.push_back("dp_KK");
+	    branchNames.push_back("dp_KP");
+	    
+	    branchNames.push_back("dp_PPi");
+	    branchNames.push_back("dp_PK");
+	    branchNames.push_back("dp_PP");
 
 #else	    	    
 	    branchNames.push_back("kT_PiPi");

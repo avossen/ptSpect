@@ -264,6 +264,7 @@ if(folderName.find("tautau")!=string::npos)
     ss<<"_data_";
 
   bool m_useQt=false;
+  //defined in HadronPairArray.h
 #ifdef USE_QT
   m_useQt=true;
   cout<<"setting m_useQt" <<endl;
