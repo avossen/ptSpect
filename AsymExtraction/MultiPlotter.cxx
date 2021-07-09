@@ -937,7 +937,8 @@ void MultiPlotter::setHistogram(int binning, int chargeType, int pidType, TH1D* 
 //for now only for the zOnly binning--> changed to z1,z2 and zOnly (binning argument)
 //don't do the bin width normalization since we also don't do it for the xini, bini
 
-TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const char* nameAdd, int getSys)
+//pidcorrection:0 just regular ktValues, 1: ktValues1 (data) , 2: ktValues2 (mc)
+TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const char* nameAdd, int getSys, int pidCorrection)
 
 {
   //  cout <<"getting histo for binning: " << binning <<" charge: "<< chargeType <<" pidType: " << pidType <<endl;
@@ -1069,8 +1070,22 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
 		}
 	      //	  cout <<"setting x: " << mX[iKtBin] <<endl;
 	      mXErr[iKtBin]=0.0;
-	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
-	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
+
+	      //--->pidco
+	      float mKTValues=m_plotResults[resIdx].kTValues[iKtBin];
+	      if(pidCorrection==1)
+		{
+		 mKTValues= m_plotResults[resIdx].kTValues1[iKtBin];
+		}
+	      if(pidCorrection==2)
+		{
+		 mKTValues= m_plotResults[resIdx].kTValues2[iKtBin];
+		}
+	      
+	      //	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
+	      mY[iKtBin]=mKTValues*normFactor/binWidthFactor;
+	      //	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
+	      	      Double_t binContent=mKTValues*normFactor/binWidthFactor;
 	      Double_t binUncertainty=m_plotResults[resIdx].kTUncertainties[iKtBin]*normFactor/binWidthFactor;
 	      Double_t binSysUncertainty=m_plotResults[resIdx].kTSysUncertainties[iKtBin]*normFactor/binWidthFactor;
 

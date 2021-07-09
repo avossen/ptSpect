@@ -172,7 +172,7 @@ class MultiPlotter: public ReaderBase, NamedExp//for the normalize angle
     //addSys=0: don't add
     //addSys=-1: add lower Sys, =1 higher sys
 
-    TH1D* getHistogram(int binning, int chargeBin, int pidBin, const char* nameAdd, int getSys=0);
+  TH1D* getHistogram(int binning, int chargeBin, int pidBin, const char* nameAdd, int getSys=0, int pidCorrection=0);
     //set the unfolded results again
     void setHistogram(int binning, int chargeBin, int pidBin, TH1D* histo, TH1D* histoUpperSys, TH1D* histoLowerSys);
 
