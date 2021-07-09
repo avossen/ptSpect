@@ -1936,7 +1936,12 @@ bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
       return true;
 
     }
-  if(z1 < z1Cut || z2< z2Cut || kT > 5.31145668 || z1> z1UpperCut || z2> z2UpperCut) 
+
+  if(useQt && kT> 12.0)
+    return true;
+  if(!useQt && kT > 5.31145668)
+    return true;
+  if(z1 < z1Cut || z2< z2Cut || z1> z1UpperCut || z2> z2UpperCut) 
     {
       return true;
     }
@@ -2198,13 +2203,15 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       ////correct for the wrong factor we put in the trees
       sys*=(2*0.25*0.25);
 
+      //doesn't matter, since the qt value is now in the kt field
+      //but I guess this qT is still from some old code where one bins in qT (e.g asymmetries)
       this->qT=hp->qT[i];
 
       this->labTheta1=hp->labTheta1[i];
       this->labTheta2=hp->labTheta2[i];
 
       thrustBin=getBin(binningThrust,event.Thrust);
-
+      //doesn't matter, since the qt value is now in the kt field
       qTBin=getBin(binningQt,qT);
 
       kTBin=getBin(binningKt,kT);
