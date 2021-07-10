@@ -417,16 +417,16 @@ class HadronPair
     kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
 
     qT_PiPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[pionIdx]);
-    qT_PiK=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[kaonIdx]);
-    qT_PiP=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx]);
+    qT_PiK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_PiP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[pionIdx]);
 
 
-    qT_KPi=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_KPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[kaonIdx]);
     qT_KK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[kaonIdx]);
-    qT_KP=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[protonIdx]);
+    qT_KP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[kaonIdx]);
 
-    qT_PPi=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[pionIdx]);
-    qT_PK=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[kaonIdx]);
+    qT_PPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx]);
+    qT_PK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[protonIdx]);
     qT_PP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[protonIdx]);
 
     bool doZOrdering=false;
