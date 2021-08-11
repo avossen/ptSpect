@@ -2034,7 +2034,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	}
       for(int p =PiPi;p<UNKNOWN;p++)
 	{
-
 	  int pidBin=(int)p;
 
       //      int particleBin1=hp->particleType1[i];
@@ -2051,7 +2050,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  //don'te care for now...
 	  
 	  //      cout <<" pid: " << p <<endl;
-
 
       switch(p)
 	{
@@ -2161,7 +2159,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case PPi:
 	  this->z1=hp->z1_PPi[i];
 	  this->z2=hp->z2_PPi[i];
-	  this->kT=hp->kT_KPi[i];
+	  this->kT=hp->kT_PPi[i];
 	  this->dotProduct=hp->dp_PPi[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
@@ -2248,7 +2246,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       {
 	switch(p)
 	  {
-
 	  case PiPi:
 	    if(hp->flip_PiPi[i])
 	      cout <<" z1: " << hp->z2_PiPi[i] <<" z2: " << hp->z1_PiPi[i] << " kT: " << hp->kT_PiPi[i];
@@ -2315,7 +2312,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    cout << "PP: " << hp->p_PP[i] <<" / " << hp->p_PP1[i] << " / " << hp->p_PP2[i];
 	    break;
 	  }
-
+      
 	cout <<endl;
 	cout <<" combined sys uncert for ";
 	switch(p)
@@ -2375,7 +2372,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	cout <<endl;
       }
-
+	
 
 	  if(print)
 	    {
