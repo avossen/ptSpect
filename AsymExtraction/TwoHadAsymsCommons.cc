@@ -1767,8 +1767,6 @@ void setHisAxi(TH1 *h, Int_t divi){
   return;
 }
 
-
-
 void setPadAxi(TVirtualPad *c_1, Int_t divi)
 {
   Float_t marL, marR, marT, marB;

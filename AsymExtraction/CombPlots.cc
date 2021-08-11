@@ -27,6 +27,7 @@ int main(int argc, char** argv)
   bool noUnfolding=true;
   //should have hadronPairArray where this is defined included
 #ifdef USE_QT
+  cout <<" using Qt !! " <<endl;
   m_useQt=true;
 #endif
 
@@ -479,25 +480,26 @@ int main(int argc, char** argv)
 		      sprintf(buffer,"pidSys_binning%d_pid%d_charge_%d.txt",b,p,c);
 		      MultiPlotter::printMatrix(combinedHistoSys,buffer);
 
-
+		      //only want to write the pid corrected matrices
+		      if(noUnfolding)
+			continue;
+		    
 		      sprintf(buffer,"_binning%d_pid%d_charge_%d.png",b,p,c);
 		      if(!closureTest)
 			{
 			  cout <<"unfolding w/o closure test .." <<endl;
-			  if(!noUnfolding)
-			    {
-			    output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
-			    cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
-			    cout <<"printing unfolding output " <<endl;
-			    sprintf(buffer,"unfolded_binning%d_pid%d_charge_%d.txt",b,p,c);
-			    MultiPlotter::printMatrix(output,buffer);
-			    sprintf(buffer,"statCov_binning%d_pid%d_charge_%d.txt",b,p,c);
-			    MultiPlotter::printMatrix(*statCov,buffer);
-			    sprintf(buffer,"mcStatCov_binning%d_pid%d_charge_%d.txt",b,p,c);
-			    MultiPlotter::printMatrix(*mcStatCov,buffer);
-			    sprintf(buffer,"sysCov_binning%d_pid%d_charge_%d.txt",b,p,c);
-			    MultiPlotter::printMatrix(*sysCov,buffer);
-			    }
+			      output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			      cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
+			      cout <<"printing unfolding output " <<endl;
+			      sprintf(buffer,"unfolded_binning%d_pid%d_charge_%d.txt",b,p,c);
+			      MultiPlotter::printMatrix(output,buffer);
+			      sprintf(buffer,"statCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			      MultiPlotter::printMatrix(*statCov,buffer);
+			      sprintf(buffer,"mcStatCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			      MultiPlotter::printMatrix(*mcStatCov,buffer);
+			      sprintf(buffer,"sysCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			      MultiPlotter::printMatrix(*sysCov,buffer);
+			    
 			  //			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 			  //			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 		      //for closure test, bini is output....
@@ -509,8 +511,7 @@ int main(int argc, char** argv)
 			      combinedHisto->SetBinContent(t+1,bini->GetBinContent(t+1));
 			    }
 			  cout <<"unfolding .." <<endl;
-			  if(!noUnfolding)
-			    output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 			   cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
 			}
 		      ///--->save debugs
