@@ -1951,7 +1951,12 @@ bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
       return true;
 
     }
-  if(z1 < z1Cut || z2< z2Cut || kT > 5.31145668 || z1> z1UpperCut || z2> z2UpperCut) 
+
+  if(useQt && kT> 12.0)
+    return true;
+  if(!useQt && kT > 5.31145668)
+    return true;
+  if(z1 < z1Cut || z2< z2Cut || z1> z1UpperCut || z2> z2UpperCut) 
     {
       return true;
     }
@@ -2029,7 +2034,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	}
       for(int p =PiPi;p<UNKNOWN;p++)
 	{
-
 	  int pidBin=(int)p;
 
       //      int particleBin1=hp->particleType1[i];
@@ -2046,7 +2050,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	  //don'te care for now...
 	  
 	  //      cout <<" pid: " << p <<endl;
-
 
       switch(p)
 	{
@@ -2156,7 +2159,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	case PPi:
 	  this->z1=hp->z1_PPi[i];
 	  this->z2=hp->z2_PPi[i];
-	  this->kT=hp->kT_KPi[i];
+	  this->kT=hp->kT_PPi[i];
 	  this->dotProduct=hp->dp_PPi[i];
 	  if(pidDependentCut(this->z1,this->z2,this->kT,p) || dotProduct > 0.0)
 	    continue;
@@ -2213,13 +2216,15 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       ////correct for the wrong factor we put in the trees
       sys*=(2*0.25*0.25);
 
+      //doesn't matter, since the qt value is now in the kt field
+      //but I guess this qT is still from some old code where one bins in qT (e.g asymmetries)
       this->qT=hp->qT[i];
 
       this->labTheta1=hp->labTheta1[i];
       this->labTheta2=hp->labTheta2[i];
 
       thrustBin=getBin(binningThrust,event.Thrust);
-
+      //doesn't matter, since the qt value is now in the kt field
       qTBin=getBin(binningQt,qT);
 
       kTBin=getBin(binningKt,kT);
@@ -2241,7 +2246,6 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
       {
 	switch(p)
 	  {
-
 	  case PiPi:
 	    if(hp->flip_PiPi[i])
 	      cout <<" z1: " << hp->z2_PiPi[i] <<" z2: " << hp->z1_PiPi[i] << " kT: " << hp->kT_PiPi[i];
@@ -2308,7 +2312,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	    cout << "PP: " << hp->p_PP[i] <<" / " << hp->p_PP1[i] << " / " << hp->p_PP2[i];
 	    break;
 	  }
-
+      
 	cout <<endl;
 	cout <<" combined sys uncert for ";
 	switch(p)
@@ -2368,7 +2372,7 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 
 	cout <<endl;
       }
-
+	
 
 	  if(print)
 	    {

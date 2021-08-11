@@ -355,7 +355,8 @@ if(folderName.find("tautau")!=string::npos)
 
       //      cout <<"reconstructed pair: " <<endl;
       
-      hadPair.afterFill(myEvent.evtNr,false);
+            hadPair.afterFill(myEvent.evtNr,false);
+      //      hadPair.afterFill(myEvent.evtNr,true);
       //           cout <<"mc after fill " <<endl;
       //set correct pids for nonqq
       if(isMC!=mcFlagNone)
@@ -379,7 +380,8 @@ if(folderName.find("tautau")!=string::npos)
 	  z2.Fill(hadPair.z2[i]);
 	}
 
-      plotter.addHadPairArray(&hadPair, myEvent,false);
+            plotter.addHadPairArray(&hadPair, myEvent,false);
+      //      plotter.addHadPairArray(&hadPair, myEvent,true);
       if(isMC!=mcFlagNone)
 	{
 

@@ -417,17 +417,27 @@ class HadronPair
     kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
 
     qT_PiPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[pionIdx]);
-    qT_PiK=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[kaonIdx]);
-    qT_PiP=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx]);
+    qT_PiK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_PiP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[pionIdx]);
 
 
-    qT_KPi=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    qT_KPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[kaonIdx]);
     qT_KK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[kaonIdx]);
-    qT_KP=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[protonIdx]);
+    qT_KP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[kaonIdx]);
 
-    qT_PPi=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[pionIdx]);
-    qT_PK=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[kaonIdx]);
+    qT_PPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx]);
+    qT_PK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[protonIdx]);
     qT_PP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[protonIdx]);
+
+    //////for qt xcheck:
+    //         cout <<" qTPiPi <<" << qT_PiPi <<" PiK: " << qT_PiK <<" PiP: " << qT_PiP <<endl;
+	 //       cout <<" qTKPi <<" << qT_KPi <<" PiK: " << qT_KK <<" KP: " << qT_KP <<endl;
+       //       cout <<" qTPPi <<" << qT_PPi <<" PK: " << qT_PK <<" PP: " << qT_PP <<endl;
+
+
+       //       cout <<" getQt PPi " << getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx])<< ", flip it: "<< getQt(pinf1.boostedLorentzVec[protonIdx],pinf2.boostedLorentzVec[pionIdx])<<endl;
+
+
 
     bool doZOrdering=false;
 #ifdef DO_Z_ORDERING
@@ -770,7 +780,7 @@ class HadronPair
 	kT=kT_PiPi;
 	qT=qT_PiPi;
 
-	  break;
+	break;
 	
 	//	cout <<"unkonwn type" <<hadPType <<endl;
 	//	exit(1);

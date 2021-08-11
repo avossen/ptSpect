@@ -1184,6 +1184,27 @@ struct HadronPairArray:public ReaderBase
     if(DEBUG_EVENT==evtNr)
       cout <<"cut? " << cut[i] <<endl;
 
+    //for x-check, print out qt values
+    if(cut[i]==0)
+      {
+	cout << std::fixed;
+	cout <<setprecision(4);
+	float mz1=z1[i];
+	float mz2=z2[i];
+	if(mz1<mz2)
+	  {
+	    float tmp=mz2;
+	    mz2=mz1;
+	    mz1=tmp;
+	  }
+	
+			cout <<"event: " << evtNr <<" z1: " << mz1 <<" z2: " << mz2;
+			cout  << " qT_PiPi: " << kT_PiPi[i]<< " qT_PiK " << kT_PiK[i] <<" qT_PiP " << kT_PiP[i]<<endl;
+			cout  << " qT_KPi: " << kT_KPi[i]<< " qT_KK " << kT_KK[i] <<" qT_KP " << kT_KP[i]<<endl;
+			cout  << " qT_PPi: " << kT_PPi[i]<< " qT_PK " << kT_PK[i] <<" qT_PP " << kT_PP[i]<<endl; 
+
+
+      }
 
     if(print && cut[i]==0)
       {
@@ -1229,7 +1250,7 @@ struct HadronPairArray:public ReaderBase
 
       }
     //    cout <<"---------"<<endl;
-
+  
   }
 
   //to set a determined (e.g. true) pid. needed for nonQQ, where we use the smearing but correct pid
