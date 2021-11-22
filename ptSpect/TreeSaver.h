@@ -570,22 +570,22 @@ public:
 	      dataF.push_back(pair->qT_PK);	  
 	      dataF.push_back(pair->qT_PP);
 	      
-	      cout <<"saving qt: PiPi: " << pair->qT_PiPi<<" PiK: "<< pair->qT_PiK <<" PiP: " << pair->qT_PiP<<endl;
-	      cout <<"saving qt: KPi: " << pair->qT_KPi<<" KK: "<< pair->qT_KK <<" KP: " << pair->qT_KP<<endl;
-	      cout <<"saving qt: PPi: " << pair->qT_PPi<<" PK: "<< pair->qT_PK <<" PP: " << pair->qT_PP<<endl;
+	      //  cout <<"saving qt: PiPi: " << pair->qT_PiPi<<" PiK: "<< pair->qT_PiK <<" PiP: " << pair->qT_PiP<<endl;
+	      // cout <<"saving qt: KPi: " << pair->qT_KPi<<" KK: "<< pair->qT_KK <<" KP: " << pair->qT_KP<<endl;
+	      //cout <<"saving qt: PPi: " << pair->qT_PPi<<" PK: "<< pair->qT_PK <<" PP: " << pair->qT_PP<<endl;
 
 
-	      cout <<"saving kT : PiPi: " << pair->kT_PiPi<<" PiK: "<< pair->kT_PiK <<" PiP: " << pair->kT_PiP<<endl;
-	      cout <<"saving kT: KPi: " << pair->kT_KPi<<" KK: "<< pair->kT_KK <<" KP: " << pair->kT_KP<<endl;
-	      cout <<"saving kT: PPi: " << pair->kT_PPi<<" PK: "<< pair->kT_PK <<" PP: " << pair->kT_PP<<endl;
+	      // cout <<"saving kT : PiPi: " << pair->kT_PiPi<<" PiK: "<< pair->kT_PiK <<" PiP: " << pair->kT_PiP<<endl;
+	      //cout <<"saving kT: KPi: " << pair->kT_KPi<<" KK: "<< pair->kT_KK <<" KP: " << pair->kT_KP<<endl;
+	      // cout <<"saving kT: PPi: " << pair->kT_PPi<<" PK: "<< pair->kT_PK <<" PP: " << pair->kT_PP<<endl;
 
-	      cout <<"saving p: PiPi: " << pair->p_PiPi<<" PiK: "<< pair->p_PiK <<" PiP: " << pair->p_PiP<<endl;
-	      cout <<"saving p: KPi: " << pair->p_KPi<<" KK: "<< pair->p_KK <<" KP: " << pair->p_KP<<endl;
-	      cout <<"saving p: PPi: " << pair->p_PPi<<" PK: "<< pair->p_PK <<" PP: " << pair->p_PP<<endl;
+	      //cout <<"saving p: PiPi: " << pair->p_PiPi<<" PiK: "<< pair->p_PiK <<" PiP: " << pair->p_PiP<<endl;
+	      //cout <<"saving p: KPi: " << pair->p_KPi<<" KK: "<< pair->p_KK <<" KP: " << pair->p_KP<<endl;
+	      // cout <<"saving p: PPi: " << pair->p_PPi<<" PK: "<< pair->p_PK <<" PP: " << pair->p_PP<<endl;
 
-	      cout <<"saving dp: PiPi: " << pair->m_dotProduct[pionIdx*5+pionIdx]<<" PiK: "<< pair->m_dotProduct[kaonIdx*5+pionIdx] <<" PiP: " << pair->m_dotProduct[pionIdx*5+protonIdx]<<endl;
-	      cout <<"saving dp_: KPi: " << pair->m_dotProduct[kaonIdx*5+pionIdx]<<" KK: "<< pair->m_dotProduct[kaonIdx*5+kaonIdx] <<" KP: " << pair->m_dotProduct[kaonIdx*5+protonIdx]<<endl;
-	      cout <<"saving dp_: PPi: " << pair->m_dotProduct[protonIdx*5+pionIdx]<<" PK: "<< pair->m_dotProduct[protonIdx*5+kaonIdx] <<" PP: " << pair->m_dotProduct[protonIdx*5+protonIdx]<<endl;
+	      //cout <<"saving dp: PiPi: " << pair->m_dotProduct[pionIdx*5+pionIdx]<<" PiK: "<< pair->m_dotProduct[kaonIdx*5+pionIdx] <<" PiP: " << pair->m_dotProduct[pionIdx*5+protonIdx]<<endl;
+	      // cout <<"saving dp_: KPi: " << pair->m_dotProduct[kaonIdx*5+pionIdx]<<" KK: "<< pair->m_dotProduct[kaonIdx*5+kaonIdx] <<" KP: " << pair->m_dotProduct[kaonIdx*5+protonIdx]<<endl;
+	      //cout <<"saving dp_: PPi: " << pair->m_dotProduct[protonIdx*5+pionIdx]<<" PK: "<< pair->m_dotProduct[protonIdx*5+kaonIdx] <<" PP: " << pair->m_dotProduct[protonIdx*5+protonIdx]<<endl;
 
 	      
 	      
@@ -704,11 +704,11 @@ public:
 
   void finalize()
   {
-    cout <<" in tree saver finalize " <<endl;
+    //cout <<" in tree saver finalize " <<endl;
 #ifdef MC
     gi.finalize();
 #endif
-    cout <<" write data tree " <<endl;
+    // cout <<" write data tree " <<endl;
     pDataTree->Write();
   }
 

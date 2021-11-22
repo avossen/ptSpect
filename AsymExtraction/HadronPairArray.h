@@ -8,7 +8,7 @@
 #include "ReaderBase.h"
 #include "TMath.h"
 
-#define USE_QT
+//#define USE_QT
 
 
 //300 is also the number in the Treesaver, so cannot be larger...
@@ -626,7 +626,8 @@ struct HadronPairArray:public ReaderBase
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    //	    cout <<"chargeType: " << chargeType[i] <<" particleType: "<< particleType[i] << ", weight: "<< p_PiPi[i] <<endl;
-	    //	    cout <<"z1 pipi: "<< z1_PiPi[i] << " z2 pipi: "<< z2_PiPi[i] <<endl;
+	        cout <<"before z1 ppi: "<< z1_PPi[i] << " z2 ppi: "<< z2_PPi[i] <<endl;
+	        cout <<"z1 pip: "<< z1_PiP[i] << " z2 pip: "<< z2_PiP[i] <<endl;
 	    //	    cout <<" z1: " << z1[i] <<  " z2: " << z2[i] <<endl;
 	  }
 
@@ -634,6 +635,7 @@ struct HadronPairArray:public ReaderBase
 	if(evtNr==DEBUG_EVENT)
 	  {
 	    cout <<"looking at pair with z1: " << z1[i] << " z2: " << z2[i] << " kt: " << kT[i] <<endl;
+         cout <<"chargeType " << i << ":  " << chargeType[i] << " particle type ; "<< particleType[i] <<endl;
 	    cout <<"theta1: " << labTheta1[i] <<" theta2: " << labTheta2[i] <<endl;
 	  }
 	cut[i]=0;
@@ -1198,10 +1200,11 @@ struct HadronPairArray:public ReaderBase
 	    mz1=tmp;
 	  }
 	
-			cout <<"event: " << evtNr <<" z1: " << mz1 <<" z2: " << mz2;
+	/*		cout <<"event: " << evtNr <<" z1: " << mz1 <<" z2: " << mz2;
 			cout  << " qT_PiPi: " << kT_PiPi[i]<< " qT_PiK " << kT_PiK[i] <<" qT_PiP " << kT_PiP[i]<<endl;
 			cout  << " qT_KPi: " << kT_KPi[i]<< " qT_KK " << kT_KK[i] <<" qT_KP " << kT_KP[i]<<endl;
 			cout  << " qT_PPi: " << kT_PPi[i]<< " qT_PK " << kT_PK[i] <<" qT_PP " << kT_PP[i]<<endl; 
+*/
 
 
       }
