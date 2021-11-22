@@ -1085,6 +1085,8 @@ TH1D* MultiPlotter::getHistogram(int binning, int chargeType, int pidType, const
 	      //	      mY[iKtBin]=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
 	      mY[iKtBin]=mKTValues*normFactor/binWidthFactor;
 	      //	      Double_t binContent=m_plotResults[resIdx].kTValues[iKtBin]*normFactor/binWidthFactor;
+	      
+	      cout <<" ktValues: "<< mKTValues <<" normFactor: "<< normFactor <<" binwithfact: "<< binWidthFactor << endl;
 	      	      Double_t binContent=mKTValues*normFactor/binWidthFactor;
 	      Double_t binUncertainty=m_plotResults[resIdx].kTUncertainties[iKtBin]*normFactor/binWidthFactor;
 	      Double_t binSysUncertainty=m_plotResults[resIdx].kTSysUncertainties[iKtBin]*normFactor/binWidthFactor;

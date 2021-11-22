@@ -226,13 +226,13 @@ int main(int argc, char** argv)
 		}
 
 
-	      //for now only continuum:
+	      //for now only continuum:---> now also resonance, rely that we feed the correct data...
 	      cout <<"onres? "<< endl;
-	      if(plotResults->on_res)
-		{
-		  cout <<" result is on resonance " <<endl;
-		  continue;
-		}
+	      //	      if(plotResults->on_res)
+	      //		{
+	      //		  cout <<" result is on resonance " <<endl;
+	      //		  continue;
+	      //		}
 
 	      //check if the  result we are reading right now is compatible with the 
 	      //flavor we are looking for
@@ -424,6 +424,7 @@ int main(int argc, char** argv)
 
 		      cout <<"getting combined histo for b: "<< b <<" c: "<< c <<" p: "<< p <<endl;
 		      //get combined z/kT histogram for this charge, pid bin
+		      
 		      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p,"",0,0);
 		      TH1D* combinedHistoSys=pPlotter->getHistogram(b,c,p,"sys",1);
 		      TH1D* combinedHistoUpperSys=pPlotter->getHistogram(b,c,p,"sysUp");
