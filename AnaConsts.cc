@@ -26,13 +26,17 @@ namespace Belle {
   //#if defined(BELLE_NAMESPACE)
   //using namespace Belle;
   //#endif
-  float m_pi=0.13957;
-  float m_k=0.4937;
+    float m_pi=0.13957;
+  //float m_pi=0.14;
+    float m_k=0.49368;
+  //float m_k=0.493;
   float m_ks=0.4977;
-  float m_pr=0.938272;
+    float m_pr=0.93827;
+  //float m_pr=0.938;
   float m_lmbda=1.1156;
   float m_muon=0.105658;
-  float m_e=0;//doesn't matter
+    float m_e=0.000511;//doesn't matter
+  //Float m_e=0.000;//doesn't matter
 
 namespace cuts
 {

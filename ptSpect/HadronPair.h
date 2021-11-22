@@ -219,12 +219,33 @@ class HadronPair
       HepLorentzVector R2Boosted=vR2;
       Hep3Vector rBoost=RSum.boostVector();
 
+      if(kinematics::evtNr==DEBUG_EVENT)
+	{
+	  cout <<" getting Qt "<<endl;
+	  cout <<" electron: "; printHepLVector(kinematics::firstElectronCM);
+	  cout <<" positron: "; printHepLVector(kinematics::secondElectronCM);
+	  cout << " photon: " ; printHepLVector(vPhoton);
+	  cout <<" first hadron "; printHepLVector(vR1);
+	  cout <<" second hadron "; printHepLVector(vR2);
+
+	}
+
       vPhoton.boost(-rBoost);
       RSumBoosted.boost(-rBoost);
       R1Boosted.boost(-rBoost);
       R2Boosted.boost(-rBoost);
       qT=vPhoton.perp(R1Boosted.vect());
+
+      if(kinematics::evtNr==DEBUG_EVENT)
+	{
+	  cout <<" boost vector: "; printHep3Vector(-rBoost);
+	  cout <<" boosted sum vector: "; printHep3Vector(RSumBoosted);
+	  cout <<" boosted hadron 1: ";printHep3Vector( R1Boosted);
+	  cout <<" boosted photon: "; printHep3Vector(vPhoton);
+	  cout <<" qT: "<< qT <<endl;
+	}
       return qT;
+
   }
   //get the QT based on the boosted vectors in the hadron pair. The boost will depend on the hadron type.
   float getQtOld(Hep3Vector& v1, Hep3Vector& v2, float z1, float z2)
@@ -401,6 +422,9 @@ class HadronPair
 	  //	{
 	  //	  kT_PiPi=pinf1.boostedMoms[pionIdx].perp(pinf2.boostedMoms[pionIdx]);
 	  //	}
+
+
+
       kT_PiPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[pionIdx]);
       kT_PiK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[pionIdx]);
     kT_PiP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[pionIdx]);
@@ -415,18 +439,33 @@ class HadronPair
     kT_PPi=pinf2.boostedMoms[pionIdx].perp(pinf1.boostedMoms[protonIdx]);
     kT_PK=pinf2.boostedMoms[kaonIdx].perp(pinf1.boostedMoms[protonIdx]);
     kT_PP=pinf2.boostedMoms[protonIdx].perp(pinf1.boostedMoms[protonIdx]);
-
+    //    cout <<"looking at event : " << kinematics::evtNr <<" debug: "<< DEBUG_EVENT <<endl;
+    if(kinematics::evtNr==DEBUG_EVENT)
+      cout <<"qt PiPi" <<endl;
     qT_PiPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[pionIdx]);
+      if(kinematics::evtNr==DEBUG_EVENT)
+	cout <<"qt PiK" <<endl;
     qT_PiK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[pionIdx]);
+    if(kinematics::evtNr==DEBUG_EVENT)
+      cout <<"qt PiP" <<endl;
     qT_PiP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[pionIdx]);
-
-
+      if(kinematics::evtNr==DEBUG_EVENT)
+	cout <<"qt KPi" <<endl;
     qT_KPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[kaonIdx]);
+      if(kinematics::evtNr==DEBUG_EVENT)
+	cout <<"qt KK" <<endl;
     qT_KK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[kaonIdx]);
+      if(kinematics::evtNr==DEBUG_EVENT)
+	cout <<"qt KP" <<endl;
     qT_KP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[kaonIdx]);
-
+      if(kinematics::evtNr==DEBUG_EVENT)
+    cout <<"qt PPi" <<endl;
     qT_PPi=getQt(pinf2.boostedLorentzVec[pionIdx],pinf1.boostedLorentzVec[protonIdx]);
+      if(kinematics::evtNr==DEBUG_EVENT)
+	cout <<"qt PK" <<endl;
     qT_PK=getQt(pinf2.boostedLorentzVec[kaonIdx],pinf1.boostedLorentzVec[protonIdx]);
+      if(kinematics::evtNr==DEBUG_EVENT)
+    cout <<"qt PP" <<endl;
     qT_PP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[protonIdx]);
 
     //////for qt xcheck:
@@ -786,7 +825,16 @@ class HadronPair
 	//	exit(1);
       }
 
-  } 
+  }
+
+  void printHep3Vector(Hep3Vector v)
+  {
+    cout <<" x: " << v.x() << " y: " << v.y() << " z: " << v.z()<<endl;
+  }
+  void printHepLVector(HepLorentzVector& v)
+  {
+    cout <<" x: " << v.x() << " y: " << v.y() << " z: " << v.z()<< " e: " << v.e()<<endl;
+  }
 
 
 };

@@ -1,5 +1,7 @@
 #include "MultiPlotter.h"
 #include "PlotResults.h"
+
+//#define MDebugEvent 241
 string MultiPlotter::getParticlePairName(int p)
 {
    switch(p)
@@ -1968,6 +1970,7 @@ bool MultiPlotter::pidDependentCut(float z1, float z2, float kT, int pidBin )
 
 void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print)
 {
+
   //    cout <<"filling with " << hq->numHadQuads << " quads " << endl;
   //needed for the mean computation...
   this->thrustLabTheta=event.thrustThetaLab;
@@ -1994,14 +1997,25 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
   int numStrong=0;
   for(int i=0;i<hp->numPairs;i++)
     {
+      if(event.evtNr==DEBUG_EVENT)
+	{
+	  	cout <<" looking at " <<  hp->labTheta1[i] <<" " << hp->labTheta2[i]<<" charge " <<    hp->chargeType[i]<<endl;
+	}
       if(hp->cut[i] )
 	{
-	  //	  	  cout <<"hadron pair cut" <<endl;
+      if(event.evtNr==DEBUG_EVENT)
+	{
+	  	  	  cout <<" cutting hp with " << hp->labTheta1[i] <<" " << hp->labTheta2[i]<<endl;
+	  	  	  cout <<"hadron pair cut" <<endl;
+	}
 	  continue;
 	}
       else
 	{
-	  //	  cout <<"hadron pair survived " <<endl;
+	  if(event.evtNr==DEBUG_EVENT)
+	    {
+	       cout <<"hadron pair survived " <<endl;
+	    }
 	}
 
       //      int chargeBin1=hp->chargeType1[i];
@@ -2034,6 +2048,110 @@ void MultiPlotter::addHadPairArray(HadronPairArray* hp, MEvent& event,bool print
 	      cout <<" opposite-charged pair";
 	    }
 	}
+      //for x-check with Charlotte,
+      //likesign
+      ///start xcheck code here
+      float largerLabTheta=hp->labTheta1[i];
+      float smallerLabTheta=hp->labTheta2[i];
+      float tmp;
+      bool flipped=false;
+      if(largerLabTheta<smallerLabTheta)
+	{
+	  tmp=largerLabTheta;
+	  largerLabTheta=smallerLabTheta;
+	  smallerLabTheta=tmp;
+	  flipped=true;
+	}
+
+      if(event.evtNr==DEBUG_EVENT)
+	{
+	  	cout <<"now checking again " <<endl;
+	}
+      if(hp->chargeType[i]==0)
+	{
+      if(event.evtNr==DEBUG_EVENT)
+	{
+		cout <<"correct charge, flipped? "<< flipped <<endl;
+	}
+	  if(!flipped)
+	    {
+	      if(!pidDependentCut(hp->z1_PiP[i],hp->z2_PiP[i],hp->kT_PiP[i],PiP) && hp->dp_PiP[i] < 0.0)
+		{
+		  //		  if(hp->z1_PiP[i]<0.25 && hp->z2_PiP[i]<0.25)
+		  if(hp->z1_PiP[i]<0.25)
+		    {
+///		  cout <<endl<< endl;
+///		  cout <<"evtNr: "<<event.evtNr << " labTheta1: " << largerLabTheta << " labTheta2: " <<smallerLabTheta;
+///		  cout<<endl;
+///		  cout <<" z1_PiPi " << hp->z1_PiPi[i] << " z1_PiK " << hp->z1_PiK[i]<<" z1_PiP " << hp->z1_PiP[i];
+///		  cout <<" z1_KPi " << hp->z1_KPi[i] << " z1_KK " << hp->z1_KK[i]<<" z1_KP " << hp->z1_KP[i];
+///		  cout <<" z1_PPi " << hp->z1_PPi[i] << " z1_PK " << hp->z1_PK[i]<<" z1_PP " << hp->z1_PP[i];
+///		  cout <<endl;
+///		  cout <<" z2_PiPi " << hp->z2_PiPi[i] << " z2_PiK " << hp->z2_PiK[i]<<" z2_PiP " << hp->z2_PiP[i];
+///		  cout <<" z2_KPi " << hp->z2_KPi[i] << " z2_KK " << hp->z2_KK[i]<<" z2_KP " << hp->z2_KP[i];
+///		  cout <<" z2_PPi " << hp->z2_PPi[i] << " z2_PK " << hp->z2_PK[i]<<" z2_PP " << hp->z2_PP[i];
+///		  cout <<endl;
+///		  cout <<" qT_PiPi " << hp->kT_PiPi[i] << " qT_PiK " << hp->kT_PiK[i]<<" qT_PiP " << hp->kT_PiP[i];
+///		  cout <<" qT_KPi " << hp->kT_KPi[i] << " qT_KK " << hp->kT_KK[i]<<" qT_KP " << hp->kT_KP[i];
+///	      cout <<" qT_PPi " << hp->kT_PPi[i] << " qT_PK " << hp->kT_PK[i]<<" qT_PP " << hp->kT_PP[i];
+///	      cout <<endl;
+///	      cout <<" dp_PiPi " << hp->dp_PiPi[i] << " dp_PiK " << hp->dp_PiK[i]<<" dp_PiP " << hp->dp_PiP[i];
+///	      cout <<" dp_KPi " << hp->dp_KPi[i] << " dp_KK " << hp->dp_KK[i]<<" dp_KP " << hp->dp_KP[i];
+///	      cout <<" dp_PPi " << hp->dp_PPi[i] << " dp_PK " << hp->dp_PK[i]<<" dp_PP " << hp->dp_PP[i];
+///	      cout <<endl;
+///	      cout <<" p_PiPi " << hp->p_PiPi[i] << " p_PiK " << hp->p_PiK[i]<<" p_PiP " << hp->p_PiP[i];
+///	      cout <<" p_KPi " << hp->p_KPi[i] << " p_KK " << hp->p_KK[i]<<" p_KP " << hp->p_KP[i];
+///	      cout <<" p_PPi " << hp->p_PPi[i] << " p_PK " << hp->p_PK[i]<<" p_PP " << hp->p_PP[i];
+///	      cout <<endl;
+		    }
+		}
+	    }
+	      else
+	    {
+	      if(event.evtNr==DEBUG_EVENT)
+		{
+		   cout <<"in flipped " << endl;
+		   cout <<" checking z1: "<< hp->z1_PPi[i] <<" z2: "<< hp->z2_PPi[i] << " qt: "<< hp->kT_PPi[i] << " dp: " << hp->dp_PPi[i]<<endl;
+		}
+	      if(!pidDependentCut(hp->z1_PPi[i],hp->z2_PPi[i],hp->kT_PPi[i],PPi) && hp->dp_PPi[i] < 0.0)
+		//if(true)
+		{
+		  //		  if(hp->z1_PPi[i]<0.25 && hp->z2_PPi[i]<0.25)
+		  if(hp->z2_PPi[i]<0.25)
+				      //if(true)
+		    {
+///		  cout <<endl<< endl;
+///		  cout <<"evtNr: "<<event.evtNr << " labTheta1: " << largerLabTheta << " labTheta2: " <<smallerLabTheta;
+///		  cout <<" z1_PiPi " << hp->z2_PiPi[i] << " z1_PiK " << hp->z2_KPi[i]<<" z1_PiP " << hp->z2_PPi[i];
+///		  cout <<" z1_KPi " << hp->z2_PiK[i] << " z1_KK " << hp->z2_KK[i]<<" z1_KP " << hp->z2_PK[i];
+///		  cout <<" z1_PPi " << hp->z2_PiP[i] << " z1_PK " << hp->z2_KP[i]<<" z1_PP " << hp->z2_PP[i];
+///		  cout <<endl;
+///	      cout <<" z2_PiPi " << hp->z1_PiPi[i] << " z2_PiK " << hp->z1_KPi[i]<<" z2_PiP " << hp->z1_PPi[i];
+///	      cout <<" z2_KPi " << hp->z1_PiK[i] << " z2_KK " << hp->z1_KK[i]<<" z2_KP " << hp->z1_PK[i];
+///	      cout <<" z2_PPi " << hp->z1_PiP[i] <<" z2_PK " << hp->z1_KP[i]<<" z2_PP " << hp->z1_PP[i];
+///	      cout <<endl;
+///	      cout <<" qT_PiPi " << hp->kT_PiPi[i] << " qT_PiK " << hp->kT_KPi[i]<<" qT_PiP " << hp->kT_PPi[i];
+///	      cout <<" qT_KPi " << hp->kT_PiK[i] << " qT_KK " << hp->kT_KK[i]<<" qT_KP " << hp->kT_PK[i];
+///	      cout <<" qT_PPi " << hp->kT_PiP[i] << " qT_PK " << hp->kT_KP[i]<<" qT_PP " << hp->kT_PP[i];
+///	      cout <<endl;
+///	      cout <<" dp_PiPi " << hp->dp_PiPi[i] << " dp_PiK " << hp->dp_KPi[i]<<" dp_PiP " << hp->dp_PPi[i];
+///	      cout <<" dp_KPi " << hp->dp_PiK[i] << " dp_KK " << hp->dp_KK[i]<<" dp_KP " << hp->dp_PK[i];
+///	      cout <<" dp_PPi " << hp->dp_PiP[i] << " dp_PK " << hp->dp_KP[i]<<" dp_PP " << hp->dp_PP[i];
+///	      cout <<endl;
+///	      cout <<" p_PiPi " << hp->p_PiPi[i] << " p_PiK " << hp->p_KPi[i]<<" p_PiP " << hp->p_PPi[i];
+///	      cout <<" p_KPi " << hp->p_PiK[i] << " p_KK " << hp->p_KK[i]<<" p_KP " << hp->p_PK[i];
+///	      cout <<" p_PPi " << hp->p_PiP[i] << " p_PK " << hp->p_KP[i]<<" p_PP " << hp->p_PP[i];
+///	      cout <<endl;
+///
+///	      cout <<endl;
+	      
+		    }
+		}
+	    }
+	}
+    
+    
+
       for(int p =PiPi;p<UNKNOWN;p++)
 	{
 	  int pidBin=(int)p;
