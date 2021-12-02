@@ -10,7 +10,8 @@
 
 //const bool onlyGen=true;
 const bool PRINT=false;
-const bool noRandomHemi=true;
+//const bool noRandomHemi=true;
+const bool noRandomHemi=false;
 #define LESS_FIELDS
 
 #include <iomanip>
