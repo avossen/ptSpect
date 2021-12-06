@@ -8,7 +8,7 @@
 #include "ReaderBase.h"
 #include "TMath.h"
 
-#define USE_QT
+//#define USE_QT
 
 
 //300 is also the number in the Treesaver, so cannot be larger...

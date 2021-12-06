@@ -2319,218 +2319,218 @@ namespace Belle {
 	  }
       }
     //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
-    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
-      {
- 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
-	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
-	  {
-	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
-
-	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
-	    bool acceptPair=false;
-	    for(int i=0;i<5;i++)
-	      {
-		for(int j=0;j<5;j++)
-		  {
-		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
-		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-		    if(DEBUG_EVENT==kinematics::evtNr)
-		      {
-			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
-			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-			
-		      }
-		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-		      acceptPair=true;
-		  }
-	      }
-
-	    if(!acceptPair)
-	      continue;
-	    //at least one mass hypothesis is fine
-	    //now unknowns...
-	    HadronPair* hp=new HadronPair();
-	    //		HadronPair* hp2=new HadronPair();
-	    //		hp2->secondRun=true;
-
-	    //	    //            if(rand() % 100 <50)
-	    if((rand() % 100 <50)|| noRandomHemi)
-	      {
-		hp->firstHadron=*it;
-		hp->secondHadron=*it2;
-	      }
-	    else
-	      {
-		hp->firstHadron=*it2;
-		hp->secondHadron=*it;
-	      }
-	    hp->setDotProducts(dotProduct);
-	    //	    hp2->firstHadron=*it2;
-	    //	    hp2->secondHadron=*it;
-	    
-	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
-	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
-	    //	    hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
-	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
-	    //	  cout <<"R1: " << hp->phiR<<endl;
-	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
-
-
-
-	    hp->compute();
-	    //	    hp2->compute();
-	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
-	      {
-		cout <<"evt: " << kinematics::evtNr <<" putting hadron pair" <<endl;
-		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
-	      }
-	    v_hadronPairs.push_back(hp);
-
-	    //decided not put the other combination in anymore...
-	    //	    v_hadronPairs.push_back(hp2);
-	  }
-      }
-    //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
-    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
-      {
- 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
-	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
-	  {
-	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
-
-	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
-	    bool acceptPair=false;
-	    for(int i=0;i<5;i++)
-	      {
-		for(int j=0;j<5;j++)
-		  {
-		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
-		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-		    if(DEBUG_EVENT==kinematics::evtNr)
-		      {
-			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
-			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-			
-		      }
-		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-		      acceptPair=true;
-		  }
-	      }
-
-	    if(!acceptPair)
-	      continue;
-	    //at least one mass hypothesis is fine
-	    //now unknowns...
-	    HadronPair* hp=new HadronPair();
-	    //		HadronPair* hp2=new HadronPair();
-	    //		hp2->secondRun=true;
-
-	    //	    //            if(rand() % 100 <50)
-	    if((rand() % 100 <50)|| noRandomHemi)
-	      {
-		hp->firstHadron=*it;
-		hp->secondHadron=*it2;
-	      }
-	    else
-	      {
-		hp->firstHadron=*it2;
-		hp->secondHadron=*it;
-	      }
-	    hp->setDotProducts(dotProduct);
-	    //	    hp2->firstHadron=*it2;
-	    //	    hp2->secondHadron=*it;
-	    
-	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
-	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
-	    //	    hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
-	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
-	    //	  cout <<"R1: " << hp->phiR<<endl;
-	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
-
-
-
-	    hp->compute();
-	    //	    hp2->compute();
-	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
-	      {
-		cout <<"evt: " << kinematics::evtNr <<" putting hadron pair" <<endl;
-		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
-	      }
-	    v_hadronPairs.push_back(hp);
-
-	    //decided not put the other combination in anymore...
-	    //	    v_hadronPairs.push_back(hp2);
-	  }
-      }
-    //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
-    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
-      {
- 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
-	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
-	  {
-	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
-
-	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
-	    bool acceptPair=false;
-	    for(int i=0;i<5;i++)
-	      {
-		for(int j=0;j<5;j++)
-		  {
-		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
-		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-		    if(DEBUG_EVENT==kinematics::evtNr)
-		      {
-			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
-			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
-			
-		      }
-		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
-		      acceptPair=true;
-		  }
-	      }
-
-	    if(!acceptPair)
-	      continue;
-	    //at least one mass hypothesis is fine
-	    //now unknowns...
-	    HadronPair* hp=new HadronPair();
-	    //		HadronPair* hp2=new HadronPair();
-	    //		hp2->secondRun=true;
-
-	    //	    //            if(rand() % 100 <50)
-	    if((rand() % 100 <50)|| noRandomHemi)
-	    {
-		hp->firstHadron=*it;
-		hp->secondHadron=*it2;
-	      }
-	    else
-	      {
-		hp->firstHadron=*it2;
-		hp->secondHadron=*it;
-	      }
-	    hp->setDotProducts(dotProduct);
-
-	    //		hp2->firstHadron=*it2;
-	    //		hp2->secondHadron=*it;
-		
-	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
-	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
-	    //		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
-	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
-	    //	  cout <<"R1: " << hp->phiR<<endl;
-	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
-	    hp->compute();
-	    //		hp2->compute();
-	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
-	      {
-		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
-		cout <<"putting hadron pair" <<endl;
-	      }
-
-	    v_hadronPairs.push_back(hp);
-	    //		v_hadronPairs.push_back(hp2);
-	  }
-      }  
+//////    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
+//////      {
+////// 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
+//////	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
+//////	  {
+//////	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
+//////
+//////	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+//////	    bool acceptPair=false;
+//////	    for(int i=0;i<5;i++)
+//////	      {
+//////		for(int j=0;j<5;j++)
+//////		  {
+//////		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+//////		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+//////		    if(DEBUG_EVENT==kinematics::evtNr)
+//////		      {
+//////			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
+//////			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+//////			
+//////		      }
+//////		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+//////		      acceptPair=true;
+//////		  }
+//////	      }
+//////
+//////	    if(!acceptPair)
+//////	      continue;
+//////	    //at least one mass hypothesis is fine
+//////	    //now unknowns...
+//////	    HadronPair* hp=new HadronPair();
+//////	    //		HadronPair* hp2=new HadronPair();
+//////	    //		hp2->secondRun=true;
+//////
+//////	    //	    //            if(rand() % 100 <50)
+//////	    if((rand() % 100 <50)|| noRandomHemi)
+//////	      {
+//////		hp->firstHadron=*it;
+//////		hp->secondHadron=*it2;
+//////	      }
+//////	    else
+//////	      {
+//////		hp->firstHadron=*it2;
+//////		hp->secondHadron=*it;
+//////	      }
+//////	    hp->setDotProducts(dotProduct);
+//////	    //	    hp2->firstHadron=*it2;
+//////	    //	    hp2->secondHadron=*it;
+//////	    
+//////	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+//////	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+//////	    //	    hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+//////	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
+//////	    //	  cout <<"R1: " << hp->phiR<<endl;
+//////	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
+//////
+//////
+//////
+//////	    hp->compute();
+//////	    //	    hp2->compute();
+//////	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+//////	      {
+//////		cout <<"evt: " << kinematics::evtNr <<" putting hadron pair" <<endl;
+//////		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
+//////	      }
+//////	    v_hadronPairs.push_back(hp);
+//////
+//////	    //decided not put the other combination in anymore...
+//////	    //	    v_hadronPairs.push_back(hp2);
+//////	  }
+//////      }
+//////    //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
+//////    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
+//////      {
+////// 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
+//////	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
+//////	  {
+//////	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
+//////
+//////	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+//////	    bool acceptPair=false;
+//////	    for(int i=0;i<5;i++)
+//////	      {
+//////		for(int j=0;j<5;j++)
+//////		  {
+//////		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+//////		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+//////		    if(DEBUG_EVENT==kinematics::evtNr)
+//////		      {
+//////			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
+//////			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+//////			
+//////		      }
+//////		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+//////		      acceptPair=true;
+//////		  }
+//////	      }
+//////
+//////	    if(!acceptPair)
+//////	      continue;
+//////	    //at least one mass hypothesis is fine
+//////	    //now unknowns...
+//////	    HadronPair* hp=new HadronPair();
+//////	    //		HadronPair* hp2=new HadronPair();
+//////	    //		hp2->secondRun=true;
+//////
+//////	    //	    //            if(rand() % 100 <50)
+//////	    if((rand() % 100 <50)|| noRandomHemi)
+//////	      {
+//////		hp->firstHadron=*it;
+//////		hp->secondHadron=*it2;
+//////	      }
+//////	    else
+//////	      {
+//////		hp->firstHadron=*it2;
+//////		hp->secondHadron=*it;
+//////	      }
+//////	    hp->setDotProducts(dotProduct);
+//////	    //	    hp2->firstHadron=*it2;
+//////	    //	    hp2->secondHadron=*it;
+//////	    
+//////	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+//////	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+//////	    //	    hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+//////	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
+//////	    //	  cout <<"R1: " << hp->phiR<<endl;
+//////	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
+//////
+//////
+//////
+//////	    hp->compute();
+//////	    //	    hp2->compute();
+//////	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+//////	      {
+//////		cout <<"evt: " << kinematics::evtNr <<" putting hadron pair" <<endl;
+//////		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
+//////	      }
+//////	    v_hadronPairs.push_back(hp);
+//////
+//////	    //decided not put the other combination in anymore...
+//////	    //	    v_hadronPairs.push_back(hp2);
+//////	  }
+//////      }
+//////    //  cout <<v_hadronPairs.size() <<" pairs after first with second" <<endl;
+//////    for(vector<Particle*>::const_iterator it=v_firstHemi.begin();it!=v_firstHemi.end();it++)
+//////      {
+////// 	ParticleInfo& pinf=dynamic_cast<ParticleInfo&>((*it)->userInfo());
+//////	for(vector<Particle*>::const_iterator it2=it+1;it2!=v_firstHemi.end();it2++)
+//////	  {
+//////	    ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>((*it2)->userInfo());
+//////
+//////	    //	    if((*it2)->p().vect().dot((*it)->p().vect())>0)
+//////	    bool acceptPair=false;
+//////	    for(int i=0;i<5;i++)
+//////	      {
+//////		for(int j=0;j<5;j++)
+//////		  {
+//////		    dotProduct[i*5+j]=pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]);
+//////		    //		      cout <<"dot prodcut (2) " <<pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+//////		    if(DEBUG_EVENT==kinematics::evtNr)
+//////		      {
+//////			cout <<"looking to combine p: "<< pinf.labMom <<" and " << pinf2.labMom <<endl;
+//////			cout << " dot product: "<< pinf.boostedMoms[i].dot(pinf2.boostedMoms[j]) <<endl;
+//////			
+//////		      }
+//////		    if(pinf.boostedMoms[i].dot(pinf2.boostedMoms[j])<0)
+//////		      acceptPair=true;
+//////		  }
+//////	      }
+//////
+//////	    if(!acceptPair)
+//////	      continue;
+//////	    //at least one mass hypothesis is fine
+//////	    //now unknowns...
+//////	    HadronPair* hp=new HadronPair();
+//////	    //		HadronPair* hp2=new HadronPair();
+//////	    //		hp2->secondRun=true;
+//////
+//////	    //	    //            if(rand() % 100 <50)
+//////	    if((rand() % 100 <50)|| noRandomHemi)
+//////	    {
+//////		hp->firstHadron=*it;
+//////		hp->secondHadron=*it2;
+//////	      }
+//////	    else
+//////	      {
+//////		hp->firstHadron=*it2;
+//////		hp->secondHadron=*it;
+//////	      }
+//////	    hp->setDotProducts(dotProduct);
+//////
+//////	    //		hp2->firstHadron=*it2;
+//////	    //		hp2->secondHadron=*it;
+//////		
+//////	    //	    hp->hadCharge=AnaDef::PN; -->let this be set automatically
+//////	    hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType()); //meaningless, since we know deal in probabilities
+//////	    //		hp2->hadPType=AuxFunc::getPType((*it2)->pType(),(*it)->pType()); //meaningless, since we know deal in probabilities
+//////	    //	    cout <<"setting ptype in data: "<< hp->hadPType<<endl;
+//////	    //	  cout <<"R1: " << hp->phiR<<endl;
+//////	    //	  hp->computeThrustTheta(kinematics::thrustDirCM);
+//////	    hp->compute();
+//////	    //		hp2->compute();
+//////	    if(kinematics::evtNr==DEBUG_EVENT || kinematics::evtNr==DEBUG_EVENT2)
+//////	      {
+//////		cout <<"prop pion 1: "<< hp->p_PiPi << " first: "<< pinf.p_Pi <<" second: "<< pinf2.p_Pi <<endl;
+//////		cout <<"putting hadron pair" <<endl;
+//////	      }
+//////
+//////	    v_hadronPairs.push_back(hp);
+//////	    //		v_hadronPairs.push_back(hp2);
+//////	  }
+//////      }  
     //  cout <<v_hadronPairs.size() <<" pairs after first with first" <<endl;
     for(vector<Particle*>::const_iterator it=v_secondHemi.begin();it!=v_secondHemi.end();it++)
       {
