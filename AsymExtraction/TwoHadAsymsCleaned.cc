@@ -25,18 +25,30 @@ int main(int argc, char** argv)
   //  kMCFlags isMC=mcFlagWoA;
   char* rootPath=argv[1];
   char* basePath=argv[2];
-  char* argMCFlag=argv[3];
+  char* ptFlag=argv[3];
+  char* argMCFlag=argv[4];
   kMCFlags isMC=mcFlagNone;
   //needed for nonqq
   bool truePID=false;
+  bool m_useQt=false;
 
-  if(argc==4 && string(argMCFlag).find("mc")!=string::npos)
+  if(argc<4)
+    {
+      cout <<"not enough arguments" <<endl;
+      exit(0);
+    }
+  if(string(ptFlag).find("qT")!=string::npos)
+    {
+      m_useQt=true;
+    }
+
+  if(argc==5 && string(argMCFlag).find("mc")!=string::npos)
     {
       cout <<"using mc info" <<endl;
       isMC=mcAsData;
     }
   //smeared kinematics but true PID. Needed for the nonqq subtraction
-  if(argc==4 && string(argMCFlag).find("truePID")!=string::npos)
+  if(argc==5 && string(argMCFlag).find("truePID")!=string::npos)
     {
       cout <<"using true pid " << endl;
       isMC=mcAsData;
@@ -183,7 +195,7 @@ if(folderName.find("tautau")!=string::npos)
   cout <<"dataMCFlag: "<< dataMCFlag <<endl;
   if(dataMCFlag==mcFlagMC)
     cout <<"mc Flag!! " <<endl;
-  HadronPairArray hadPair(chAll,dataMCFlag);
+  HadronPairArray hadPair(chAll,m_useQt,dataMCFlag);
   //   hadPair.zOrdered=true;
     hadPair.zOrdered=false;
 
@@ -198,7 +210,7 @@ if(folderName.find("tautau")!=string::npos)
 
   if(isMC!=mcFlagNone)
     {
-      hadPairMC=new HadronPairArray(chAll,hadMCFlag);
+      hadPairMC=new HadronPairArray(chAll,m_useQt,hadMCFlag);
       hadPairMC->followFlip=true;
       hadPairMC->relatedHP=&hadPair;
            hadPairMC->zOrdered=false;
@@ -223,7 +235,7 @@ if(folderName.find("tautau")!=string::npos)
   if(chWoA) 
     {
       pMyEventWoA=new MEvent(chWoA,mcFlagWoA);
-      pHadPairWoA=new HadronPairArray(chWoA,mcFlagWoA);
+      pHadPairWoA=new HadronPairArray(chWoA,m_useQt,mcFlagWoA);
       //      pHadPairWoA->zOrdered=true;
       //      cout<<"print woa array: "<<endl;
       //      pHadPairWoA->print();
@@ -263,12 +275,8 @@ if(folderName.find("tautau")!=string::npos)
   else 
     ss<<"_data_";
 
-  bool m_useQt=false;
-  //defined in HadronPairArray.h
-#ifdef USE_QT
-  m_useQt=true;
-  cout<<"setting m_useQt" <<endl;
-#endif
+
+
 
   cout <<"m_useqt: " << m_useQt <<endl;
   MultiPlotter smearingPlotter(m_useQt,const_cast<char*>(basePath),const_cast<char*>("smearingPlotter"),ss.str(),expNumber,onResonance,isUds,isCharm,mcData,ftype );

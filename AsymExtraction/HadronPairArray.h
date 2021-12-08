@@ -18,6 +18,7 @@ struct HadronPairArray:public ReaderBase
 {
   //cuts:
 
+  bool m_useQt;
   float kTCut;
   const float zCut;
   const float zUpperCut;
@@ -215,14 +216,16 @@ struct HadronPairArray:public ReaderBase
 
   //changed the upper cut to something high, since we are now doing a pid depdendent upper cut
   ///changed the thetaCMSLower to 0.9 (from 0.8) based on Charlottes study
- HadronPairArray(TChain* chain, int MCFlag=mcFlagNone):ReaderBase(MCFlag), zCut(0.0),zUpperCut(100.0), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.9)//kTCut(5.31145668)
+ HadronPairArray(TChain* chain,bool useQt, int MCFlag=mcFlagNone):ReaderBase(MCFlag), m_useQt(useQt), zCut(0.0),zUpperCut(100.0), secondZCut(0.0), hadronTagFiducialCut(70.2), asymmetryFlag(false),kTCut(100.0), thetaCMSUpper(2.4), thetaCMSLower(0.9)//kTCut(5.31145668)
   {
     zOrdered=false;
     followFlip=false;
-#ifdef USE_QT
+    if(m_useQt)
+      {
     //qT can have up to sqrt(s), and it can be even bigger if we assume the wrong particles...
     kTCut=35.52;
-#endif
+      }
+
 
 
     //no chain implies standalone. Cannot branch on the same field twice, this would override
@@ -489,7 +492,8 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("ep_PK");
 	    branchNames.push_back("ep_PP");
 
-#ifdef USE_QT
+	    if(m_useQt)
+	      {
 	    branchNames.push_back("qT_PiPi");
 	    branchNames.push_back("qT_PiK");
 	    branchNames.push_back("qT_PiP");
@@ -513,8 +517,11 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("dp_PPi");
 	    branchNames.push_back("dp_PK");
 	    branchNames.push_back("dp_PP");
+	      }
+	    else
+	      {
 
-#else	    	    
+
 	    branchNames.push_back("kT_PiPi");
 	    branchNames.push_back("kT_PiK");
 	    branchNames.push_back("kT_PiP");
@@ -539,7 +546,8 @@ struct HadronPairArray:public ReaderBase
 	    branchNames.push_back("dp_PPi");
 	    branchNames.push_back("dp_PK");
 	    branchNames.push_back("dp_PP");
-#endif
+	      }
+
 	  }
 
 	branchNames.push_back("labTheta1"+addendum);
@@ -557,11 +565,17 @@ struct HadronPairArray:public ReaderBase
 	branchNames.push_back("thrustProj2"+addendum);
 
 	//qt name exists as _mc and _mcWoa (unlike kT which is called just kt in the woa tree (not anymore true) )
-#ifdef USE_QT
+
+	if(m_useQt)
+	  {
 	  branchNames.push_back("qT"+addendum);
-#else
+	  }
+	else
+	  {
+
 	    branchNames.push_back("kT"+addendum);
-#endif
+	  }
+
 
 	if(mMCFlag!=mcFlagWoA)
 	    branchNames.push_back("dp"+addendum);
@@ -800,9 +814,11 @@ struct HadronPairArray:public ReaderBase
 	  }
 	if(kT_PiPi[i]>kTCut || kT_PiK[i]>kTCut || kT_PiP[i]>kTCut || kT_KPi[i]>kTCut || kT_KK[i]>kTCut || kT_KP[i]>kTCut || kT_PPi[i]>kTCut || kT_PK[i]>kTCut || kT_PPi[i]>kTCut)
 	  {
-#ifdef USE_QT
+	if(m_useQt)
+	  {
 	    cout <<"qt defined " <<endl;
-#endif
+	  }
+
 	    //	     cout <<"kt cut, : "<< kT_PiPi[i] <<" pik: "<< kT_PiK[i] <<" kpi: "<< kT_KPi[i] << " KK: " << kT_KK[i] <<" PiP: " << kT_PiP[i] << " KP: "<< kT_KP[i] <<" PPi: "<< kT_PPi[i];
 	    //	    cout <<" PK: " << kT_PK[i] << " PP: " << kT_PP[i] <<endl;
 	    if(evtNr==DEBUG_EVENT)
