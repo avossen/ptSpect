@@ -17,13 +17,14 @@ for res in  on_resonance continuum
 do
 for spec in uds charm mixed charged
 do
-
-myDir=subMC_ex$ex\_$res\_$spec
+for stream in 00 01 02 03 04 05
+do
+myDir=subMC_ex$ex\_$res\_$spec\_$stream
 echo " dir: $myDir " ;
 mkdir /group/belle/users/vossen/ptSpect/$myDir
 mkdir /group/belle/users/vossen/ptSpectOut/$myDir
 
-
+done
 done
 done 
 done

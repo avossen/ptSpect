@@ -7,8 +7,11 @@ for res in continuum on_resonance
 do
 for spec in uds charm mixed charged
 do
+for stream in 00 01 02 03 04 05
+do
 #find /pic/projects/Belle/ZMDST/MC/MC_4S/MC_4S_EXP$ex/MC_4S_EXP$ex/$res/$spec/ > lists/mc$ex\_$res\_$spec.list
-find  /group/belle/bdata_b/mcprod/dat/e0000$ex/evtgen/$spec/ -wholename "*$res*.mdst" > lists/mc$ex\_$res\_$spec.list
+find  /group/belle/bdata_b/mcprod/dat/e0000$ex/evtgen/$spec/$stream/ -wholename "*$res*.mdst" > lists/mc$ex\_$res\_$spec\_$stream.list
+done
 done
 done
 done
