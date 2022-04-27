@@ -7,17 +7,20 @@ dateString=`date +%d%b%Y`
 
 
 
+for ex in 31 33 35 37 39 41 43 45 47 49 51 53 55 61 63 65 67 69 71 73
+#for ex in 31
 #for ex in 07 09 11 13 15 17 19 21 23 25 27 31 33 35 37 39 41 43 45 47 49 51 53 55 61 63 65 67 69 71 73
-for ex in 55
+#for ex in 55
 do
-#  for res in  continuum on_resonance
-  for res in  continuum 
+for res in  continuum on_resonance
+#  for res in  continuum 
 do
-for spec in uds charm 
-#for spec in mixed charged 
+#for spec in uds charm 
+for spec in mixed charged 
 do
-
-myDir=subMC_ex$ex\_$res\_$spec
+for stream in 00 01 02 03 04 05
+do
+myDir=subMC_ex$ex\_$res\_$spec\_$stream
 mkdir $myDir
 echo " dir: $myDir " ;
 mkdir /group/belle/users/vossen/ptSpect/$myDir
@@ -25,7 +28,7 @@ mkdir /group/belle/users/vossen/ptSpectOut/$myDir
 
 
 #for d in `cat mc$1_onRes.list`
-for d in `cat lists/mc$ex\_$res\_$spec.list`
+for d in `cat lists/mc$ex\_$res\_$spec\_$stream.list`
 do
 let "counter+=1"
 #if [ "$counter" -le "$5" ]
@@ -33,7 +36,7 @@ let "counter+=1"
 #if [ "$counter" -ge "$4" ]
 #then
 let "subCounter+=1"
-targetShFile=$myDir/job_$ex\_$res\_$spec\_$subCounter.sh
+targetShFile=$myDir/job_$ex\_$res\_$spec\_$stream\_$subCounter.sh
 #cp batchHead.sh $targetShFile
 cp batchHead1.sh $targetShFile
 echo "#BSUB -o  /group/belle/users/vossen/ptSpectOut/$myDir/jobId_$subCounter.out" >> $targetShFile
@@ -46,7 +49,7 @@ echo "process_event $d 0" >> $targetShFile
 cat batchEnd.sh >> $targetShFile
 #fi
 #fi
-
+done
 done
 done
 done 
