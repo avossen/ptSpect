@@ -426,6 +426,9 @@ int main(int argc, char** argv)
 		      //get combined z/kT histogram for this charge, pid bin
 		      
 		      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p,"",0,0);
+
+
+		      
 		      TH1D* combinedHistoSys=pPlotter->getHistogram(b,c,p,"sys",1);
 		      TH1D* combinedHistoUpperSys=pPlotter->getHistogram(b,c,p,"sysUp");
 		      TH1D* combinedHistoLowerSys=pPlotter->getHistogram(b,c,p,"sysDown");
