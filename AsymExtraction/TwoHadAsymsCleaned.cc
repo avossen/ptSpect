@@ -389,7 +389,7 @@ if(folderName.find("tautau")!=string::npos)
 	}
 
             plotter.addHadPairArray(&hadPair, myEvent,false);
-      //      plotter.addHadPairArray(&hadPair, myEvent,true);
+      //            plotter.addHadPairArray(&hadPair, myEvent,true);
       if(isMC!=mcFlagNone)
 	{
 
@@ -421,7 +421,8 @@ if(folderName.find("tautau")!=string::npos)
   else
     sprintf(buffer,"invMass_uds");
 
-  plotter.doPlots();
+    plotter.doPlots();
+  //  plotter.doPlots(true);
 
   cout <<" printing debug " <<endl;
   plotter.printDebug(plotType_2D);

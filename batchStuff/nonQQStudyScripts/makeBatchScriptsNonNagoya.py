@@ -6,7 +6,7 @@ conf=['eeuu','eess','eecc','tautau']
 fileDict={'eeuu':{},'eess':{},'eecc':{},'tautau':{}}
 
 
-for exp in range(31,73,2):
+for exp in range(31,75,2):
     expStr='e'+str(exp)
 #    print("looking at exp "+expStr)
     for c in conf:
@@ -27,8 +27,8 @@ for exp in range(31,73,2):
 numLines=50
 os.system("mkdir /group/belle/users/vossen/ptSpect/nonQQStudies/")
 os.system("mkdir /group/belle/users/vossen/ptSpectOut/nonQQStudies/")
-#for exp in range(31,73,2):
-for exp in range(55,57,2):
+for exp in range(31,75,2):
+#for exp in range(55,57,2):
     expStr='e'+str(exp)
     for c in conf:
 #counter for output job files

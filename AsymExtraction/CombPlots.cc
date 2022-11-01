@@ -76,13 +76,13 @@ int main(int argc, char** argv)
 
 
   //
-  int minExp=0;
+  int minExp=-3;
   //int minExp2=0;
   //  int maxExp=2;
   //  int maxExp2=200;
 
   int maxExp=135;
-  int minExp2=0;
+  int minExp2=-3;
   int maxExp2=169;
   // int minExp=0;
 
