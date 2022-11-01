@@ -102,6 +102,7 @@ namespace cuts
   float minLabThrustCosTheta=-1.0;
 
   float minVisEnergy=7;//here only hadrons and gammas so far
+  float maxVisEnergy=11;
   float maxPi0GAsym=0.8;//looked at distribution
   //  float maxQt=3.5;
   float maxQt=1000.0;

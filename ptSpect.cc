@@ -925,7 +925,7 @@ namespace Belle {
 	      }
 	    else
 	      {
-		if(atcKP<0.2 && atcKP <=1.0 && atcPiP<0.2 && atcPiP<=1.0)
+		if(atcKP<0.2 && atcKP >=0.0 && atcPiP<0.2 && atcPiP>=0.0 && atcKPi>=0 &&atcKPi<=1.0)
 		  {
 		    m_mass=m_pr;
 		    massHyp=protonIdx;
@@ -950,7 +950,7 @@ namespace Belle {
 		  {
 		    //default mass assignment if nothing is found is pion anywasy....
 		    //			if(atcKPi<0.3)
-		    if(atcKPi<0.6 && atcPiP>=0.2 && atcKPi>=0.0 && atcPiP<=1.0)
+		    if(atcKPi<0.6 && atcPiP>=0.2 && atcKPi>=0.0 && atcPiP<=1.0 && atcKP>=0.0 && atcKP<=1.0)
 		      {
 			massHyp=pionIdx;
 			m_mass=m_pi;
@@ -1683,7 +1683,7 @@ namespace Belle {
 
     kinematics::E_miss=kinematics::Q-visEnergyOnFile;
     //    if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
-    if( visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
+    if( visEnergyOnFile<cuts::minVisEnergy || visEnergyOnFile>cuts::maxVisEnergy iChTrks < cuts::minNTracks)
       {
 	bool foundReason=false;
 	if(visEnergyOnFile < cuts::minVisEnergy)

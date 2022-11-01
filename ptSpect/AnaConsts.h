@@ -51,6 +51,7 @@ namespace cuts
   extern const float barrelThetaMax;
 
   extern const float minVisEnergy;//here only hadrons and gammas so far
+  extern const float maxVisEnergy;//here only hadrons and gammas so far
   extern const float maxPi0GAsym;
   extern const float maxQt;
   extern const int minNTracks;//in charged pion prod, this doesn't make sense...
