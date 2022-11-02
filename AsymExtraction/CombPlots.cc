@@ -90,6 +90,9 @@ int main(int argc, char** argv)
   char* rootPath=argv[1];
   char smearingFileName[400];
   char smearingFileRawName[400];
+  char nonQQData[400];
+  bool subNonQQ=true;
+  
   if(argc>2)
     {
       sprintf(smearingFileName,"%s",argv[2]);
@@ -105,7 +108,17 @@ int main(int argc, char** argv)
     {
       sprintf(smearingFileRawName,"%s","smearing.root");
     }
+  if(argc>4)
+    {
+      sprintf(nonQQData,argv[4]);
+      subNonQQ=true;
+    }
+  else
+    {
+      subNonQQ=false;
+    }
 
+  
   char dataMcNameAdd[100];
   sprintf(dataMcNameAdd,"");
   if(argc>4)
@@ -129,6 +142,7 @@ int main(int argc, char** argv)
 
   vector<MultiPlotter*> vPlotters;
   TChain* chAll=0;
+  TChain* chNonQQ=0;
   int counter=-1;
 
   //  float a[3];
@@ -207,8 +221,6 @@ int main(int argc, char** argv)
 	
 
 	  ///////////up to hear semi-useful preparation-------
-
-
 	  for(long i=0;i<nevents;i++)
 	    {
 	      //	  float locW[3]={0.0,0.0,0.0};
@@ -225,7 +237,6 @@ int main(int argc, char** argv)
 		{
 		  expCounts[plotResults->exp]=0;
 		}
-
 
 	      //for now only continuum:---> now also resonance, rely that we feed the correct data...
 	      cout <<"onres? "<< endl;
@@ -264,7 +275,7 @@ int main(int argc, char** argv)
 		  cout <<"kt bins before : ";
 		  for(int i=0;i<10;i++)
 		    {
-		      		      cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" uncertainties: "<< pPlotter->plotResults[plotResults->resultIndex].kTUncertainties[i]<<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
+		      cout << pPlotter->plotResults[plotResults->resultIndex].kTValues[i] <<" uncertainties: "<< pPlotter->plotResults[plotResults->resultIndex].kTUncertainties[i]<<" mean: " << pPlotter->plotResults[plotResults->resultIndex].kTMeans[i];
 		      cout <<"  rhs mean: " << plotResults->kTMeans[i] <<" ";
 		    }
 		}
@@ -277,7 +288,10 @@ int main(int argc, char** argv)
 	      ////
 	      ///------>>>MAGIC<<<<----------
 	      ///
+	      ///---
+
 	      pPlotter->plotResults[plotResults->resultIndex]+=(*plotResults);
+	      //	      add(pPlotter->plotResults[plotResults->resultIndex],(*plotResults));
 	      ////
 	      ///
 	      ///--------->>>> END MAGIC <<<<<------------
@@ -293,8 +307,39 @@ int main(int argc, char** argv)
 		}
 	    }
 
+	  
 	  //////////////now we have all the results in our plotter, time to do something with it
+	  //subtract nonQQ, but only from "Normal" data
+	  if(subNonQQ &&  ((*it)==string("Normal")))
+	    {
+	      chNonQQ=new TChain("PlotTree");
+	      chNonQQ->Add((string(nonQQData)+"/"+(*it)+"_*.root").c_str());
+	      cout <<"adding : "<< (string(nonQQData)+"/"+(*it)+"_*.root").c_str() <<endl;
+	      Int_t neventsNonQQ=chNonQQ->GetEntries();
+	      cout <<"Plotter Name: " << *it<<endl;
+	      string fullName=(*it)+string(dataMcNameAdd)+(*itFlav);
+	      //has to be 0!!
+	      PlotResults* plotResultsNonQQ=0;
+	      chNonQQ->SetBranchAddress("PlotBranch",&plotResultsNonQQ);
+	      for(long i=0;i<neventsNonQQ;i++)
+		{
+		  //	  float locW[3]={0.0,0.0,0.0};
+		  chNonQQ->GetEntry(i);
+		  if(plotResultsNonQQ->exp<minExp ||(plotResultsNonQQ->on_res && (badOnRes.find(plotResultsNonQQ->exp)!=badOnRes.end())) ||(!plotResultsNonQQ->on_res && (badCont.find(plotResultsNonQQ->exp)!=badCont.end())))
+		    continue;
+		  if(plotResultsNonQQ->exp>maxExp && plotResultsNonQQ->exp < minExp2)
+		    continue;
+		  if(plotResultsNonQQ->exp>maxExp2)
+		    continue;
 
+		  //flavor check is meaningless
+
+		  //subtract nonQQ
+		  add(pPlotter->plotResults[plotResultsNonQQ->resultIndex],(*plotResultsNonQQ),-1);
+		}
+	    }
+	  //end subtract nonQQ
+	  
 
 	
 	  cout <<"save plot " <<endl;
