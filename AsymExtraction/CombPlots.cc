@@ -10,6 +10,7 @@
 #include "TwoHadAsymsCommons.h"
 #include "PlotResults.h"
 #include "CombPlots.h"
+#include "PlotResHelper.h"
 //#define MAX_EVENTS 100
 
 using namespace std;
