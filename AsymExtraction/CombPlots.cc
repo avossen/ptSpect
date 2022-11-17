@@ -1,3 +1,4 @@
+
 #include "TLegend.h"
 #include <iostream>
 #include <fstream>
@@ -25,7 +26,9 @@ int main(int argc, char** argv)
   //  bool closureTest=true;
   bool closureTest=false;
   bool m_useQt=false;
-  bool noUnfolding=true;
+  //         bool noUnfolding=true;
+	   bool noUnfolding=false;
+  
   //should have hadronPairArray where this is defined included
 #ifdef USE_QT
   cout <<" using Qt !! " <<endl;
@@ -108,6 +111,7 @@ int main(int argc, char** argv)
     {
       sprintf(smearingFileRawName,"%s","smearing.root");
     }
+
   if(argc>4)
     {
       sprintf(nonQQData,argv[4]);
@@ -121,9 +125,11 @@ int main(int argc, char** argv)
   
   char dataMcNameAdd[100];
   sprintf(dataMcNameAdd,"");
-  if(argc>4)
-    sprintf(dataMcNameAdd,"%s",argv[4]);
+  if(argc>5)
+    sprintf(dataMcNameAdd,"%s",argv[5]);
 
+
+  
   srand(time(NULL));
   cout <<"Root path is: " << rootPath <<endl;
   string sRootPath(rootPath);
@@ -310,6 +316,8 @@ int main(int argc, char** argv)
 	  
 	  //////////////now we have all the results in our plotter, time to do something with it
 	  //subtract nonQQ, but only from "Normal" data
+
+	  cout <<"about to subtract nonQQ " <<endl;
 	  if(subNonQQ &&  ((*it)==string("Normal")))
 	    {
 	      chNonQQ=new TChain("PlotTree");
@@ -338,6 +346,7 @@ int main(int argc, char** argv)
 		  add(pPlotter->plotResults[plotResultsNonQQ->resultIndex],(*plotResultsNonQQ),-1);
 		}
 	    }
+	  cout <<"done with subtract nonQQ " <<endl;
 	  //end subtract nonQQ
 	  
 
@@ -434,10 +443,7 @@ int main(int argc, char** argv)
 		      sprintf(buffer,"xini_binning%d_pidBin%d_chargeBin%d",b,p,c);
 		      cout <<"trying to load " << buffer <<endl;
 
-
-
 		      //ormalize?
-
 
 		      cnvs.SetLogy();
 		      TH1D* xini=(TH1D*)smearingFileRaw->Get(buffer);
@@ -472,13 +478,9 @@ int main(int argc, char** argv)
 		      //get combined z/kT histogram for this charge, pid bin
 		      
 		      TH1D* combinedHisto=pPlotter->getHistogram(b,c,p,"",0,0);
-
-
-		      
 		      TH1D* combinedHistoSys=pPlotter->getHistogram(b,c,p,"sys",1);
 		      TH1D* combinedHistoUpperSys=pPlotter->getHistogram(b,c,p,"sysUp");
 		      TH1D* combinedHistoLowerSys=pPlotter->getHistogram(b,c,p,"sysDown");
-
 
 		      combinedHisto->Draw();
 		      sprintf(buffer,"debug_combinedH_binning%d_pid%d_charge_%d.png",b,p,c);
@@ -538,21 +540,21 @@ int main(int argc, char** argv)
 		      if(!closureTest)
 			{
 			  cout <<"unfolding w/o closure test .." <<endl;
-			      output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
-			      cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
-			      cout <<"printing unfolding output " <<endl;
-			      sprintf(buffer,"unfolded_binning%d_pid%d_charge_%d.txt",b,p,c);
-			      MultiPlotter::printMatrix(output,buffer);
-			      sprintf(buffer,"statCov_binning%d_pid%d_charge_%d.txt",b,p,c);
-			      MultiPlotter::printMatrix(*statCov,buffer);
-			      sprintf(buffer,"mcStatCov_binning%d_pid%d_charge_%d.txt",b,p,c);
-			      MultiPlotter::printMatrix(*mcStatCov,buffer);
-			      sprintf(buffer,"sysCov_binning%d_pid%d_charge_%d.txt",b,p,c);
-			      MultiPlotter::printMatrix(*sysCov,buffer);
-			    
+			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
+			  cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
+			  cout <<"printing unfolding output " <<endl;
+			  sprintf(buffer,"unfolded_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(output,buffer);
+			  sprintf(buffer,"statCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(*statCov,buffer);
+			  sprintf(buffer,"mcStatCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(*mcStatCov,buffer);
+			  sprintf(buffer,"sysCov_binning%d_pid%d_charge_%d.txt",b,p,c);
+			  MultiPlotter::printMatrix(*sysCov,buffer);
+			  
 			  //			  outputHighSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoUpperSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
 			  //			  outputLowSys=pPlotter->unfold(smearingMatrix,xini,bini,combinedHistoLowerSys,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
-		      //for closure test, bini is output....
+			  //for closure test, bini is output....
 			}
 		      else
 			{
@@ -562,11 +564,11 @@ int main(int argc, char** argv)
 			    }
 			  cout <<"unfolding .." <<endl;
 			  output=pPlotter->unfold(smearingMatrix,xini,bini,combinedHisto,combinedHistoSys,d,statCov,mcStatCov,sysCov,buffer);
-			   cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
+			  cout <<"done .. got  "<< output->GetNbinsX() <<" dim matrix " <<endl;
 			}
 		      ///--->save debugs
 		      ///-->just for tmp
-		       //		      output=combinedHisto;
+		      //		      output=combinedHisto;
 		      output->Draw();
 		      sprintf(buffer,"debug_unfoldedH_binning%d_pid%d_charge_%d.png",b,p,c);
 		      cnvs.SaveAs(buffer);
@@ -574,7 +576,7 @@ int main(int argc, char** argv)
 		      cnvs.SaveAs(buffer);
 		      ////---->now we should save the unfolded result into the plotResults again and save the whole plotter
 		      pPlotter->setHistogram(b,c,p,combinedHisto,combinedHistoUpperSys,combinedHistoLowerSys);
-
+		      
 		      /////----->
 		      //	      (*d)->Draw();
 		      //	      sprinntf(buffer,"debug_D_pid%d_charge_%d.png",p,c);
