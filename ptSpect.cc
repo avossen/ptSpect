@@ -1683,7 +1683,7 @@ namespace Belle {
 
     kinematics::E_miss=kinematics::Q-visEnergyOnFile;
     //    if(kinematics::thrustMag<cuts::minThrust || abs(kinematics::thrustDirCM.z())/kinematics::thrustDirCM.mag()>cuts::maxThrustZ|| visEnergyOnFile<cuts::minVisEnergy || iChTrks < cuts::minNTracks)
-    if( visEnergyOnFile<cuts::minVisEnergy || visEnergyOnFile>cuts::maxVisEnergy iChTrks < cuts::minNTracks)
+    if( visEnergyOnFile<cuts::minVisEnergy || visEnergyOnFile>cuts::maxVisEnergy || iChTrks < cuts::minNTracks)
       {
 	bool foundReason=false;
 	if(visEnergyOnFile < cuts::minVisEnergy)

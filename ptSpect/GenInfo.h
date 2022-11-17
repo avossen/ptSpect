@@ -623,6 +623,7 @@ namespace Belle {
 	  boostedVec.boost(kinematics::CMBoost);
 	  np->userInfo(ParticleInfoMass()); //gets deleted in destructor of Particle
 	  ParticleInfo& pinf=dynamic_cast<ParticleInfo&>(np->userInfo());
+	  //this is not the z we use in the end, so don't use for cutting
 	  float m_z=2*boostedVec.t()/kinematics::Q;
 	  pinf.motherGenId=motherGenId;
 	  //I don't think these fields are used, let's just use [0] and disentangle later with particleId
@@ -786,8 +787,20 @@ namespace Belle {
 		  //	      hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
 		  //first hemi
 		  hp->compute();
+
+		  //no we can use z, should have already the correct PID
+		  if(pidDependentCut(hp->z1, hp->z2, hp->kT,hp->qT, hp->hadPType ))
+		    {
+		      delete hp;
+		      continue;
+		    }
+
+
 		  ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(hp->firstHadron->userInfo());
 		  ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(hp->secondHadron->userInfo());
+
+
+
 
 		  if(pinf1.isWeakDecay || pinf2.isWeakDecay)
 		    hp->isWeakDecay=1;
@@ -1103,9 +1116,84 @@ namespace Belle {
 	  //	  m_histos->hEFlowMC->Fill(theta,m_z);
 	}
     }
+
+
+  bool pidDependentCut(float z1, float z2, float kT,float qT, int pidBin )
+{
+  float z1Cut=0.05;
+  float z2Cut=0.05;
+
+  float zCutPi=0.05;
+  float zCutPK=0.1;
+
+  float z1UpperCut=1.1;
+  float z2UpperCut=1.1;
+
+  switch(pidBin)
+    {
+    case AnaDef::PiPi:
+      z1Cut=zCutPi;
+      z2Cut=zCutPi;
+      break;
+    case AnaDef::PiK:
+      z1Cut=zCutPi;
+      z2Cut=zCutPK;
+      break;
+
+    case AnaDef::PiP:
+      z1Cut=zCutPi;
+      z2Cut=zCutPK;
+      break;
+
+    case AnaDef::KPi:
+      z1Cut=zCutPK;
+      z2Cut=zCutPi;
+      break;
+
+    case AnaDef::KK:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    case AnaDef::KP:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    case AnaDef::PPi:
+      z1Cut=zCutPK;
+      z2Cut=zCutPi;
+      break;
+
+    case AnaDef::PK:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    case AnaDef::PP:
+      z1Cut=zCutPK;
+      z2Cut=zCutPK;
+      break;
+
+    default:
+      //      cout <<"wrong pid in pid dependent cuts!!!: "<< pidBin<<endl;
+      return true;
+
+    }
+
+  if(qT> 12.0)
+    return true;
+  if(kT > 5.31145668)
+    return true;
+  if(z1 < z1Cut || z2< z2Cut || z1> z1UpperCut || z2> z2UpperCut) 
+    {
+      return true;
+    }
+  return false;
+}
+
     DebugHistos* m_histos;
   };
-
 
 
 #if defined(BELLE_NAMESPACE)
