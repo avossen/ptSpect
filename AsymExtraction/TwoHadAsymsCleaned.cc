@@ -32,6 +32,8 @@ int main(int argc, char** argv)
   bool truePID=false;
   bool m_useQt=false;
 
+  cout <<" we have " << argc << " arguments " << endl; 
+
   if(argc<4)
     {
       cout <<"not enough arguments" <<endl;

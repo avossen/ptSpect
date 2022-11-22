@@ -18,7 +18,8 @@ do
 #for spec in uds charm 
 for spec in mixed charged 
 do
-for stream in 00 01 02 03 04 05
+#for stream in 00 01 02 03 04 05
+for stream in 06 07 08 09
 do
 myDir=subMC_ex$ex\_$res\_$spec\_$stream
 mkdir $myDir

@@ -207,11 +207,15 @@ class HadronPair
 
   float getQt(HepLorentzVector& v1, HepLorentzVector& v2)
   {
+
       HepLorentzVector vPhoton=kinematics::firstElectronCM+kinematics::secondElectronCM;
       HepLorentzVector vR1=v1;
       HepLorentzVector vR2=v2;
+
       if(vR1.vect().mag()==0 || vR2.vect().mag() ==0)
-	return 0;
+	{
+	  return 0;
+	}
       HepLorentzVector RSum=vR1+vR2;
       HepLorentzVector RSumBoosted=RSum;
 
@@ -244,6 +248,7 @@ class HadronPair
 	  cout <<" boosted photon: "; printHep3Vector(vPhoton);
 	  cout <<" qT: "<< qT <<endl;
 	}
+
       return qT;
 
   }
@@ -274,9 +279,14 @@ class HadronPair
   //set the various values based on the two hadrons
   void compute()
   {
+
+
     ////compute pid products, kT and z..
     ParticleInfo& pinf1=dynamic_cast<ParticleInfo&>(firstHadron->userInfo());
     ParticleInfo& pinf2=dynamic_cast<ParticleInfo&>(secondHadron->userInfo());
+
+
+
 
    if(DEBUG_EVENT==kinematics::evtNr)
       {
@@ -467,6 +477,8 @@ class HadronPair
       if(kinematics::evtNr==DEBUG_EVENT)
     cout <<"qt PP" <<endl;
     qT_PP=getQt(pinf2.boostedLorentzVec[protonIdx],pinf1.boostedLorentzVec[protonIdx]);
+
+
 
     //////for qt xcheck:
     //         cout <<" qTPiPi <<" << qT_PiPi <<" PiK: " << qT_PiK <<" PiP: " << qT_PiP <<endl;
@@ -800,7 +812,7 @@ class HadronPair
 	z1=z1_PK;
 	z2=z2_PK;
 	kT=kT_PK;
-	qT=qT_PiK;
+	qT=qT_PK;
 	dp=m_dotProduct[protonIdx*5+kaonIdx];
 	break;
 

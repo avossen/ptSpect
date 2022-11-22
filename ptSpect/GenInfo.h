@@ -632,6 +632,11 @@ namespace Belle {
 	  pinf.z[getIdxFromGeantId(geantID)]=m_z;
 	  pinf.boostedMoms[getIdxFromGeantId(geantID)]=boostedVec.vect();
 	  pinf.boostedLorentzVec[getIdxFromGeantId(geantID)]=boostedVec;
+
+	  ////1
+
+
+
 	  //strange
 	  int heaviestQuark=3;
 	  if(geantID==lc_kPlus)
@@ -667,11 +672,11 @@ namespace Belle {
 	  //  float maxCosTheta=0.842; //cuts for Martin's PID
 
 	  //no fiducial cuts based on lab theta of particles for smearing correction
-	  if(m_z<0.05)// || cos(labTheta)<-0.511 || cos(labTheta)>0.842)
-	    {
-	      delete np;
-	      continue;
-	    }
+	  //	  if(m_z<0.05)// || cos(labTheta)<-0.511 || cos(labTheta)>0.842)
+	  //	    {
+	  //	      delete np;
+	  //	      continue;
+	  //0	    }
 	  if(boostedVec.theta()<0.9 || boostedVec.theta()>2.4)
 	    {
 	      delete np;
@@ -782,10 +787,13 @@ namespace Belle {
 	
 	      }
 		    
+
 		  //done in HadronPair::compute now...
 		  //	      nhp->hadCharge=AnaDef::PN;
 		  //	      hp->hadPType=AuxFunc::getPType((*it)->pType(),(*it2)->pType());
 		  //first hemi
+
+
 		  hp->compute();
 
 		  //no we can use z, should have already the correct PID
